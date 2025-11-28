@@ -17,8 +17,8 @@
   - LocalStack環境の構築と検証
   - _Requirements: 1.1, 1.2, 3.5, 11.5_
 
-- [ ] 3. ユーザー管理機能の実装
-- [ ] 3.1 ドメイン層：Userエンティティとバリューオブジェクトの実装
+- [x] 3. ユーザー管理機能の実装
+- [x] 3.1 ドメイン層：Userエンティティとバリューオブジェクトの実装
   - Userエンティティ（userId、email、nickname、profileImageUrl、preferredLanguage、lastCookingDate）
   - パスワードバリデーションロジック
   - _Requirements: 1.1, 11.1_
@@ -31,9 +31,12 @@
   - **Property 44: パスワードバリデーション**
   - **Validates: Requirements 11.1**
 
-- [ ] 3.4 インフラ層：CognitoAuthServiceの実装
+- [x] 3.4 インフラ層：CognitoAuthServiceの実装
   - Cognito統合（ユーザー登録、ログイン、トークン管理）
   - セッション管理（アクセストークン1時間、リフレッシュトークン90日）
+  - 例外クラス（AuthenticationException、UserAlreadyExistsException）
+  - AuthTokens DTO
+  - CognitoConfig設定クラス
   - _Requirements: 1.2, 1.3, 11.5_
 
 - [ ]* 3.5 プロパティテスト：認証の成功
@@ -44,28 +47,50 @@
   - **Property 45: 同時セッションの許可**
   - **Validates: Requirements 11.3**
 
-- [ ] 3.7 インフラ層：UserRepositoryの実装
-  - DynamoDBアクセス（CRUD操作）
+- [x] 3.7 インフラ層：UserRepositoryの実装
+  - UserRepositoryインターフェース（save、findById、findByEmail、delete、existsById）
+  - DynamoDBUserRepository実装（CRUD操作）
+  - DynamoDBConfig設定クラス
   - _Requirements: 1.1, 1.5_
 
-- [ ] 3.8 アプリケーション層：ユーザー管理ユースケースの実装
-  - ユーザー登録、ログイン、プロフィール更新、アカウント削除
+- [x] 3.8 アプリケーション層：ユーザー管理ユースケースの実装
+  - RegisterUserUseCase: ユーザー登録（パスワードバリデーション、重複チェック、Cognito登録、DynamoDB保存）
+  - LoginUserUseCase: ログイン（Cognito認証、最終ログイン日時更新）
+  - UpdateUserProfileUseCase: プロフィール更新、プロフィール画像URL更新
+  - DeleteUserAccountUseCase: アカウント削除（Cognito削除、DynamoDB削除）
+  - GetUserProfileUseCase: ユーザープロフィール取得
   - _Requirements: 1.1, 1.2, 1.5_
 
 - [ ]* 3.9 プロパティテスト：アカウント削除時の匿名化
   - **Property 4: アカウント削除時の匿名化**
   - **Validates: Requirements 1.5**
 
-- [ ] 3.10 プレゼンテーション層：UserControllerの実装
-  - REST APIエンドポイント（/api/users/*）
-  - リクエスト/レスポンスDTO
+- [x] 3.10 プレゼンテーション層：UserControllerの実装
+  - UserController: REST APIエンドポイント（POST /register, POST /login, GET /profile/{userId}, PUT /profile/{userId}, DELETE /account/{userId}）
+  - リクエストDTO: RegisterUserRequest, LoginRequest, UpdateProfileRequest
+  - レスポンスDTO: UserResponse, LoginResponse
+  - GlobalExceptionHandler: グローバル例外ハンドラー（バリデーションエラー、認証エラー、ユーザー重複エラー等）
+  - バリデーション: Jakarta Validation（@NotBlank, @Email, @Size, @Pattern）
   - バリデーション（フロントエンド・バックエンド両方）
   - _Requirements: 1.1, 1.2, 1.5_
 
-- [ ] 3.11 フロントエンド：認証コンポーネントの実装
-  - LoginPage、RegisterPage、PasswordResetPage
-  - Redux状態管理（authSlice）
-  - フォームバリデーション
+- [x] 3.11 フロントエンド：認証コンポーネントの実装
+  - 機能ごとにフォルダ分け（Login/、Register/、PasswordReset/）
+  - 各フォルダにページコンポーネントと設定ファイルを配置
+  - Login/LoginPage.tsx: ログインフォーム（バリデーション、エラー表示）
+  - Login/loginFormConfig.ts: フォーム設定（バリデーションルール、フィールド定義）
+  - Register/RegisterPage.tsx: ユーザー登録フォーム（パスワード確認、言語選択）
+  - Register/registerFormConfig.ts: フォーム設定（バリデーションルール、フィールド定義、言語オプション）
+  - PasswordReset/PasswordResetPage.tsx: パスワードリセット（プレースホルダー）
+  - common/FormField.tsx: 再利用可能なフォームフィールドコンポーネント
+  - Redux状態管理（authSlice）: login, register, logout アクション
+  - useAuth カスタムフック: 認証状態とアクションを提供
+  - useForm カスタムフック: フォーム状態管理とバリデーション
+  - userApi: API呼び出し関数（registerUser, loginUser, getUserProfile）
+  - utils/validation.ts: バリデーションルール（required, email, minLength, maxLength, pattern, matchField）
+  - 型定義: User, RegisterRequest, LoginRequest, LoginResponse, AuthState
+  - i18n翻訳: 日本語・韓国語対応
+  - App.tsx: ルーティング設定（/login, /register, /password-reset）
   - _Requirements: 1.1, 1.2_
 
 - [ ] 4. プロフィール画像管理機能の実装

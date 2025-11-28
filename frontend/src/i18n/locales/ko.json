@@ -2,16 +2,42 @@
   "app": {
     "title": "자취 지원 앱"
   },
+  "common": {
+    "loading": "로딩 중...",
+    "comingSoon": "곧 출시 예정"
+  },
   "auth": {
     "login": "로그인",
     "register": "회원가입",
     "logout": "로그아웃",
     "email": "이메일",
-    "password": "비밀번호"
+    "password": "비밀번호",
+    "confirmPassword": "비밀번호 확인",
+    "nickname": "닉네임",
+    "preferredLanguage": "선호 언어",
+    "noAccount": "계정이 없으신가요?",
+    "hasAccount": "이미 계정이 있으신가요?",
+    "passwordReset": "비밀번호 재설정",
+    "passwordResetDescription": "비밀번호를 재설정합니다",
+    "backToLogin": "로그인으로 돌아가기"
+  },
+  "language": {
+    "japanese": "日本語",
+    "korean": "한국어"
+  },
+  "validation": {
+    "emailRequired": "이메일은 필수입니다",
+    "emailInvalid": "유효한 이메일 주소를 입력하세요",
+    "passwordRequired": "비밀번호는 필수입니다",
+    "passwordMinLength": "비밀번호는 8자 이상이어야 합니다",
+    "passwordComplexity": "비밀번호는 대문자, 소문자, 숫자, 특수문자를 포함해야 합니다",
+    "passwordMismatch": "비밀번호가 일치하지 않습니다",
+    "nicknameRequired": "닉네임은 필수입니다",
+    "nicknameMaxLength": "닉네임은 50자 이내여야 합니다"
   },
   "error": {
     "required": "{{field}}은(는) 필수입니다",
     "invalid_email": "유효한 이메일 주소를 입력하세요",
-    "invalid_password": "비밀번호는 8자 이상이며 대문자, 소문자, 숫자를 포함해야 합니다"
+    "invalid_password": "비밀번호는 8자 이상이며 대문자, 소문자, 숫자, 특수문자를 포함해야 합니다"
   }
 }

@@ -67,7 +67,7 @@ docker-compose up -d
 
 ```bash
 cd backend
-./gradlew bootRun --args='--spring.profiles.active=local'
+./gradlew.bat bootRun --args='--spring.profiles.active=local'
 ```
 
 #### 3. フロントエンド

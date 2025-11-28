@@ -94,55 +94,73 @@
 
 ### バックエンドコンポーネント
 
-**1. User Management Module**
-- UserController: ユーザー登録、ログイン、プロフィール管理
-- UserService: ユーザー関連ビジネスロジック
-- UserRepository: DynamoDBアクセス
-- CognitoAuthService: 認証・認可
+**1. User Management Module（実装済み）**
+- Domain Layer:
+  - User Entity: ユーザードメインエンティティ（実装済み）
+  - Language Value Object: 言語設定（実装済み）
+- Application Layer:
+  - RegisterUserUseCase: ユーザー登録ユースケース（実装済み）
+  - LoginUserUseCase: ログインユースケース（実装済み）
+  - GetUserProfileUseCase: プロフィール取得（実装済み）
+  - UpdateUserProfileUseCase: プロフィール更新（実装済み）
+  - DeleteUserAccountUseCase: アカウント削除（実装済み）
+- Infrastructure Layer:
+  - CognitoAuthService: Cognito認証サービス（実装済み）
+  - DynamoDBUserRepository: DynamoDBリポジトリ（実装済み）
+- Presentation Layer:
+  - UserController: REST APIコントローラー（実装済み）
 
-**2. Recipe Management Module**
+**2. Recipe Management Module（未実装）**
 - RecipeController: レシピCRUD操作
 - RecipeService: レシピ検索、バリデーション
 - RecipeRepository: DynamoDBアクセス
 - S3ImageService: 画像アップロード/取得
 
-**3. Schedule Management Module**
+**3. Schedule Management Module（未実装）**
 - ScheduleController: スケジュールCRUD操作
 - ScheduleService: 予定/実績管理、アラート判定
 - ScheduleRepository: DynamoDBアクセス
 
-**4. Shopping List Module**
+**4. Shopping List Module（未実装）**
 - ShoppingListController: 買い物リストCRUD操作
 - ShoppingListService: 数量合算、自動削除
 - ShoppingListRepository: DynamoDBアクセス
 
-**5. Review Module**
+**5. Review Module（未実装）**
 - ReviewController: レビューCRUD操作
 - ReviewService: 通報処理、自動非表示
 - ReviewRepository: DynamoDBアクセス
 
-**6. AI Advisor Module**
+**6. AI Advisor Module（未実装）**
 - AIAdvisorController: AIアドバイス取得
 - AIAdvisorService: Gemini API呼び出し、キャッシュ管理
 - CacheService: 24時間キャッシュ
 
-**7. Admin Module**
+**7. Admin Module（未実装）**
 - AdminController: 管理者機能
 - AdminService: ユーザー管理、レシピ審査
 - AdminRepository: DynamoDBアクセス
 
 ### フロントエンドコンポーネント
 
-**1. Authentication Components**
-- LoginPage: ログイン画面
-- RegisterPage: ユーザー登録画面
-- PasswordResetPage: パスワードリセット画面
+**1. Authentication Components（実装済み）**
+- Login/
+  - LoginPage: ログイン画面
+  - loginFormConfig: ログインフォーム設定（バリデーションルール、フィールド定義）
+- Register/
+  - RegisterPage: ユーザー登録画面
+  - registerFormConfig: 登録フォーム設定（バリデーションルール、フィールド定義、言語オプション）
+- PasswordReset/
+  - PasswordResetPage: パスワードリセット画面（プレースホルダー）
 
-**2. Dashboard Components**
+**2. Common Components（実装済み）**
+- FormField: 再利用可能なフォームフィールドコンポーネント
+
+**3. Dashboard Components（未実装）**
 - DashboardPage: ホーム画面
 - AlertModal: サボり防止アラート
 
-**3. Recipe Components**
+**4. Recipe Components（未実装）**
 - RecipeSearchPage: レシピ検索画面
 - RecipeDetailPage: レシピ詳細画面
 - RecipeEditPage: レシピ編集画面
@@ -150,73 +168,94 @@
 - ReviewList: レビュー一覧
 - ReviewForm: レビュー投稿フォーム
 
-**4. Schedule Components**
+**5. Schedule Components（未実装）**
 - SchedulePage: スケジュール管理画面
 - CalendarView: カレンダー表示
 - ScheduleForm: 予定/実績登録フォーム
 
-**5. Shopping List Components**
+**6. Shopping List Components（未実装）**
 - ShoppingListPage: 買い物リスト画面
 - ShoppingListItem: リストアイテム
 
-**6. Profile Components**
+**7. Profile Components（未実装）**
 - ProfilePage: プロフィール編集画面
 - ImageUploader: 画像アップロードコンポーネント
 - LanguageSelector: 言語選択
 
-**7. Admin Components**
+**8. Admin Components（未実装）**
 - AdminDashboard: 管理ダッシュボード
 - UserManagement: ユーザー管理
 - RecipeManagement: レシピ管理
 
 ### API Endpoints
 
-**User Management**
+**User Management（実装済み）**
 - POST /api/users/register - ユーザー登録
+  - Request: RegisterUserRequest (email, password, nickname, preferredLanguage)
+  - Response: UserResponse
+  - Validation: Email形式、パスワード8文字以上（大文字・小文字・数字）、ニックネーム1-50文字
+  - Status: ✅ 実装済み
 - POST /api/users/login - ログイン
-- GET /api/users/profile - プロフィール取得
-- PUT /api/users/profile - プロフィール更新
-- DELETE /api/users/account - アカウント削除
+  - Request: LoginRequest (email, password)
+  - Response: LoginResponse (accessToken, refreshToken, idToken, expiresIn, user)
+  - Status: ✅ 実装済み
+- GET /api/users/profile/{userId} - プロフィール取得
+  - Response: UserResponse
+  - Status: ✅ 実装済み
+- PUT /api/users/profile/{userId} - プロフィール更新
+  - Request: UpdateProfileRequest (nickname, displayName, preferredLanguage, timezone, marketingOptOut)
+  - Response: UserResponse
+  - Status: ✅ 実装済み
+- DELETE /api/users/account/{userId} - アカウント削除
+  - Response: 204 No Content
+  - Status: ✅ 実装済み
 - POST /api/users/profile/image - プロフィール画像アップロード
+  - Status: ⏳ 未実装
 
-**Recipe Management**
+**Recipe Management（未実装）**
 - GET /api/recipes - レシピ検索
 - GET /api/recipes/{id} - レシピ詳細取得
 - POST /api/recipes - レシピ作成
 - PUT /api/recipes/{id} - レシピ更新
 - DELETE /api/recipes/{id} - レシピ削除
 - POST /api/recipes/{id}/image - レシピ画像アップロード
+- Status: ⏳ 未実装
 
-**Schedule Management**
+**Schedule Management（未実装）**
 - GET /api/schedules - スケジュール一覧取得
 - POST /api/schedules - スケジュール作成
 - PUT /api/schedules/{id} - スケジュール更新
 - DELETE /api/schedules/{id} - スケジュール削除
 - GET /api/schedules/alert - アラート判定
+- Status: ⏳ 未実装
 
-**Shopping List**
+**Shopping List（未実装）**
 - GET /api/shopping-lists - 買い物リスト取得
 - POST /api/shopping-lists - アイテム追加
 - PUT /api/shopping-lists/{id} - アイテム更新
 - DELETE /api/shopping-lists/{id} - アイテム削除
+- Status: ⏳ 未実装
 
-**Review**
+**Review（未実装）**
 - GET /api/recipes/{id}/reviews - レビュー一覧取得
 - POST /api/recipes/{id}/reviews - レビュー作成
 - PUT /api/reviews/{id} - レビュー更新
 - DELETE /api/reviews/{id} - レビュー削除
 - POST /api/reviews/{id}/report - レビュー通報
+- Status: ⏳ 未実装
 
-**AI Advisor**
+**AI Advisor（未実装）**
 - POST /api/ai-advisor/advice - AIアドバイス取得
+- Status: ⏳ 未実装
 
-**Admin**
+**Admin（未実装）**
 - GET /api/admin/dashboard - ダッシュボード統計
 - GET /api/admin/users - ユーザー一覧
 - PUT /api/admin/users/{id}/suspend - ユーザー停止
 - DELETE /api/admin/users/{id} - ユーザー削除
 - GET /api/admin/recipes - レシピ一覧
 - PUT /api/admin/recipes/{id}/status - レシピステータス更新
+- Status: ⏳ 未実装
 
 ## Data Models
 
@@ -702,21 +741,33 @@ Attributes:
 
 本システムでは、フロントエンドとバックエンドの両方でバリデーションを実施し、多層防御を実現します。
 
-**フロントエンドバリデーション**：
+**フロントエンドバリデーション（実装済み）**：
 - 目的：ユーザーエクスペリエンスの向上、即座のフィードバック
 - タイミング：リアルタイム（入力中）およびフォーム送信時
-- 実装：React Hook Formとshadcn/ui Formコンポーネントを使用
+- 実装：カスタムuseFormフックとvalidation.tsユーティリティを使用
+- 実装済みバリデーションルール：
+  - `required`: 必須フィールドチェック
+  - `email`: メールアドレス形式検証
+  - `minLength`: 最小文字数チェック
+  - `maxLength`: 最大文字数チェック
+  - `pattern`: 正規表現パターンマッチング
+  - `matchField`: フィールド一致チェック（パスワード確認用）
 - 対象：
   - 必須フィールドチェック
-  - 文字数制限（例：レシピタイトル、コメント）
+  - 文字数制限（例：ニックネーム1-50文字）
   - フォーマット検証（例：メールアドレス、パスワード強度）
   - 数値範囲チェック（例：食材数量0〜9999）
   - ファイルサイズとフォーマット（例：画像5MB以下、JPEG/PNG）
 
-**バックエンドバリデーション**：
+**バックエンドバリデーション（実装済み）**：
 - 目的：セキュリティ、データ整合性の保証
 - タイミング：APIリクエスト受信時
 - 実装：Spring Boot Validation（JSR-380）を使用
+- 実装済みアノテーション：
+  - `@NotBlank`: 空白文字列チェック
+  - `@Email`: メールアドレス形式検証
+  - `@Size`: 文字数範囲チェック
+  - `@Pattern`: 正規表現パターンマッチング
 - 対象：
   - すべてのフロントエンドバリデーション項目を再検証
   - ビジネスルール検証（例：レシピ削除権限、レビュー編集権限）
@@ -730,12 +781,20 @@ Attributes:
 
 ### バリデーションルール例
 
-**ユーザー登録**：
+**ユーザー登録（実装済み）**：
 - Email：有効なメールアドレス形式
 - Password：8文字以上、大文字・小文字・数字を含む
 - Nickname：1〜50文字
+- PreferredLanguage：'ja' または 'ko'
 
-**レシピ作成**：
+**ユーザープロフィール更新（実装済み）**：
+- Nickname：1〜50文字（オプション）
+- DisplayName：1〜100文字（オプション）
+- PreferredLanguage：'ja' または 'ko'（オプション）
+- Timezone：有効なタイムゾーン文字列（オプション）
+- MarketingOptOut：boolean（オプション）
+
+**レシピ作成（未実装）**：
 - Title：1〜100文字
 - Ingredients：
   - Name：1〜50文字
@@ -744,7 +803,7 @@ Attributes:
 - Steps：最低1つの手順
 - Image：5MB以下、JPEG/PNG
 
-**レビュー投稿**：
+**レビュー投稿（未実装）**：
 - Rating：1〜5の整数
 - Comment：0〜300文字
 
@@ -799,24 +858,43 @@ backend/
 │   │   │       └── cookingapp/
 │   │   │           ├── presentation/          # プレゼンテーション層
 │   │   │           │   ├── controller/        # REST APIコントローラー
+│   │   │           │   │   └── UserController.java  # （実装済み）
 │   │   │           │   ├── dto/               # リクエスト/レスポンスDTO
+│   │   │           │   │   ├── request/       # リクエストDTO（実装済み）
+│   │   │           │   │   └── response/      # レスポンスDTO（実装済み）
+│   │   │           │   ├── exception/         # グローバル例外ハンドラー
+│   │   │           │   │   └── GlobalExceptionHandler.java  # （実装済み）
 │   │   │           │   └── validation/        # カスタムバリデーター
 │   │   │           ├── application/           # アプリケーション層
-│   │   │           │   ├── usecase/           # ユースケース実装
-│   │   │           │   └── service/           # アプリケーションサービス
+│   │   │           │   └── usecase/           # ユースケース実装
+│   │   │           │       ├── RegisterUserUseCase.java      # （実装済み）
+│   │   │           │       ├── LoginUserUseCase.java         # （実装済み）
+│   │   │           │       ├── GetUserProfileUseCase.java    # （実装済み）
+│   │   │           │       ├── UpdateUserProfileUseCase.java # （実装済み）
+│   │   │           │       └── DeleteUserAccountUseCase.java # （実装済み）
 │   │   │           ├── domain/                # ドメイン層
 │   │   │           │   ├── entity/            # エンティティ
+│   │   │           │   │   └── User.java      # （実装済み）
 │   │   │           │   ├── valueobject/       # バリューオブジェクト
+│   │   │           │   │   └── Language.java  # （実装済み）
 │   │   │           │   ├── repository/        # リポジトリインターフェース
+│   │   │           │   │   └── UserRepository.java  # （実装済み）
 │   │   │           │   └── exception/         # ドメイン例外
+│   │   │           │       ├── UserNotFoundException.java        # （実装済み）
+│   │   │           │       ├── DuplicateEmailException.java      # （実装済み）
+│   │   │           │       └── InvalidCredentialsException.java  # （実装済み）
 │   │   │           └── infrastructure/        # インフラストラクチャ層
 │   │   │               ├── repository/        # リポジトリ実装（DynamoDB）
+│   │   │               │   └── DynamoDBUserRepository.java  # （実装済み）
 │   │   │               ├── external/          # 外部API統合
-│   │   │               │   ├── gemini/        # Gemini API
-│   │   │               │   ├── s3/            # S3サービス
-│   │   │               │   └── cognito/       # Cognito認証
+│   │   │               │   ├── cognito/       # Cognito認証
+│   │   │               │   │   └── CognitoAuthService.java  # （実装済み）
+│   │   │               │   ├── s3/            # S3サービス（未実装）
+│   │   │               │   └── gemini/        # Gemini API（未実装）
 │   │   │               ├── config/            # 設定クラス
-│   │   │               └── cache/             # キャッシュ管理
+│   │   │               │   ├── AwsConfig.java           # （実装済み）
+│   │   │               │   └── CorsConfig.java          # （実装済み）
+│   │   │               └── cache/             # キャッシュ管理（未実装）
 │   │   └── resources/
 │   │       ├── application.yml                # アプリケーション設定（共通）
 │   │       ├── application-local.yml          # ローカル開発設定（LocalStack）
@@ -853,81 +931,89 @@ frontend/
 │   │   │   ├── toast.tsx
 │   │   │   ├── calendar.tsx
 │   │   │   └── label.tsx
-│   │   ├── auth/                              # 認証関連
-│   │   │   ├── LoginPage.tsx
-│   │   │   ├── RegisterPage.tsx
-│   │   │   └── PasswordResetPage.tsx
-│   │   ├── dashboard/                         # ダッシュボード
+│   │   ├── auth/                              # 認証関連（実装済み）
+│   │   │   ├── Login/                         # ログイン機能
+│   │   │   │   ├── LoginPage.tsx              # ログインページ
+│   │   │   │   └── loginFormConfig.ts         # フォーム設定
+│   │   │   ├── Register/                      # ユーザー登録機能
+│   │   │   │   ├── RegisterPage.tsx           # 登録ページ
+│   │   │   │   └── registerFormConfig.ts      # フォーム設定
+│   │   │   └── PasswordReset/                 # パスワードリセット機能
+│   │   │       └── PasswordResetPage.tsx      # リセットページ（プレースホルダー）
+│   │   ├── common/                            # 共通コンポーネント（実装済み）
+│   │   │   ├── FormField.tsx                  # 再利用可能なフォームフィールド
+│   │   │   ├── Header.tsx                     # （未実装）
+│   │   │   ├── Footer.tsx                     # （未実装）
+│   │   │   ├── ErrorBanner.tsx                # （未実装）
+│   │   │   └── LoadingSkeleton.tsx            # （未実装）
+│   │   ├── dashboard/                         # ダッシュボード（未実装）
 │   │   │   ├── DashboardPage.tsx
 │   │   │   └── AlertModal.tsx
-│   │   ├── recipe/                            # レシピ関連
+│   │   ├── recipe/                            # レシピ関連（未実装）
 │   │   │   ├── RecipeSearchPage.tsx
 │   │   │   ├── RecipeDetailPage.tsx
 │   │   │   ├── RecipeEditPage.tsx
 │   │   │   ├── AIAdvisorPanel.tsx
 │   │   │   ├── ReviewList.tsx
 │   │   │   └── ReviewForm.tsx
-│   │   ├── schedule/                          # スケジュール関連
+│   │   ├── schedule/                          # スケジュール関連（未実装）
 │   │   │   ├── SchedulePage.tsx
 │   │   │   ├── CalendarView.tsx
 │   │   │   └── ScheduleForm.tsx
-│   │   ├── shopping/                          # 買い物リスト
+│   │   ├── shopping/                          # 買い物リスト（未実装）
 │   │   │   ├── ShoppingListPage.tsx
 │   │   │   └── ShoppingListItem.tsx
-│   │   ├── profile/                           # プロフィール
+│   │   ├── profile/                           # プロフィール（未実装）
 │   │   │   ├── ProfilePage.tsx
 │   │   │   ├── ImageUploader.tsx
 │   │   │   └── LanguageSelector.tsx
-│   │   ├── admin/                             # 管理者機能
-│   │   │   ├── AdminDashboard.tsx
-│   │   │   ├── UserManagement.tsx
-│   │   │   └── RecipeManagement.tsx
-│   │   └── common/                            # 共通コンポーネント
-│   │       ├── Header.tsx
-│   │       ├── Footer.tsx
-│   │       ├── ErrorBanner.tsx
-│   │       └── LoadingSkeleton.tsx
-│   ├── store/                                 # Redux状態管理
+│   │   └── admin/                             # 管理者機能（未実装）
+│   │       ├── AdminDashboard.tsx
+│   │       ├── UserManagement.tsx
+│   │       └── RecipeManagement.tsx
+│   ├── store/                                 # Redux状態管理（実装済み）
 │   │   ├── slices/                            # Reduxスライス
-│   │   │   ├── authSlice.ts
-│   │   │   ├── recipeSlice.ts
-│   │   │   ├── scheduleSlice.ts
-│   │   │   ├── shoppingListSlice.ts
-│   │   │   └── reviewSlice.ts
-│   │   └── store.ts                           # Reduxストア設定
-│   ├── api/                                   # API呼び出し
-│   │   ├── client.ts                          # APIクライアント設定
-│   │   ├── userApi.ts
-│   │   ├── recipeApi.ts
-│   │   ├── scheduleApi.ts
-│   │   ├── shoppingListApi.ts
-│   │   ├── reviewApi.ts
-│   │   └── aiAdvisorApi.ts
-│   ├── hooks/                                 # カスタムフック
-│   │   ├── useAuth.ts
-│   │   ├── useRecipe.ts
-│   │   └── useAlert.ts
-│   ├── lib/                                   # ライブラリユーティリティ
-│   │   └── utils.ts                           # cn()関数など
-│   ├── utils/                                 # ユーティリティ関数
-│   │   ├── validation.ts                      # バリデーション関数
-│   │   ├── dateUtils.ts                       # 日付処理
-│   │   └── normalize.ts                       # 正規化関数
-│   ├── i18n/                                  # 多言語対応
-│   │   ├── i18n.ts                            # i18next設定
-│   │   ├── locales/
-│   │   │   ├── ja.json                        # 日本語翻訳
-│   │   │   └── ko.json                        # 韓国語翻訳
-│   ├── types/                                 # TypeScript型定義
-│   │   ├── user.ts
-│   │   ├── recipe.ts
-│   │   ├── schedule.ts
-│   │   ├── shoppingList.ts
-│   │   └── review.ts
-│   ├── App.tsx                                # ルートコンポーネント
-│   ├── index.tsx                              # エントリーポイント
-│   ├── index.css                              # グローバルスタイル（Tailwind）
-│   └── routes.tsx                             # ルーティング設定
+│   │   │   ├── authSlice.ts                   # 認証状態管理（実装済み）
+│   │   │   ├── recipeSlice.ts                 # （未実装）
+│   │   │   ├── scheduleSlice.ts               # （未実装）
+│   │   │   ├── shoppingListSlice.ts           # （未実装）
+│   │   │   └── reviewSlice.ts                 # （未実装）
+│   │   └── store.ts                           # Reduxストア設定（実装済み）
+│   ├── api/                                   # API呼び出し（実装済み）
+│   │   ├── client.ts                          # APIクライアント設定（実装済み）
+│   │   ├── userApi.ts                         # ユーザーAPI（実装済み）
+│   │   ├── recipeApi.ts                       # （未実装）
+│   │   ├── scheduleApi.ts                     # （未実装）
+│   │   ├── shoppingListApi.ts                 # （未実装）
+│   │   ├── reviewApi.ts                       # （未実装）
+│   │   └── aiAdvisorApi.ts                    # （未実装）
+│   ├── hooks/                                 # カスタムフック（実装済み）
+│   │   ├── useAuth.ts                         # 認証フック（実装済み）
+│   │   ├── useForm.ts                         # フォームフック（実装済み）
+│   │   ├── useRecipe.ts                       # （未実装）
+│   │   └── useAlert.ts                        # （未実装）
+│   ├── lib/                                   # ライブラリユーティリティ（実装済み）
+│   │   └── utils.ts                           # cn()関数など（実装済み）
+│   ├── utils/                                 # ユーティリティ関数（実装済み）
+│   │   ├── validation.ts                      # バリデーション関数（実装済み）
+│   │   ├── dateUtils.ts                       # （未実装）
+│   │   └── normalize.ts                       # （未実装）
+│   ├── i18n/                                  # 多言語対応（実装済み）
+│   │   ├── i18n.ts                            # i18next設定（実装済み）
+│   │   └── locales/
+│   │       ├── ja.json                        # 日本語翻訳（実装済み）
+│   │       └── ko.json                        # 韓国語翻訳（実装済み）
+│   ├── types/                                 # TypeScript型定義（実装済み）
+│   │   ├── user.ts                            # ユーザー型（実装済み）
+│   │   ├── auth.ts                            # 認証型（実装済み）
+│   │   ├── recipe.ts                          # （未実装）
+│   │   ├── schedule.ts                        # （未実装）
+│   │   ├── shoppingList.ts                    # （未実装）
+│   │   └── review.ts                          # （未実装）
+│   ├── App.tsx                                # ルートコンポーネント（実装済み）
+│   ├── index.tsx                              # エントリーポイント（実装済み）
+│   ├── index.css                              # グローバルスタイル（Tailwind）（実装済み）
+│   └── vite-env.d.ts                          # Vite環境変数型定義（実装済み）
 ├── public/                                    # 静的ファイル
 │   ├── index.html
 │   └── assets/
