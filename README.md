@@ -45,26 +45,44 @@
 .
 ├── backend/           # バックエンド（Spring Boot）
 ├── frontend/          # フロントエンド（React + TypeScript）
+├── infrastructure/    # インフラストラクチャ（AWS CDK + LocalStack）
 ├── docs/              # ドキュメント
 └── .kiro/specs/       # 仕様書
 ```
 
 ## セットアップ
 
-### バックエンド
+### ローカル開発環境
+
+#### 1. LocalStackの起動（AWSサービスのエミュレーション）
+
+```bash
+cd infrastructure
+docker-compose up -d
+```
+
+詳細は`infrastructure/SETUP.md`を参照してください。
+
+#### 2. バックエンド
 
 ```bash
 cd backend
-./gradlew build
-./gradlew bootRun
+./gradlew bootRun --args='--spring.profiles.active=local'
 ```
 
-### フロントエンド
+#### 3. フロントエンド
 
 ```bash
 cd frontend
 npm install
 npm run dev
+```
+
+### 本番環境へのデプロイ
+
+```bash
+cd infrastructure/cdk
+cdk deploy CookingAppStack-Prod
 ```
 
 詳細は各ディレクトリのREADMEを参照してください。

@@ -1,0 +1,18 @@
+services:
+  localstack:
+    image: localstack/localstack:latest
+    container_name: cooking-app-localstack
+    ports:
+      - "4566:4566"  # LocalStack Gateway
+      - "4510-4559:4510-4559"  # External services port range
+    environment:
+      - SERVICES=dynamodb,s3,cognito-idp,apigateway
+      - DEBUG=1
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    volumes:
+      - "./localstack:/etc/localstack/init/ready.d"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "localstack-data:/var/lib/localstack"
+
+volumes:
+  localstack-data:

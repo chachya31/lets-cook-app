@@ -750,6 +750,44 @@ Attributes:
 
 ## Project Structure
 
+### 全体構造
+
+```
+.
+├── backend/                    # バックエンド（Spring Boot）
+├── frontend/                   # フロントエンド（React + TypeScript）
+├── infrastructure/             # インフラストラクチャ定義
+│   ├── cdk/                   # AWS CDK（本番環境）
+│   ├── localstack/            # LocalStack初期化スクリプト
+│   ├── docker-compose.yml     # ローカル開発環境
+│   ├── README.md              # インフラ概要
+│   ├── SETUP.md               # セットアップガイド
+│   └── VERIFICATION.md        # 検証ガイド
+├── docs/                      # ドキュメント
+└── .kiro/specs/               # 仕様書
+```
+
+### インフラストラクチャディレクトリ構造
+
+```
+infrastructure/
+├── cdk/                                       # AWS CDK（本番環境用）
+│   ├── bin/
+│   │   └── app.ts                            # CDKアプリエントリーポイント
+│   ├── lib/
+│   │   └── cooking-app-stack.ts              # インフラ定義
+│   ├── package.json                          # CDK依存関係
+│   ├── tsconfig.json                         # TypeScript設定
+│   └── cdk.json                              # CDK設定
+├── localstack/                                # ローカル開発環境用
+│   ├── 01-create-dynamodb-tables.sh          # DynamoDBテーブル作成
+│   └── 02-create-s3-bucket.sh                # S3バケット作成
+├── docker-compose.yml                         # LocalStackコンテナ定義
+├── README.md                                  # インフラ概要・コスト見積もり
+├── SETUP.md                                   # セットアップ手順
+└── VERIFICATION.md                            # 検証チェックリスト
+```
+
 ### バックエンドディレクトリ構造
 
 ```
@@ -780,7 +818,8 @@ backend/
 │   │   │               ├── config/            # 設定クラス
 │   │   │               └── cache/             # キャッシュ管理
 │   │   └── resources/
-│   │       ├── application.yml                # アプリケーション設定
+│   │       ├── application.yml                # アプリケーション設定（共通）
+│   │       ├── application-local.yml          # ローカル開発設定（LocalStack）
 │   │       └── messages/                      # 多言語メッセージ
 │   │           ├── messages_ja.properties     # 日本語
 │   │           └── messages_ko.properties     # 韓国語
@@ -1067,31 +1106,55 @@ npm test
 
 ### デプロイメント戦略
 
-**インフラストラクチャ**：
-- AWS SAM（Serverless Application Model）またはAWS CDKを使用
+**インフラストラクチャ管理**：
+- **AWS CDK** - Infrastructure as Code（TypeScript）
+- バージョン：AWS CDK 2.110.0
+- 定義場所：`infrastructure/cdk/`
 - Lambda関数としてバックエンドをデプロイ
 - CloudFront + S3でフロントエンドを配信
+
+**インフラリソース**：
+- DynamoDB：5テーブル（Users, Recipes, Schedules, ShoppingLists, Reviews）
+- S3：画像ストレージバケット
+- Cognito：ユーザープール
+- API Gateway：REST API
 
 **デプロイメントフロー**：
 1. mainブランチへのマージをトリガー
 2. CI/CDパイプライン（GitHub Actions / AWS CodePipeline）が起動
-3. バックエンド：Gradleビルド → Lambda関数デプロイ
-4. フロントエンド：npmビルド → S3アップロード → CloudFront無効化
-5. DynamoDBテーブル、S3バケット、Cognitoユーザープールは事前にプロビジョニング
+3. インフラ：AWS CDKでリソースをプロビジョニング
+4. バックエンド：Gradleビルド → Lambda関数デプロイ
+5. フロントエンド：npmビルド → S3アップロード → CloudFront無効化
 
 ### 環境管理
 
+**ローカル開発環境（local）**：
+- **LocalStack** - AWSサービスのローカルエミュレーション
+- Docker Composeで起動：`docker-compose up -d`
+- エンドポイント：`http://localhost:4566`
+- 設定ファイル：`backend/src/main/resources/application-local.yml`
+- 初期化スクリプト：`infrastructure/localstack/`
+- **利点**：
+  - AWSアカウント不要
+  - 完全無料
+  - オフライン開発可能
+  - 高速なイテレーション
+
 **開発環境（dev）**：
-- 開発者のローカル環境
-- LocalStack等でAWSサービスをエミュレート
+- AWS CDKでデプロイ：`cdk deploy CookingAppStack-Dev`
+- 開発者間で共有する環境
+- 統合テスト用
 
 **ステージング環境（staging）**：
 - 本番環境と同等の構成
-- 統合テストとユーザー受け入れテスト
+- ユーザー受け入れテスト
+- パフォーマンステスト
 
 **本番環境（production）**：
+- AWS CDKでデプロイ：`cdk deploy CookingAppStack-Prod`
 - 実際のユーザーが利用する環境
 - 高可用性とスケーラビリティを確保
+- Point-in-Time Recovery有効化
 
 ### モニタリング
 

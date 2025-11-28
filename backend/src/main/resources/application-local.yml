@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: cooking-support-app
+  messages:
+    basename: messages/messages
+    encoding: UTF-8
+
+aws:
+  region: ap-northeast-1
+  dynamodb:
+    endpoint: http://localhost:4566
+  s3:
+    endpoint: http://localhost:4566
+    bucket: cooking-app-images-local
+  cognito:
+    endpoint: http://localhost:4566
+    user-pool-id: local-user-pool
+    client-id: local-client-id
+
+server:
+  port: 8080
+
+logging:
+  level:
+    com.cookingapp: DEBUG
+    software.amazon.awssdk: INFO

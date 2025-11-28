@@ -8,11 +8,13 @@
   - shadcn/ui + Tailwind CSS統合
   - _Requirements: 全体_
 
-- [ ] 2. AWS インフラストラクチャのセットアップ
+- [x] 2. AWS インフラストラクチャのセットアップ
   - DynamoDBテーブルの作成（Users、Recipes、Schedules、ShoppingLists、Reviews）
   - S3バケットの作成（画像ストレージ）
   - Cognito ユーザープールの設定
   - API Gatewayの設定
+  - AWS CDK定義の作成
+  - LocalStack環境の構築と検証
   - _Requirements: 1.1, 1.2, 3.5, 11.5_
 
 - [ ] 3. ユーザー管理機能の実装
