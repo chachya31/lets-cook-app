@@ -1,9 +1,11 @@
 # Implementation Plan
 
-- [ ] 1. プロジェクト初期セットアップ
+- [x] 1. プロジェクト初期セットアップ
   - バックエンド（Spring Boot + Gradle）とフロントエンド（React + TypeScript）のプロジェクト構造を作成
-  - 依存関係の設定（jqwik、fast-check、i18next等）
+  - 依存関係の設定（jqwik、fast-check、i18next、shadcn/ui等）
   - Clean Architectureに基づくディレクトリ構造の構築
+  - Gradle 8.11.1、Java 21+対応
+  - shadcn/ui + Tailwind CSS統合
   - _Requirements: 全体_
 
 - [ ] 2. AWS インフラストラクチャのセットアップ

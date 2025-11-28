@@ -1,0 +1,17 @@
+{
+  "app": {
+    "title": "自炊支援アプリ"
+  },
+  "auth": {
+    "login": "ログイン",
+    "register": "新規登録",
+    "logout": "ログアウト",
+    "email": "メールアドレス",
+    "password": "パスワード"
+  },
+  "error": {
+    "required": "{{field}}は必須です",
+    "invalid_email": "有効なメールアドレスを入力してください",
+    "invalid_password": "パスワードは8文字以上で、大文字、小文字、数字を含む必要があります"
+  }
+}

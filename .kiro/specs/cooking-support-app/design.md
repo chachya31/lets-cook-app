@@ -4,7 +4,7 @@
 
 自炊支援・食費節約アプリケーションは、ユーザーが料理習慣を維持し、食費を節約するためのWebアプリケーションです。本システムは、レシピ管理、スケジュール管理、買い物リスト管理、AIアドバイザー機能を提供し、ユーザーの自炊をサポートします。
 
-システムは、Clean Architectureを採用したバックエンド（Java + Spring Boot + Gradle）、モダンなフロントエンド（TypeScript + React + Redux）、AWSサーバーレスインフラ（DynamoDB、S3、Cognito、Lambda）で構成されます。
+システムは、Clean Architectureを採用したバックエンド（Java + Spring Boot + Gradle）、モダンなフロントエンド（TypeScript + React + Redux + shadcn/ui）、AWSサーバーレスインフラ（DynamoDB、S3、Cognito、Lambda）で構成されます。
 
 主要な設計目標：
 - ユーザーフレンドリーなUI/UX
@@ -12,6 +12,7 @@
 - スケーラブルなアーキテクチャ
 - セキュアな認証・認可
 - 多言語対応（日本語・韓国語）
+- アクセシブルなUIコンポーネント（shadcn/ui + Radix UI）
 
 ## Architecture
 
@@ -21,9 +22,10 @@
 ┌─────────────────────────────────────────────────────────────┐
 │                        Client Layer                          │
 │  ┌──────────────────────────────────────────────────────┐   │
-│  │  React + TypeScript + Redux                          │   │
-│  │  - UI Components                                     │   │
-│  │  - State Management                                  │   │
+│  │  React + TypeScript + Redux + shadcn/ui              │   │
+│  │  - UI Components (shadcn/ui + Radix UI)             │   │
+│  │  - State Management (Redux Toolkit)                 │   │
+│  │  - Styling (Tailwind CSS)                           │   │
 │  │  - i18n (日本語/韓国語)                              │   │
 │  └──────────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────┘
@@ -657,6 +659,43 @@ Attributes:
 
 **Validates: Requirements 12.5**
 
+## UI Component Library
+
+### shadcn/ui
+
+本プロジェクトでは、UIコンポーネントライブラリとして**shadcn/ui**を採用します。
+
+**選定理由**：
+1. **完全無料・オープンソース**: MITライセンスで商用利用可能、費用は一切発生しない
+2. **アクセシビリティ**: Radix UIベースで、WCAG 2.1準拠のアクセシブルなコンポーネント
+3. **カスタマイズ性**: Tailwind CSSベースで、プロジェクトのテーマカラー（明るい緑）に容易に調整可能
+4. **TypeScript完全対応**: 型安全性が高く、開発体験が向上
+5. **軽量**: 必要なコンポーネントのみをプロジェクトにコピーする方式で、バンドルサイズを最小化
+6. **保守性**: コンポーネントのコードが直接プロジェクトに含まれるため、カスタマイズや修正が容易
+
+**使用するコンポーネント**：
+- **Button**: CTA、フォーム送信、アクション実行
+- **Card**: レシピカード、ダッシュボードウィジェット
+- **Dialog/Modal**: アラート表示、確認ダイアログ
+- **Form**: レシピ登録、ログイン、プロフィール編集
+- **Input**: テキスト入力フィールド
+- **Select/Dropdown**: 食材選択、言語切り替え、カテゴリ選択
+- **Checkbox**: 買い物リストのチェック
+- **Toast**: 成功/エラー通知
+- **Calendar**: スケジュール管理
+- **Label**: フォームラベル
+- **Textarea**: レシピ手順、コメント入力
+
+**テーマ設定**：
+- プライマリカラー: `hsl(142, 76%, 36%)` （明るい緑）
+- CSS変数ベースのテーマシステムで、ライト/ダークモード対応
+- Tailwind CSSのユーティリティクラスで細かいスタイル調整
+
+**実装方針**：
+- コンポーネントは`src/components/ui/`ディレクトリに配置
+- `cn()`ユーティリティ関数でクラス名を動的に結合
+- React Hook Formと統合してフォームバリデーションを実装
+
 ## Validation Strategy
 
 ### バリデーション方針
@@ -666,7 +705,7 @@ Attributes:
 **フロントエンドバリデーション**：
 - 目的：ユーザーエクスペリエンスの向上、即座のフィードバック
 - タイミング：リアルタイム（入力中）およびフォーム送信時
-- 実装：React Hook FormまたはFormikを使用
+- 実装：React Hook Formとshadcn/ui Formコンポーネントを使用
 - 対象：
   - 必須フィールドチェック
   - 文字数制限（例：レシピタイトル、コメント）
@@ -764,6 +803,17 @@ backend/
 frontend/
 ├── src/
 │   ├── components/                            # Reactコンポーネント
+│   │   ├── ui/                                # shadcn/uiコンポーネント
+│   │   │   ├── button.tsx
+│   │   │   ├── card.tsx
+│   │   │   ├── dialog.tsx
+│   │   │   ├── form.tsx
+│   │   │   ├── input.tsx
+│   │   │   ├── select.tsx
+│   │   │   ├── checkbox.tsx
+│   │   │   ├── toast.tsx
+│   │   │   ├── calendar.tsx
+│   │   │   └── label.tsx
 │   │   ├── auth/                              # 認証関連
 │   │   │   ├── LoginPage.tsx
 │   │   │   ├── RegisterPage.tsx
@@ -818,6 +868,8 @@ frontend/
 │   │   ├── useAuth.ts
 │   │   ├── useRecipe.ts
 │   │   └── useAlert.ts
+│   ├── lib/                                   # ライブラリユーティリティ
+│   │   └── utils.ts                           # cn()関数など
 │   ├── utils/                                 # ユーティリティ関数
 │   │   ├── validation.ts                      # バリデーション関数
 │   │   ├── dateUtils.ts                       # 日付処理
@@ -835,6 +887,7 @@ frontend/
 │   │   └── review.ts
 │   ├── App.tsx                                # ルートコンポーネント
 │   ├── index.tsx                              # エントリーポイント
+│   ├── index.css                              # グローバルスタイル（Tailwind）
 │   └── routes.tsx                             # ルーティング設定
 ├── public/                                    # 静的ファイル
 │   ├── index.html
@@ -844,6 +897,8 @@ frontend/
 │   └── property/                              # プロパティベーステスト
 ├── package.json                               # npm設定
 ├── tsconfig.json                              # TypeScript設定
+├── tailwind.config.js                         # Tailwind CSS設定
+├── postcss.config.js                          # PostCSS設定
 ├── .eslintrc.js                               # ESLint設定
 └── README.md                                  # プロジェクト説明
 ```
@@ -996,7 +1051,8 @@ npm test
 
 **バックエンド**：
 - **Gradle** - Java/Spring Bootプロジェクトのビルドツール
-- バージョン：Gradle 8.x
+- バージョン：Gradle 8.11.1
+- Java：21+ (Java 23推奨)
 - 主要タスク：
   - `./gradlew build` - プロジェクトビルド
   - `./gradlew test` - テスト実行
