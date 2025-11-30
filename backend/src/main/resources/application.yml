@@ -14,6 +14,7 @@ aws:
     endpoint: ${AWS_DYNAMODB_ENDPOINT:}
     table:
       users: ${AWS_DYNAMODB_TABLE_USERS:Users}
+      recipes: ${AWS_DYNAMODB_TABLE_RECIPES:Recipes}
   s3:
     bucket: ${AWS_S3_BUCKET:cooking-app-images}
   cognito:

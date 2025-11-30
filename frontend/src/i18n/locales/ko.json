@@ -4,7 +4,12 @@
   },
   "common": {
     "loading": "로딩 중...",
-    "comingSoon": "곧 출시 예정"
+    "comingSoon": "곧 출시 예정",
+    "back": "뒤로",
+    "save": "저장",
+    "saving": "저장 중...",
+    "cancel": "취소",
+    "remove": "삭제"
   },
   "auth": {
     "login": "로그인",
@@ -63,5 +68,38 @@
       "fileTooLarge": "파일 크기가 너무 큽니다. 최대 {{maxSize}}MB까지 가능합니다",
       "invalidFormat": "지원되지 않는 파일 형식입니다. JPEG, PNG만 지원합니다"
     }
+  },
+  "recipe": {
+    "search": {
+      "title": "레시피 검색",
+      "placeholder": "레시피 검색...",
+      "button": "검색",
+      "noResults": "레시피를 찾을 수 없습니다"
+    },
+    "create": {
+      "title": "레시피 작성",
+      "button": "레시피 작성"
+    },
+    "edit": {
+      "title": "레시피 수정",
+      "button": "수정"
+    },
+    "delete": {
+      "button": "삭제",
+      "confirm": "정말로 이 레시피를 삭제하시겠습니까?"
+    },
+    "title": "제목",
+    "cookingTime": "조리 시간",
+    "minutes": "분",
+    "ingredients": "재료",
+    "ingredientName": "재료명",
+    "quantity": "수량",
+    "unit": "단위",
+    "optional": "선택",
+    "addIngredient": "재료 추가",
+    "steps": "조리 순서",
+    "addStep": "단계 추가",
+    "basicInfo": "기본 정보",
+    "notFound": "레시피를 찾을 수 없습니다"
   }
 }

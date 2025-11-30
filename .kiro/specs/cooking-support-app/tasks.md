@@ -131,25 +131,35 @@
   - バリデーション（サイズ、フォーマット）
   - _Requirements: 1.4_
 
-- [ ] 5. レシピ管理機能の実装
-- [ ] 5.1 ドメイン層：Recipeエンティティとバリューオブジェクトの実装
+- [x] 5. レシピ管理機能の実装
+- [x] 5.1 ドメイン層：Recipeエンティティとバリューオブジェクトの実装
   - Recipeエンティティ（recipeId、title、authorId、ingredients、steps、cookingTime、imageUrl、isPublic、isDeleted）
   - Ingredientバリューオブジェクト（name、quantity、unit、note、optional）
+  - Unit Enum（g、kg、ml、l、tbsp、tsp、cup、piece、pack、can、bottle、slice、clove、pinch、to_taste、as_needed）
   - 食材バリデーションロジック
+  - 論理削除機能（markAsDeleted）
+  - 権限チェック（canEdit、canDelete）
   - _Requirements: 3.1, 3.2_
 
 - [ ]* 5.2 プロパティテスト：食材バリデーション
   - **Property 10: 食材バリデーション**
   - **Validates: Requirements 3.2**
 
-- [ ] 5.3 インフラ層：RecipeRepositoryの実装
-  - DynamoDBアクセス（CRUD操作）
-  - GSI検索（AuthorId、Category）
+- [x] 5.3 インフラ層：RecipeRepositoryの実装
+  - RecipeRepositoryインターフェース（save、findById、findByAuthorId、findAllPublic、delete、existsById）
+  - DynamoDBRecipeRepository実装（CRUD操作）
+  - GSI検索（GSI_Author: AuthorId）
+  - 食材・手順のシリアライズ/デシリアライズ
   - _Requirements: 2.1, 3.1, 3.3, 3.4_
 
-- [ ] 5.4 アプリケーション層：レシピ管理ユースケースの実装
-  - レシピ作成、更新、削除、検索
-  - 削除時の参照保持ロジック
+- [x] 5.4 アプリケーション層：レシピ管理ユースケースの実装
+  - CreateRecipeUseCase: レシピ作成
+  - UpdateRecipeUseCase: レシピ更新（権限チェック付き）
+  - DeleteRecipeUseCase: レシピ削除（論理削除、権限チェック付き）
+  - GetRecipeUseCase: レシピ詳細取得
+  - SearchRecipesUseCase: レシピ検索（公開レシピ、作成者別、キーワード）
+  - UploadRecipeImageUseCase: レシピ画像アップロード（S3統合）
+  - RecipeNotFoundException、UnauthorizedException例外クラス
   - _Requirements: 2.1, 3.1, 3.3, 3.4_
 
 - [ ]* 5.5 プロパティテスト：レシピ作成の成功
@@ -164,10 +174,19 @@
   - **Property 12: レシピ削除時の参照保持**
   - **Validates: Requirements 3.4**
 
-- [ ] 5.8 プレゼンテーション層：RecipeControllerの実装
-  - REST APIエンドポイント（/api/recipes/*）
-  - リクエスト/レスポンスDTO
-  - バリデーション（フロントエンド・バックエンド両方）
+- [x] 5.8 プレゼンテーション層：RecipeControllerの実装
+  - RecipeController: REST APIエンドポイント
+    - GET /api/recipes - レシピ検索（keyword、authorIdパラメータ）
+    - GET /api/recipes/{id} - レシピ詳細取得
+    - POST /api/recipes - レシピ作成（X-User-Idヘッダー）
+    - PUT /api/recipes/{id} - レシピ更新（X-User-Idヘッダー）
+    - DELETE /api/recipes/{id} - レシピ削除（論理削除、X-User-Idヘッダー）
+    - POST /api/recipes/{id}/image - レシピ画像アップロード
+  - RecipeRequest DTO（title、ingredients、steps、cookingTime）
+  - RecipeResponse DTO（recipeId、title、authorId、ingredients、steps、cookingTime、imageUrl、isPublic、createdAt、updatedAt）
+  - IngredientDto（name、quantity、unit、note、optional）
+  - Jakarta Validationバリデーション（@NotBlank、@Size、@Min、@DecimalMin、@Valid）
+  - GlobalExceptionHandlerに例外ハンドラー追加（RecipeNotFoundException、UnauthorizedException）
   - _Requirements: 2.1, 2.2, 3.1, 3.3, 3.4_
 
 - [ ]* 5.9 プロパティテスト：レシピ検索の一致
@@ -186,10 +205,16 @@
   - **Property 13: レシピ画像のストレージとバリデーション**
   - **Validates: Requirements 3.5**
 
-- [ ] 5.13 フロントエンド：レシピコンポーネントの実装
-  - RecipeSearchPage、RecipeDetailPage、RecipeEditPage
-  - Redux状態管理（recipeSlice）
-  - フォームバリデーション
+- [x] 5.13 フロントエンド：レシピコンポーネントの実装
+  - RecipeSearchPage: レシピ検索画面（キーワード検索、レシピカード表示）
+  - RecipeDetailPage: レシピ詳細画面（食材リスト、手順表示、編集・削除ボタン）
+  - RecipeEditPage: レシピ編集画面（作成・更新両対応、食材・手順の動的追加/削除）
+  - recipeSlice: Redux状態管理（searchRecipes、fetchRecipe、createRecipe、updateRecipe、deleteRecipe、uploadRecipeImage）
+  - recipeApi: API呼び出し関数（searchRecipes、getRecipe、createRecipe、updateRecipe、deleteRecipe、uploadRecipeImage）
+  - Recipe型定義（Recipe、Ingredient、RecipeRequest、RecipeSearchParams）
+  - shadcn/uiコンポーネント追加（Input、Label、Textarea）
+  - i18n翻訳追加（日本語・韓国語）
+  - App.tsxルーティング追加（/recipes、/recipes/new、/recipes/:id、/recipes/:id/edit）
   - _Requirements: 2.1, 2.2, 3.1, 3.3_
 
 - [ ] 6. AIアドバイザー機能の実装

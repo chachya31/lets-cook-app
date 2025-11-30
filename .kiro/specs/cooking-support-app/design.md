@@ -120,10 +120,25 @@
 - Presentation Layer:
   - UserController: 画像アップロードエンドポイント追加（実装済み）
 
-**3. Recipe Management Module（未実装）**
-- RecipeController: レシピCRUD操作
-- RecipeService: レシピ検索、バリデーション
-- RecipeRepository: DynamoDBアクセス
+**3. Recipe Management Module（実装済み）**
+- Domain Layer:
+  - Recipe Entity: レシピドメインエンティティ（実装済み）
+  - Ingredient Value Object: 食材バリューオブジェクト（実装済み）
+  - Unit Enum: 単位enum（実装済み）
+- Application Layer:
+  - CreateRecipeUseCase: レシピ作成ユースケース（実装済み）
+  - UpdateRecipeUseCase: レシピ更新ユースケース（実装済み）
+  - DeleteRecipeUseCase: レシピ削除ユースケース（論理削除）（実装済み）
+  - GetRecipeUseCase: レシピ取得ユースケース（実装済み）
+  - SearchRecipesUseCase: レシピ検索ユースケース（実装済み）
+  - UploadRecipeImageUseCase: レシピ画像アップロードユースケース（実装済み）
+- Infrastructure Layer:
+  - DynamoDBRecipeRepository: DynamoDBリポジトリ（実装済み）
+- Presentation Layer:
+  - RecipeController: レシピCRUD操作REST APIコントローラー（実装済み）
+  - RecipeRequest DTO: レシピ作成・更新リクエスト（実装済み）
+  - RecipeResponse DTO: レシピレスポンス（実装済み）
+  - IngredientDto: 食材DTO（実装済み）
 
 **4. Schedule Management Module（未実装）**
 - ScheduleController: スケジュールCRUD操作
@@ -172,13 +187,16 @@
 - DashboardPage: ホーム画面
 - AlertModal: サボり防止アラート
 
-**4. Recipe Components（未実装）**
-- RecipeSearchPage: レシピ検索画面
-- RecipeDetailPage: レシピ詳細画面
-- RecipeEditPage: レシピ編集画面
-- AIAdvisorPanel: AIアドバイザーパネル
-- ReviewList: レビュー一覧
-- ReviewForm: レビュー投稿フォーム
+**4. Recipe Components（実装済み）**
+- RecipeSearchPage: レシピ検索画面（実装済み）
+- RecipeDetailPage: レシピ詳細画面（実装済み）
+- RecipeEditPage: レシピ編集画面（作成・更新両対応）（実装済み）
+- recipeSlice: Redux状態管理（実装済み）
+- recipeApi: API呼び出し関数（実装済み）
+- Recipe型定義: TypeScript型定義（実装済み）
+- AIAdvisorPanel: AIアドバイザーパネル（未実装）
+- ReviewList: レビュー一覧（未実装）
+- ReviewForm: レビュー投稿フォーム（未実装）
 
 **5. Schedule Components（未実装）**
 - SchedulePage: スケジュール管理画面
@@ -227,14 +245,35 @@
   - Validation: ファイルサイズ5MB以下、JPEG/PNG形式
   - Status: ✅ 実装済み
 
-**Recipe Management（未実装）**
+**Recipe Management（実装済み）**
 - GET /api/recipes - レシピ検索
+  - Query Parameters: keyword (optional), authorId (optional)
+  - Response: List<RecipeResponse>
+  - Status: ✅ 実装済み
 - GET /api/recipes/{id} - レシピ詳細取得
+  - Response: RecipeResponse
+  - Status: ✅ 実装済み
 - POST /api/recipes - レシピ作成
+  - Request: RecipeRequest (title, ingredients, steps, cookingTime)
+  - Header: X-User-Id
+  - Response: RecipeResponse
+  - Validation: タイトル100文字以内、食材1つ以上、手順1つ以上、調理時間0以上
+  - Status: ✅ 実装済み
 - PUT /api/recipes/{id} - レシピ更新
-- DELETE /api/recipes/{id} - レシピ削除
+  - Request: RecipeRequest (title, ingredients, steps, cookingTime)
+  - Header: X-User-Id
+  - Response: RecipeResponse
+  - Status: ✅ 実装済み
+- DELETE /api/recipes/{id} - レシピ削除（論理削除）
+  - Header: X-User-Id
+  - Response: 204 No Content
+  - Status: ✅ 実装済み
 - POST /api/recipes/{id}/image - レシピ画像アップロード
-- Status: ⏳ 未実装
+  - Request: multipart/form-data (file)
+  - Header: X-User-Id
+  - Response: RecipeResponse
+  - Validation: ファイルサイズ5MB以下、JPEG/PNG形式
+  - Status: ✅ 実装済み
 
 **Schedule Management（未実装）**
 - GET /api/schedules - スケジュール一覧取得
@@ -292,30 +331,28 @@ Attributes:
   - MarketingOptOut (Boolean)
 ```
 
-**Recipes テーブル**
+**Recipes テーブル（実装済み）**
 ```
 Partition Key: RecipeId (String, UUID)
-Sort Key: CreatedAt (String, ISO8601)
 GSI_Author: AuthorId (PK)
-GSI_Category: Category (PK)
 Attributes:
-  - Title (String)
+  - Title (String, max 100 chars)
   - AuthorId (String)
   - Ingredients (List<Map>)
-    - name (String)
-    - quantity (Number)
-    - unit (String)
-    - note (String, optional)
-    - optional (Boolean, optional)
+    - name (String, max 100 chars)
+    - quantity (Number, BigDecimal)
+    - unit (String, Unit enum code)
+    - note (String, max 200 chars, optional)
+    - optional (Boolean)
   - Steps (List<String>)
   - CookingTime (Number, minutes)
-  - TotalTimeMin (Number, minutes)
-  - ServingsDefault (Number)
-  - ImageUrl (String)
+  - ImageUrl (String, optional)
   - IsPublic (Boolean)
-  - IsDeleted (Boolean)
+  - IsDeleted (Boolean, 論理削除フラグ)
   - CreatedAt (String, ISO8601)
   - UpdatedAt (String, ISO8601)
+
+Unit Enum: g, kg, ml, l, tbsp, tsp, cup, piece, pack, can, bottle, slice, clove, pinch, to_taste, as_needed
 ```
 
 **Schedules テーブル**
@@ -825,14 +862,17 @@ Attributes:
 **メール確認（実装済み）**：
 - ConfirmationCode：6桁の数字
 
-**レシピ作成（未実装）**：
+**レシピ作成・更新（実装済み）**：
 - Title：1〜100文字
-- Ingredients：
-  - Name：1〜50文字
-  - Quantity：0 < qty <= 9999
-  - Unit：事前定義リストから選択
-- Steps：最低1つの手順
-- Image：5MB以下、JPEG/PNG
+- Ingredients：最低1つ必要
+  - Name：1〜100文字
+  - Quantity：0より大きい数値
+  - Unit：Unit enumから選択（g, kg, ml, l, tbsp, tsp, cup, piece, pack, can, bottle, slice, clove, pinch, to_taste, as_needed）
+  - Note：0〜200文字（オプション）
+  - Optional：boolean
+- Steps：最低1つの手順、各手順は空でない文字列
+- CookingTime：0以上の整数（分）
+- Image：5MB以下、JPEG/PNG（オプション）
 
 **レビュー投稿（未実装）**：
 - Rating：1〜5の整数
@@ -909,9 +949,12 @@ backend/
 │   │   │           │       └── ImageValidationException.java # （実装済み）
 │   │   │           ├── domain/                # ドメイン層
 │   │   │           │   ├── entity/            # エンティティ
-│   │   │           │   │   └── User.java      # （実装済み）
+│   │   │           │   │   ├── User.java      # （実装済み）
+│   │   │           │   │   └── Recipe.java    # （実装済み）
 │   │   │           │   ├── valueobject/       # バリューオブジェクト
-│   │   │           │   │   └── Language.java  # （実装済み）
+│   │   │           │   │   ├── Language.java  # （実装済み）
+│   │   │           │   │   ├── Unit.java      # （実装済み）
+│   │   │           │   │   └── Ingredient.java # （実装済み）
 │   │   │           │   ├── repository/        # リポジトリインターフェース
 │   │   │           │   │   └── UserRepository.java  # （実装済み）
 │   │   │           │   └── exception/         # ドメイン例外
@@ -1303,3 +1346,141 @@ npm test
 **S3**：
 - バージョニングを有効化
 - ライフサイクルポリシーで古いバージョンを削除
+
+
+## 実装状況サマリー
+
+### 完了済み機能
+
+**1. ユーザー管理機能（✅ 完了）**
+- ユーザー登録（Cognito + DynamoDB）
+- ログイン（Cognito認証）
+- プロフィール取得・更新
+- アカウント削除
+- メール確認機能
+- 確認コード再送信
+- プロフィール画像アップロード（S3）
+
+**2. 画像管理機能（✅ 完了）**
+- S3統合（LocalStack対応）
+- 画像バリデーション（サイズ、フォーマット）
+- Pre-signed URL生成
+- 画像アップロード・取得・削除
+
+**3. レシピ管理機能（✅ 完了）**
+- レシピ作成
+- レシピ更新
+- レシピ削除（論理削除）
+- レシピ詳細取得
+- レシピ検索（キーワード、作成者）
+- レシピ画像アップロード
+- 食材管理（Ingredient Value Object）
+- 単位管理（Unit Enum）
+- フロントエンド：
+  - レシピ検索ページ
+  - レシピ詳細ページ
+  - レシピ編集ページ（作成・更新両対応）
+  - Redux状態管理
+  - 多言語対応（日本語・韓国語）
+
+**4. 認証フロー（✅ 完了）**
+- ログインページ
+- ユーザー登録ページ
+- メール確認ページ
+- パスワードリセットページ（プレースホルダー）
+- フォーム設定ファイル分離パターン
+
+**5. 共通コンポーネント（✅ 完了）**
+- FormField（再利用可能なフォームフィールド）
+- ImageUploader（ドラッグ&ドロップ対応）
+- shadcn/ui統合
+- Tailwind CSS統合
+
+**6. インフラストラクチャ（✅ 完了）**
+- LocalStack環境構築
+- DynamoDB テーブル作成（Users, Recipes）
+- S3バケット作成
+- Cognito ユーザープール設定
+- Docker Compose設定
+
+### 未実装機能
+
+**1. スケジュール管理機能**
+- カレンダー表示
+- 料理予定・実績登録
+- 予定→実績変換
+- LastCookingDate更新
+
+**2. サボり防止アラート機能**
+- アラート判定ロジック
+- アラートモーダル表示
+- クイック料理登録
+
+**3. 買い物リスト管理機能**
+- アイテム追加・更新・削除
+- 数量合算ロジック
+- チェック済みアイテム自動削除
+
+**4. レビュー機能**
+- レビュー投稿・編集・削除
+- 通報機能
+- 自動非表示処理
+
+**5. AIアドバイザー機能**
+- Gemini API統合
+- キャッシュ管理
+- レート制限処理
+
+**6. 管理者機能**
+- ユーザー管理
+- レシピ審査
+- 統計情報表示
+
+**7. 多言語対応（部分実装）**
+- フロントエンド：実装済み（日本語・韓国語）
+- バックエンド：未実装（Accept-Languageヘッダー処理）
+
+### 技術スタック
+
+**バックエンド**
+- Java 21+
+- Spring Boot 3.x
+- Gradle 8.11.1
+- AWS SDK for Java v2
+- DynamoDB
+- S3
+- Cognito
+- Lombok
+
+**フロントエンド**
+- TypeScript
+- React 18
+- Redux Toolkit
+- React Router
+- i18next（多言語対応）
+- shadcn/ui + Radix UI
+- Tailwind CSS
+- Vite
+
+**インフラストラクチャ**
+- LocalStack（ローカル開発）
+- Docker Compose
+- AWS CDK（本番環境、未実装）
+
+**テスト**
+- jqwik（Property-Based Testing、未実装）
+- fast-check（Property-Based Testing、未実装）
+- JUnit 5（Unit Testing、未実装）
+- Vitest（Unit Testing、未実装）
+
+### 次のステップ
+
+1. スケジュール管理機能の実装（タスク6）
+2. サボり防止アラート機能の実装（タスク7）
+3. 買い物リスト管理機能の実装（タスク8）
+4. レビュー機能の実装（タスク9）
+5. AIアドバイザー機能の実装（タスク10）
+6. 管理者機能の実装（タスク11）
+7. Property-Based Testingの実装（各機能のテストタスク）
+8. エラーハンドリングとロギングの強化（タスク13）
+9. ダッシュボードとホーム画面の実装（タスク14）

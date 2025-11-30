@@ -2,6 +2,8 @@ package com.cookingapp.presentation.exception;
 
 import com.cookingapp.application.validation.ImageValidationException;
 import com.cookingapp.domain.exception.AuthenticationException;
+import com.cookingapp.domain.exception.RecipeNotFoundException;
+import com.cookingapp.domain.exception.UnauthorizedException;
 import com.cookingapp.domain.exception.UserAlreadyExistsException;
 import com.cookingapp.domain.exception.UserNotFoundException;
 import org.slf4j.Logger;
@@ -107,6 +109,36 @@ public class GlobalExceptionHandler {
         );
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    /**
+     * レシピ未検出エラー（404）
+     */
+    @ExceptionHandler(RecipeNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleRecipeNotFoundException(RecipeNotFoundException ex) {
+        ErrorResponse response = new ErrorResponse(
+                "RECIPE_NOT_FOUND",
+                ex.getMessage(),
+                null,
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    /**
+     * 認可エラー（403）
+     */
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ErrorResponse> handleUnauthorizedException(UnauthorizedException ex) {
+        ErrorResponse response = new ErrorResponse(
+                "UNAUTHORIZED",
+                ex.getMessage(),
+                null,
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
     /**
