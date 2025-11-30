@@ -93,14 +93,21 @@
   - App.tsx: ルーティング設定（/login, /register, /password-reset）
   - _Requirements: 1.1, 1.2_
 
-- [ ] 4. プロフィール画像管理機能の実装
-- [ ] 4.1 インフラ層：S3ImageServiceの実装
+- [x] 4. プロフィール画像管理機能の実装
+
+
+
+- [x] 4.1 インフラ層：S3ImageServiceの実装
+
+
   - 画像アップロード（pre-signed URL使用）
   - 画像取得
   - 画像削除
   - _Requirements: 1.4, 3.5_
 
-- [ ] 4.2 アプリケーション層：画像バリデーションロジックの実装
+- [x] 4.2 アプリケーション層：画像バリデーションロジックの実装
+
+
   - ファイルサイズチェック（5MB以下）
   - フォーマットチェック（JPEG、PNG）
   - _Requirements: 1.4, 3.5_
@@ -109,12 +116,16 @@
   - **Property 3: プロフィール画像バリデーション**
   - **Validates: Requirements 1.4**
 
-- [ ] 4.4 プレゼンテーション層：画像アップロードエンドポイントの実装
+- [x] 4.4 プレゼンテーション層：画像アップロードエンドポイントの実装
+
+
   - POST /api/users/profile/image
   - POST /api/recipes/{id}/image
   - _Requirements: 1.4, 3.5_
 
-- [ ] 4.5 フロントエンド：ImageUploaderコンポーネントの実装
+- [x] 4.5 フロントエンド：ImageUploaderコンポーネントの実装
+
+
   - ドラッグ&ドロップ対応
   - プレビュー表示
   - バリデーション（サイズ、フォーマット）

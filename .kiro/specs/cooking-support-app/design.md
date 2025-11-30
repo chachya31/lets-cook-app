@@ -110,33 +110,42 @@
 - Presentation Layer:
   - UserController: REST APIコントローラー（実装済み）
 
-**2. Recipe Management Module（未実装）**
+**2. Image Management Module（実装済み）**
+- Infrastructure Layer:
+  - S3Config: S3クライアント設定（実装済み）
+  - S3ImageService: 画像アップロード、取得、削除（実装済み）
+- Application Layer:
+  - ImageValidator: 画像バリデーション（サイズ、フォーマット）（実装済み）
+  - UploadProfileImageUseCase: プロフィール画像アップロード（実装済み）
+- Presentation Layer:
+  - UserController: 画像アップロードエンドポイント追加（実装済み）
+
+**3. Recipe Management Module（未実装）**
 - RecipeController: レシピCRUD操作
 - RecipeService: レシピ検索、バリデーション
 - RecipeRepository: DynamoDBアクセス
-- S3ImageService: 画像アップロード/取得
 
-**3. Schedule Management Module（未実装）**
+**4. Schedule Management Module（未実装）**
 - ScheduleController: スケジュールCRUD操作
 - ScheduleService: 予定/実績管理、アラート判定
 - ScheduleRepository: DynamoDBアクセス
 
-**4. Shopping List Module（未実装）**
+**5. Shopping List Module（未実装）**
 - ShoppingListController: 買い物リストCRUD操作
 - ShoppingListService: 数量合算、自動削除
 - ShoppingListRepository: DynamoDBアクセス
 
-**5. Review Module（未実装）**
+**6. Review Module（未実装）**
 - ReviewController: レビューCRUD操作
 - ReviewService: 通報処理、自動非表示
 - ReviewRepository: DynamoDBアクセス
 
-**6. AI Advisor Module（未実装）**
+**7. AI Advisor Module（未実装）**
 - AIAdvisorController: AIアドバイス取得
 - AIAdvisorService: Gemini API呼び出し、キャッシュ管理
 - CacheService: 24時間キャッシュ
 
-**7. Admin Module（未実装）**
+**8. Admin Module（未実装）**
 - AdminController: 管理者機能
 - AdminService: ユーザー管理、レシピ審査
 - AdminRepository: DynamoDBアクセス
@@ -145,16 +154,19 @@
 
 **1. Authentication Components（実装済み）**
 - Login/
-  - LoginPage: ログイン画面
-  - loginFormConfig: ログインフォーム設定（バリデーションルール、フィールド定義）
+  - LoginPage: ログイン画面（実装済み）
+  - loginFormConfig: ログインフォーム設定（バリデーションルール、フィールド定義）（実装済み）
 - Register/
-  - RegisterPage: ユーザー登録画面
-  - registerFormConfig: 登録フォーム設定（バリデーションルール、フィールド定義、言語オプション）
+  - RegisterPage: ユーザー登録画面（実装済み）
+  - registerFormConfig: 登録フォーム設定（バリデーションルール、フィールド定義、言語オプション）（実装済み）
+- ConfirmEmail/
+  - ConfirmEmailPage: メール確認画面（実装済み）
+  - confirmEmailFormConfig: メール確認フォーム設定（バリデーションルール、フィールド定義）（実装済み）
 - PasswordReset/
   - PasswordResetPage: パスワードリセット画面（プレースホルダー）
 
 **2. Common Components（実装済み）**
-- FormField: 再利用可能なフォームフィールドコンポーネント
+- FormField: 再利用可能なフォームフィールドコンポーネント（maxLengthサポート追加）（実装済み）
 
 **3. Dashboard Components（未実装）**
 - DashboardPage: ホーム画面
@@ -177,10 +189,10 @@
 - ShoppingListPage: 買い物リスト画面
 - ShoppingListItem: リストアイテム
 
-**7. Profile Components（未実装）**
-- ProfilePage: プロフィール編集画面
-- ImageUploader: 画像アップロードコンポーネント
-- LanguageSelector: 言語選択
+**7. Profile Components（一部実装済み）**
+- ProfilePage: プロフィール編集画面（未実装）
+- ImageUploader: 画像アップロードコンポーネント（実装済み）
+- LanguageSelector: 言語選択（未実装）
 
 **8. Admin Components（未実装）**
 - AdminDashboard: 管理ダッシュボード
@@ -210,7 +222,10 @@
   - Response: 204 No Content
   - Status: ✅ 実装済み
 - POST /api/users/profile/image - プロフィール画像アップロード
-  - Status: ⏳ 未実装
+  - Request: multipart/form-data (userId, file)
+  - Response: UserResponse
+  - Validation: ファイルサイズ5MB以下、JPEG/PNG形式
+  - Status: ✅ 実装済み
 
 **Recipe Management（未実装）**
 - GET /api/recipes - レシピ検索
@@ -735,6 +750,19 @@ Attributes:
 - `cn()`ユーティリティ関数でクラス名を動的に結合
 - React Hook Formと統合してフォームバリデーションを実装
 
+**画面構造パターン（実装済み）**：
+- 各画面は機能ごとにフォルダ分け（例：Login/、Register/、ConfirmEmail/）
+- 各フォルダには以下のファイルを配置：
+  - `○○Page.tsx`: ページコンポーネント（UI、ロジック、状態管理）
+  - `○○Config.ts`: フォーム設定ファイル（初期値、バリデーションルール、フィールド定義）
+- この構造により、設定とロジックを分離し、保守性と再利用性を向上
+- 例：
+  ```
+  Login/
+  ├── LoginPage.tsx          # ページコンポーネント
+  └── loginFormConfig.ts     # フォーム設定
+  ```
+
 ## Validation Strategy
 
 ### バリデーション方針
@@ -754,7 +782,7 @@ Attributes:
   - `matchField`: フィールド一致チェック（パスワード確認用）
 - 対象：
   - 必須フィールドチェック
-  - 文字数制限（例：ニックネーム1-50文字）
+  - 文字数制限（例：ニックネーム1-50文字、確認コード6桁）
   - フォーマット検証（例：メールアドレス、パスワード強度）
   - 数値範囲チェック（例：食材数量0〜9999）
   - ファイルサイズとフォーマット（例：画像5MB以下、JPEG/PNG）
@@ -793,6 +821,9 @@ Attributes:
 - PreferredLanguage：'ja' または 'ko'（オプション）
 - Timezone：有効なタイムゾーン文字列（オプション）
 - MarketingOptOut：boolean（オプション）
+
+**メール確認（実装済み）**：
+- ConfirmationCode：6桁の数字
 
 **レシピ作成（未実装）**：
 - Title：1〜100文字
@@ -866,12 +897,16 @@ backend/
 │   │   │           │   │   └── GlobalExceptionHandler.java  # （実装済み）
 │   │   │           │   └── validation/        # カスタムバリデーター
 │   │   │           ├── application/           # アプリケーション層
-│   │   │           │   └── usecase/           # ユースケース実装
-│   │   │           │       ├── RegisterUserUseCase.java      # （実装済み）
-│   │   │           │       ├── LoginUserUseCase.java         # （実装済み）
-│   │   │           │       ├── GetUserProfileUseCase.java    # （実装済み）
-│   │   │           │       ├── UpdateUserProfileUseCase.java # （実装済み）
-│   │   │           │       └── DeleteUserAccountUseCase.java # （実装済み）
+│   │   │           │   ├── usecase/           # ユースケース実装
+│   │   │           │   │   ├── RegisterUserUseCase.java      # （実装済み）
+│   │   │           │   │   ├── LoginUserUseCase.java         # （実装済み）
+│   │   │           │   │   ├── GetUserProfileUseCase.java    # （実装済み）
+│   │   │           │   │   ├── UpdateUserProfileUseCase.java # （実装済み）
+│   │   │           │   │   ├── DeleteUserAccountUseCase.java # （実装済み）
+│   │   │           │   │   └── UploadProfileImageUseCase.java # （実装済み）
+│   │   │           │   └── validation/        # バリデーション
+│   │   │           │       ├── ImageValidator.java           # （実装済み）
+│   │   │           │       └── ImageValidationException.java # （実装済み）
 │   │   │           ├── domain/                # ドメイン層
 │   │   │           │   ├── entity/            # エンティティ
 │   │   │           │   │   └── User.java      # （実装済み）
@@ -880,19 +915,22 @@ backend/
 │   │   │           │   ├── repository/        # リポジトリインターフェース
 │   │   │           │   │   └── UserRepository.java  # （実装済み）
 │   │   │           │   └── exception/         # ドメイン例外
-│   │   │           │       ├── UserNotFoundException.java        # （実装済み）
-│   │   │           │       ├── DuplicateEmailException.java      # （実装済み）
-│   │   │           │       └── InvalidCredentialsException.java  # （実装済み）
+│   │   │           │       ├── AuthenticationException.java      # （実装済み）
+│   │   │           │       ├── UserAlreadyExistsException.java   # （実装済み）
+│   │   │           │       └── UserNotFoundException.java        # （実装済み）
 │   │   │           └── infrastructure/        # インフラストラクチャ層
 │   │   │               ├── repository/        # リポジトリ実装（DynamoDB）
 │   │   │               │   └── DynamoDBUserRepository.java  # （実装済み）
 │   │   │               ├── external/          # 外部API統合
 │   │   │               │   ├── cognito/       # Cognito認証
 │   │   │               │   │   └── CognitoAuthService.java  # （実装済み）
-│   │   │               │   ├── s3/            # S3サービス（未実装）
+│   │   │               │   ├── s3/            # S3サービス
+│   │   │               │   │   └── S3ImageService.java      # （実装済み）
 │   │   │               │   └── gemini/        # Gemini API（未実装）
 │   │   │               ├── config/            # 設定クラス
-│   │   │               │   ├── AwsConfig.java           # （実装済み）
+│   │   │               │   ├── DynamoDBConfig.java      # （実装済み）
+│   │   │               │   ├── CognitoConfig.java       # （実装済み）
+│   │   │               │   ├── S3Config.java            # （実装済み）
 │   │   │               │   └── CorsConfig.java          # （実装済み）
 │   │   │               └── cache/             # キャッシュ管理（未実装）
 │   │   └── resources/
@@ -933,15 +971,18 @@ frontend/
 │   │   │   └── label.tsx
 │   │   ├── auth/                              # 認証関連（実装済み）
 │   │   │   ├── Login/                         # ログイン機能
-│   │   │   │   ├── LoginPage.tsx              # ログインページ
-│   │   │   │   └── loginFormConfig.ts         # フォーム設定
+│   │   │   │   ├── LoginPage.tsx              # ログインページ（実装済み）
+│   │   │   │   └── loginFormConfig.ts         # フォーム設定（実装済み）
 │   │   │   ├── Register/                      # ユーザー登録機能
-│   │   │   │   ├── RegisterPage.tsx           # 登録ページ
-│   │   │   │   └── registerFormConfig.ts      # フォーム設定
+│   │   │   │   ├── RegisterPage.tsx           # 登録ページ（実装済み）
+│   │   │   │   └── registerFormConfig.ts      # フォーム設定（実装済み）
+│   │   │   ├── ConfirmEmail/                  # メール確認機能
+│   │   │   │   ├── ConfirmEmailPage.tsx       # メール確認ページ（実装済み）
+│   │   │   │   └── confirmEmailFormConfig.ts  # フォーム設定（実装済み）
 │   │   │   └── PasswordReset/                 # パスワードリセット機能
 │   │   │       └── PasswordResetPage.tsx      # リセットページ（プレースホルダー）
 │   │   ├── common/                            # 共通コンポーネント（実装済み）
-│   │   │   ├── FormField.tsx                  # 再利用可能なフォームフィールド
+│   │   │   ├── FormField.tsx                  # 再利用可能なフォームフィールド（maxLength対応）（実装済み）
 │   │   │   ├── Header.tsx                     # （未実装）
 │   │   │   ├── Footer.tsx                     # （未実装）
 │   │   │   ├── ErrorBanner.tsx                # （未実装）
@@ -963,10 +1004,10 @@ frontend/
 │   │   ├── shopping/                          # 買い物リスト（未実装）
 │   │   │   ├── ShoppingListPage.tsx
 │   │   │   └── ShoppingListItem.tsx
-│   │   ├── profile/                           # プロフィール（未実装）
-│   │   │   ├── ProfilePage.tsx
-│   │   │   ├── ImageUploader.tsx
-│   │   │   └── LanguageSelector.tsx
+│   │   ├── profile/                           # プロフィール（一部実装済み）
+│   │   │   ├── ProfilePage.tsx                # （未実装）
+│   │   │   ├── ImageUploader.tsx              # （実装済み）
+│   │   │   └── LanguageSelector.tsx           # （未実装）
 │   │   └── admin/                             # 管理者機能（未実装）
 │   │       ├── AdminDashboard.tsx
 │   │       ├── UserManagement.tsx
@@ -1001,8 +1042,8 @@ frontend/
 │   ├── i18n/                                  # 多言語対応（実装済み）
 │   │   ├── i18n.ts                            # i18next設定（実装済み）
 │   │   └── locales/
-│   │       ├── ja.json                        # 日本語翻訳（実装済み）
-│   │       └── ko.json                        # 韓国語翻訳（実装済み）
+│   │       ├── ja.json                        # 日本語翻訳（認証、バリデーション、画像アップロード）（実装済み）
+│   │       └── ko.json                        # 韓国語翻訳（認証、バリデーション、画像アップロード）（実装済み）
 │   ├── types/                                 # TypeScript型定義（実装済み）
 │   │   ├── user.ts                            # ユーザー型（実装済み）
 │   │   ├── auth.ts                            # 認証型（実装済み）
