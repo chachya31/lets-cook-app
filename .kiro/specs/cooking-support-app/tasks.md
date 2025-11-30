@@ -393,10 +393,12 @@
   - App.tsxルーティング追加（/schedules）
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [ ] 9. サボり防止アラート機能の実装
-- [ ] 9.1 アプリケーション層：アラート判定ロジックの実装
+- [x] 9. サボり防止アラート機能の実装
+- [x] 9.1 アプリケーション層：アラート判定ロジックの実装
   - LastCookingDateから3日経過判定（4日目の0時）
   - アラートメッセージのランダム選択（警告/励まし）
+  - CheckAlertUseCase: アラート判定ユースケース（実装済み）
+  - AlertResponse: アラートレスポンスDTO（実装済み）
   - _Requirements: 7.1, 7.4_
 
 - [ ]* 9.2 プロパティテスト：アラート表示判定
@@ -411,14 +413,20 @@
   - **Property 29: アラート非表示条件**
   - **Validates: Requirements 7.5**
 
-- [ ] 9.5 プレゼンテーション層：アラート判定エンドポイントの実装
-  - GET /api/schedules/alert
+- [x] 9.5 プレゼンテーション層：アラート判定エンドポイントの実装
+  - GET /api/alerts/check: アラート表示判定（X-User-Idヘッダー）
+  - AlertController: REST APIコントローラー（実装済み）
   - _Requirements: 7.1_
 
-- [ ] 9.6 フロントエンド：AlertModalコンポーネントの実装
-  - モーダル表示
-  - localStorageによる再表示制御
-  - クイック料理登録ボタン
+- [x] 9.6 フロントエンド：AlertModalコンポーネントの実装
+  - AlertModal: サボり防止アラートモーダル（実装済み）
+  - モーダル表示（Dialog/shadcn/ui使用）
+  - localStorageによる再表示制御（同日の再表示なし）
+  - クイック料理登録ボタン（スケジュール画面に遷移）
+  - ランダムメッセージ表示（警告/励まし）
+  - alertApi: API呼び出し関数（実装済み）
+  - i18n翻訳追加（日本語・韓国語）
+  - App.tsxにAlertModal追加（実装済み）
   - _Requirements: 7.1, 7.2, 7.3_
 
 - [ ]* 9.7 プロパティテスト：アラート再表示防止

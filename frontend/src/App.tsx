@@ -8,10 +8,12 @@ import RecipeSearchPage from './components/recipe/RecipeSearchPage';
 import RecipeDetailPage from './components/recipe/RecipeDetailPage';
 import RecipeEditPage from './components/recipe/RecipeEdit/RecipeEditPage';
 import SchedulePage from './components/schedule/SchedulePage';
+import { AlertModal } from './components/alert/AlertModal';
 
 const App: React.FC = () => {
   return (
     <div>
+      <AlertModal />
       <Routes>
         <Route path="/" element={<div>ホーム画面</div>} />
         <Route path="/login" element={<LoginPage />} />

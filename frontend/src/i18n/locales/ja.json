@@ -139,5 +139,10 @@
     "noSchedules": "スケジュールがありません",
     "convertToCooked": "実績に変換",
     "confirmDelete": "本当にこのスケジュールを削除しますか？"
+  },
+  "alert": {
+    "title": "料理をしていませんか？",
+    "dismiss": "閉じる",
+    "quickRegister": "今すぐ料理を登録"
   }
 }

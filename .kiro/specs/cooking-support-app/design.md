@@ -181,12 +181,22 @@
   - UpdateReviewRequest DTO: レビュー更新リクエスト（実装済み）
   - ReviewResponse DTO: レビューレスポンス（実装済み）
 
-**7. AI Advisor Module（未実装）**
+**7. Alert Module（実装済み）**
+- Application Layer:
+  - CheckAlertUseCase: アラート判定ユースケース（実装済み）
+    - 最終料理日から3日経過判定（4日目の0時）
+    - アラートメッセージのランダム選択（警告/励まし）
+  - AlertResponse: アラートレスポンスDTO（実装済み）
+- Presentation Layer:
+  - AlertController: アラート判定エンドポイント（実装済み）
+    - GET /api/alerts/check: アラート表示判定
+
+**8. AI Advisor Module（未実装）**
 - AIAdvisorController: AIアドバイス取得
 - AIAdvisorService: Gemini API呼び出し、キャッシュ管理
 - CacheService: 24時間キャッシュ
 
-**8. Admin Module（未実装）**
+**9. Admin Module（未実装）**
 - AdminController: 管理者機能
 - AdminService: ユーザー管理、レシピ審査
 - AdminRepository: DynamoDBアクセス
@@ -209,9 +219,15 @@
 **2. Common Components（実装済み）**
 - FormField: 再利用可能なフォームフィールドコンポーネント（maxLengthサポート追加）（実装済み）
 
-**3. Dashboard Components（未実装）**
-- DashboardPage: ホーム画面
-- AlertModal: サボり防止アラート
+**3. Dashboard Components（一部実装済み）**
+- DashboardPage: ホーム画面（未実装）
+- alert/
+  - AlertModal: サボり防止アラートモーダル（実装済み）
+    - 最終料理日から3日経過した場合に表示
+    - localStorageによる再表示制御（同日の再表示なし）
+    - クイック料理登録ボタン（スケジュール画面に遷移）
+    - ランダムメッセージ表示（警告/励まし）
+- alertApi: アラートAPI呼び出し関数（実装済み）
 
 **4. Recipe Components（実装済み）**
 - RecipeSearchPage: レシピ検索画面（実装済み）
@@ -366,6 +382,14 @@
 - POST /api/reviews/{reviewId}/report - レビュー通報
   - Response: ReviewResponse
   - 通報カウント増加、3回以上で自動非表示
+  - Status: ✅ 実装済み
+
+**Alert（実装済み）**
+- GET /api/alerts/check - アラート表示判定
+  - Header: X-User-Id
+  - Response: AlertResponse (shouldShow, message)
+  - 最終料理日から3日経過（4日目の0時）でアラート表示
+  - メッセージはランダムに選択（警告/励まし）
   - Status: ✅ 実装済み
 
 **AI Advisor（未実装）**
@@ -1036,7 +1060,11 @@ backend/
 │   │   │       └── cookingapp/
 │   │   │           ├── presentation/          # プレゼンテーション層
 │   │   │           │   ├── controller/        # REST APIコントローラー
-│   │   │           │   │   └── UserController.java  # （実装済み）
+│   │   │           │   │   ├── UserController.java  # （実装済み）
+│   │   │           │   │   ├── RecipeController.java # （実装済み）
+│   │   │           │   │   ├── ScheduleController.java # （実装済み）
+│   │   │           │   │   ├── ReviewController.java # （実装済み）
+│   │   │           │   │   └── AlertController.java # （実装済み）
 │   │   │           │   ├── dto/               # リクエスト/レスポンスDTO
 │   │   │           │   │   ├── request/       # リクエストDTO（実装済み）
 │   │   │           │   │   └── response/      # レスポンスDTO（実装済み）
@@ -1050,7 +1078,10 @@ backend/
 │   │   │           │   │   ├── GetUserProfileUseCase.java    # （実装済み）
 │   │   │           │   │   ├── UpdateUserProfileUseCase.java # （実装済み）
 │   │   │           │   │   ├── DeleteUserAccountUseCase.java # （実装済み）
-│   │   │           │   │   └── UploadProfileImageUseCase.java # （実装済み）
+│   │   │           │   │   ├── UploadProfileImageUseCase.java # （実装済み）
+│   │   │           │   │   └── alert/         # アラート機能
+│   │   │           │   │       ├── CheckAlertUseCase.java    # （実装済み）
+│   │   │           │   │       └── AlertResponse.java        # （実装済み）
 │   │   │           │   └── validation/        # バリデーション
 │   │   │           │       ├── ImageValidator.java           # （実装済み）
 │   │   │           │       └── ImageValidationException.java # （実装済み）
@@ -1137,9 +1168,10 @@ frontend/
 │   │   │   ├── Footer.tsx                     # （未実装）
 │   │   │   ├── ErrorBanner.tsx                # （未実装）
 │   │   │   └── LoadingSkeleton.tsx            # （未実装）
+│   │   ├── alert/                             # アラート機能（実装済み）
+│   │   │   └── AlertModal.tsx                 # サボり防止アラートモーダル（実装済み）
 │   │   ├── dashboard/                         # ダッシュボード（未実装）
-│   │   │   ├── DashboardPage.tsx
-│   │   │   └── AlertModal.tsx
+│   │   │   └── DashboardPage.tsx
 │   │   ├── recipe/                            # レシピ関連（未実装）
 │   │   │   ├── RecipeSearchPage.tsx
 │   │   │   ├── RecipeDetailPage.tsx
@@ -1173,6 +1205,7 @@ frontend/
 │   │   ├── recipeApi.ts                       # レシピAPI（実装済み）
 │   │   ├── reviewApi.ts                       # レビューAPI（実装済み）
 │   │   ├── scheduleApi.ts                     # スケジュールAPI（実装済み）
+│   │   ├── alertApi.ts                        # アラートAPI（実装済み）
 │   │   ├── shoppingListApi.ts                 # （未実装）
 │   │   └── aiAdvisorApi.ts                    # （未実装）
 │   ├── hooks/                                 # カスタムフック（実装済み）
@@ -1190,8 +1223,8 @@ frontend/
 │   ├── i18n/                                  # 多言語対応（実装済み）
 │   │   ├── i18n.ts                            # i18next設定（実装済み）
 │   │   └── locales/
-│   │       ├── ja.json                        # 日本語翻訳（認証、バリデーション、画像アップロード）（実装済み）
-│   │       └── ko.json                        # 韓国語翻訳（認証、バリデーション、画像アップロード）（実装済み）
+│   │       ├── ja.json                        # 日本語翻訳（認証、バリデーション、画像アップロード、レシピ、レビュー、スケジュール、アラート）（実装済み）
+│   │       └── ko.json                        # 韓国語翻訳（認証、バリデーション、画像アップロード、レシピ、レビュー、スケジュール、アラート）（実装済み）
 │   ├── types/                                 # TypeScript型定義（実装済み）
 │   │   ├── user.ts                            # ユーザー型（実装済み）
 │   │   ├── auth.ts                            # 認証型（実装済み）
