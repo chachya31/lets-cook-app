@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 /**
  * アラートコントローラー
- * サボり防止アラート機能のエンドポイントを提供
+ * サボり防止アラート機�Eのエンド�Eイントを提侁E
  */
 @RestController
 @RequestMapping("/api/alerts")
@@ -17,9 +17,9 @@ public class AlertController {
     private final CheckAlertUseCase checkAlertUseCase;
 
     /**
-     * アラート表示判定
+     * アラート表示判宁E
      * 
-     * @param userId ユーザーID（X-User-Idヘッダー）
+     * @param userId ユーザーID�E�E-User-Idヘッダー�E�E
      * @return アラート情報
      */
     @GetMapping("/check")

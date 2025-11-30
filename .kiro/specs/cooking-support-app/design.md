@@ -1072,16 +1072,38 @@ backend/
 │   │   │           │   │   └── GlobalExceptionHandler.java  # （実装済み）
 │   │   │           │   └── validation/        # カスタムバリデーター
 │   │   │           ├── application/           # アプリケーション層
-│   │   │           │   ├── usecase/           # ユースケース実装
-│   │   │           │   │   ├── RegisterUserUseCase.java      # （実装済み）
-│   │   │           │   │   ├── LoginUserUseCase.java         # （実装済み）
-│   │   │           │   │   ├── GetUserProfileUseCase.java    # （実装済み）
-│   │   │           │   │   ├── UpdateUserProfileUseCase.java # （実装済み）
-│   │   │           │   │   ├── DeleteUserAccountUseCase.java # （実装済み）
-│   │   │           │   │   ├── UploadProfileImageUseCase.java # （実装済み）
+│   │   │           │   ├── usecase/           # ユースケース実装（機能ごとにパッケージ分割）
+│   │   │           │   │   ├── user/          # ユーザー管理
+│   │   │           │   │   │   ├── RegisterUserUseCase.java      # （実装済み）
+│   │   │           │   │   │   ├── LoginUserUseCase.java         # （実装済み）
+│   │   │           │   │   │   ├── ConfirmSignUpUseCase.java     # （実装済み）
+│   │   │           │   │   │   ├── ResendConfirmationCodeUseCase.java # （実装済み）
+│   │   │           │   │   │   ├── GetUserProfileUseCase.java    # （実装済み）
+│   │   │           │   │   │   ├── UpdateUserProfileUseCase.java # （実装済み）
+│   │   │           │   │   │   ├── DeleteUserAccountUseCase.java # （実装済み）
+│   │   │           │   │   │   └── UploadProfileImageUseCase.java # （実装済み）
+│   │   │           │   │   ├── recipe/        # レシピ管理
+│   │   │           │   │   │   ├── CreateRecipeUseCase.java      # （実装済み）
+│   │   │           │   │   │   ├── UpdateRecipeUseCase.java      # （実装済み）
+│   │   │           │   │   │   ├── DeleteRecipeUseCase.java      # （実装済み）
+│   │   │           │   │   │   ├── GetRecipeUseCase.java         # （実装済み）
+│   │   │           │   │   │   ├── SearchRecipesUseCase.java     # （実装済み）
+│   │   │           │   │   │   └── UploadRecipeImageUseCase.java # （実装済み）
+│   │   │           │   │   ├── schedule/      # スケジュール管理
+│   │   │           │   │   │   ├── CreateScheduleUseCase.java    # （実装済み）
+│   │   │           │   │   │   ├── UpdateScheduleUseCase.java    # （実装済み）
+│   │   │           │   │   │   ├── DeleteScheduleUseCase.java    # （実装済み）
+│   │   │           │   │   │   ├── GetSchedulesUseCase.java      # （実装済み）
+│   │   │           │   │   │   └── ConvertScheduleToCookedUseCase.java # （実装済み）
+│   │   │           │   │   ├── review/        # レビュー管理
+│   │   │           │   │   │   ├── CreateReviewUseCase.java      # （実装済み）
+│   │   │           │   │   │   ├── UpdateReviewUseCase.java      # （実装済み）
+│   │   │           │   │   │   ├── DeleteReviewUseCase.java      # （実装済み）
+│   │   │           │   │   │   ├── GetReviewsByRecipeUseCase.java # （実装済み）
+│   │   │           │   │   │   └── ReportReviewUseCase.java      # （実装済み）
 │   │   │           │   │   └── alert/         # アラート機能
-│   │   │           │   │       ├── CheckAlertUseCase.java    # （実装済み）
-│   │   │           │   │       └── AlertResponse.java        # （実装済み）
+│   │   │           │   │       ├── CheckAlertUseCase.java        # （実装済み）
+│   │   │           │   │       └── AlertResponse.java            # （実装済み）
 │   │   │           │   └── validation/        # バリデーション
 │   │   │           │       ├── ImageValidator.java           # （実装済み）
 │   │   │           │       └── ImageValidationException.java # （実装済み）

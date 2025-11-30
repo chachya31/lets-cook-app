@@ -1,4 +1,4 @@
-package com.cookingapp.application.usecase;
+package com.cookingapp.application.usecase.review;
 
 import com.cookingapp.domain.entity.Review;
 import com.cookingapp.domain.repository.ReviewRepository;
@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 /**
  * CreateReviewUseCase
- * レビュー作成ユースケース
+ * レビュー作�Eユースケース
  */
 @Slf4j
 @Service

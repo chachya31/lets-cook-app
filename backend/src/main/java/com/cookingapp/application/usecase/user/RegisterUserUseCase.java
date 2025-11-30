@@ -1,4 +1,4 @@
-package com.cookingapp.application.usecase;
+package com.cookingapp.application.usecase.user;
 
 import com.cookingapp.domain.entity.User;
 import com.cookingapp.domain.exception.UserAlreadyExistsException;
@@ -25,21 +25,21 @@ public class RegisterUserUseCase {
      * ユーザーを登録
      * 
      * @param email メールアドレス
-     * @param password パスワード
-     * @param nickname ニックネーム
-     * @param preferredLanguage 優先言語
+     * @param password パスワーチE
+     * @param nickname ニックネ�Eム
+     * @param preferredLanguage 優先言誁E
      * @return 登録されたユーザー
-     * @throws UserAlreadyExistsException ユーザーが既に存在する場合
+     * @throws UserAlreadyExistsException ユーザーが既に存在する場吁E
      */
     public User execute(String email, String password, String nickname, Language preferredLanguage) {
-        // パスワードバリデーション
+        // パスワードバリチE�Eション
         if (!User.validatePassword(password)) {
             throw new IllegalArgumentException(
                 "Password must be at least 8 characters long and contain uppercase, lowercase, numbers, and special characters"
             );
         }
 
-        // メールアドレスの重複チェック
+        // メールアドレスの重褁E��ェチE��
         if (userRepository.findByEmail(email).isPresent()) {
             throw new UserAlreadyExistsException("User with email " + email + " already exists");
         }
@@ -47,10 +47,10 @@ public class RegisterUserUseCase {
         // Cognitoにユーザー登録
         String cognitoUserId = cognitoAuthService.signUp(email, password, nickname);
 
-        // ユーザーエンティティ作成
+        // ユーザーエンチE��チE��作�E
         User user = new User(email, nickname, preferredLanguage);
 
-        // DynamoDBに保存
+        // DynamoDBに保孁E
         return userRepository.save(user);
     }
 }

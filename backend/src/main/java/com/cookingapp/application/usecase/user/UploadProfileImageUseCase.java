@@ -1,4 +1,4 @@
-package com.cookingapp.application.usecase;
+package com.cookingapp.application.usecase.user;
 
 import com.cookingapp.application.validation.ImageValidationException;
 import com.cookingapp.application.validation.ImageValidator;
@@ -14,7 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 /**
- * プロフィール画像アップロードユースケース
+ * プロフィール画像アチE�Eロードユースケース
  */
 @Service
 public class UploadProfileImageUseCase {
@@ -35,37 +35,37 @@ public class UploadProfileImageUseCase {
     }
 
     /**
-     * プロフィール画像をアップロード
+     * プロフィール画像をアチE�EローチE
      * 
      * @param userId ユーザーID
      * @param file 画像ファイル
      * @return 更新されたユーザー
-     * @throws UserNotFoundException ユーザーが見つからない
-     * @throws ImageValidationException 画像バリデーションエラー
+     * @throws UserNotFoundException ユーザーが見つからなぁE
+     * @throws ImageValidationException 画像バリチE�Eションエラー
      */
     public User execute(String userId, MultipartFile file) {
         logger.info("Uploading profile image for user: {}", userId);
 
-        // ユーザーの存在確認
+        // ユーザーの存在確誁E
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found: " + userId));
 
-        // 画像バリデーション
+        // 画像バリチE�Eション
         imageValidator.validate(file);
 
         try {
-            // 既存の画像を削除
+            // 既存�E画像を削除
             if (user.getProfileImageUrl() != null && !user.getProfileImageUrl().isEmpty()) {
                 try {
                     s3ImageService.deleteImage(user.getProfileImageUrl());
                     logger.info("Deleted old profile image for user: {}", userId);
                 } catch (Exception e) {
                     logger.warn("Failed to delete old profile image: {}", e.getMessage());
-                    // 削除失敗しても続行
+                    // 削除失敗しても続衁E
                 }
             }
 
-            // 新しい画像をアップロード
+            // 新しい画像をアチE�EローチE
             String imageUrl = s3ImageService.uploadImage(
                     file.getOriginalFilename(),
                     file.getContentType(),

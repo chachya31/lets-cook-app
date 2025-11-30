@@ -1,4 +1,4 @@
-package com.cookingapp.application.usecase;
+package com.cookingapp.application.usecase.user;
 
 import com.cookingapp.domain.entity.User;
 import com.cookingapp.domain.repository.UserRepository;
@@ -21,11 +21,11 @@ public class UpdateUserProfileUseCase {
      * ユーザープロフィールを更新
      * 
      * @param userId ユーザーID
-     * @param nickname ニックネーム
-     * @param displayName 表示名
-     * @param preferredLanguage 優先言語
+     * @param nickname ニックネ�Eム
+     * @param displayName 表示吁E
+     * @param preferredLanguage 優先言誁E
      * @param timezone タイムゾーン
-     * @param marketingOptOut マーケティングオプトアウト
+     * @param marketingOptOut マ�EケチE��ングオプトアウチE
      * @return 更新されたユーザー
      */
     public User execute(String userId, String nickname, String displayName, 

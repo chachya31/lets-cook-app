@@ -1,6 +1,6 @@
 package com.cookingapp.presentation.controller;
 
-import com.cookingapp.application.usecase.*;
+import com.cookingapp.application.usecase.review.*;
 import com.cookingapp.domain.entity.Review;
 import com.cookingapp.presentation.dto.request.CreateReviewRequest;
 import com.cookingapp.presentation.dto.request.UpdateReviewRequest;
@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 /**
  * ReviewController
- * レビュー管理REST APIコントローラー
+ * レビュー管琁EEST APIコントローラー
  */
 @Slf4j
 @RestController
@@ -31,7 +31,7 @@ public class ReviewController {
     private final ReportReviewUseCase reportReviewUseCase;
 
     /**
-     * レシピのレビュー一覧を取得
+     * レシピ�Eレビュー一覧を取征E
      */
     @GetMapping("/recipes/{recipeId}/reviews")
     public ResponseEntity<List<ReviewResponse>> getReviewsByRecipe(@PathVariable String recipeId) {
@@ -46,7 +46,7 @@ public class ReviewController {
     }
 
     /**
-     * レビューを作成
+     * レビューを作�E
      */
     @PostMapping("/recipes/{recipeId}/reviews")
     public ResponseEntity<ReviewResponse> createReview(

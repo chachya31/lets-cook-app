@@ -1,4 +1,4 @@
-package com.cookingapp.application.usecase;
+package com.cookingapp.application.usecase.recipe;
 
 import com.cookingapp.domain.entity.Recipe;
 import com.cookingapp.domain.exception.RecipeNotFoundException;
@@ -18,11 +18,11 @@ public class GetRecipeUseCase {
     }
 
     /**
-     * レシピを取得
+     * レシピを取征E
      * 
      * @param recipeId レシピID
-     * @return レシピ
-     * @throws RecipeNotFoundException レシピが見つからない場合
+     * @return レシチE
+     * @throws RecipeNotFoundException レシピが見つからなぁE��吁E
      */
     public Recipe execute(String recipeId) {
         return recipeRepository.findById(recipeId)

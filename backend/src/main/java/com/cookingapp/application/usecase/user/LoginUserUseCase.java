@@ -1,4 +1,4 @@
-package com.cookingapp.application.usecase;
+package com.cookingapp.application.usecase.user;
 
 import com.cookingapp.domain.entity.User;
 import com.cookingapp.domain.exception.AuthenticationException;
@@ -33,15 +33,15 @@ public class LoginUserUseCase {
      * ユーザーをログイン
      * 
      * @param email メールアドレス
-     * @param password パスワード
-     * @return 認証トークンとユーザー情報
-     * @throws AuthenticationException 認証に失敗した場合
+     * @param password パスワーチE
+     * @return 認証ト�Eクンとユーザー惁E��
+     * @throws AuthenticationException 認証に失敗した場吁E
      */
     public LoginResult execute(String email, String password) {
         // Cognitoで認証
         AuthTokens tokens = cognitoAuthService.signIn(email, password);
 
-        // ユーザー情報を取得、存在しない場合は作成
+        // ユーザー惁E��を取得、存在しなぁE��合�E作�E
         User user = userRepository.findByEmail(email)
                 .orElseGet(() -> {
                     logger.info("User not found in database, creating new user from Cognito: {}", email);
@@ -56,18 +56,18 @@ public class LoginUserUseCase {
     }
     
     /**
-     * Cognitoのユーザー情報からDynamoDBにユーザーを作成
+     * Cognitoのユーザー惁E��からDynamoDBにユーザーを作�E
      */
     private User createUserFromCognito(String email, String accessToken) {
         try {
-            // Cognitoからユーザー属性を取得
+            // Cognitoからユーザー属性を取征E
             Map<String, String> attributes = cognitoAuthService.getUserAttributes(accessToken);
             
             String nickname = attributes.getOrDefault("nickname", email.split("@")[0]);
             String preferredLanguageCode = attributes.getOrDefault("locale", "ja");
             Language preferredLanguage = Language.fromCode(preferredLanguageCode);
             
-            // 新しいユーザーを作成
+            // 新しいユーザーを作�E
             User newUser = new User(email, nickname, preferredLanguage);
             
             logger.info("Creating new user: email={}, nickname={}, language={}", 

@@ -1,6 +1,6 @@
 package com.cookingapp.presentation.controller;
 
-import com.cookingapp.application.usecase.*;
+import com.cookingapp.application.usecase.recipe.*;
 import com.cookingapp.domain.entity.Recipe;
 import com.cookingapp.domain.valueobject.Ingredient;
 import com.cookingapp.presentation.dto.RecipeRequest;
@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * レシピ管理コントローラー
+ * レシピ管琁E��ントローラー
  */
 @RestController
 @RequestMapping("/api/recipes")
@@ -49,9 +49,9 @@ public class RecipeController {
      * レシピ検索
      * GET /api/recipes
      * 
-     * @param keyword 検索キーワード（オプション）
-     * @param authorId 作成者ID（オプション）
-     * @return レシピリスト
+     * @param keyword 検索キーワード（オプション�E�E
+     * @param authorId 作�E老ED�E�オプション�E�E
+     * @return レシピリスチE
      */
     @GetMapping
     public ResponseEntity<List<RecipeResponse>> searchRecipes(
@@ -76,7 +76,7 @@ public class RecipeController {
     }
 
     /**
-     * レシピ詳細取得
+     * レシピ詳細取征E
      * GET /api/recipes/{id}
      * 
      * @param id レシピID
@@ -89,12 +89,12 @@ public class RecipeController {
     }
 
     /**
-     * レシピ作成
+     * レシピ作�E
      * POST /api/recipes
      * 
-     * @param authorId 作成者ID（ヘッダーから取得）
-     * @param request レシピ作成リクエスト
-     * @return 作成されたレシピ
+     * @param authorId 作�E老ED�E��EチE��ーから取得！E
+     * @param request レシピ作�EリクエスチE
+     * @return 作�EされたレシチE
      */
     @PostMapping
     public ResponseEntity<RecipeResponse> createRecipe(
@@ -121,9 +121,9 @@ public class RecipeController {
      * PUT /api/recipes/{id}
      * 
      * @param id レシピID
-     * @param userId ユーザーID（ヘッダーから取得）
-     * @param request レシピ更新リクエスト
-     * @return 更新されたレシピ
+     * @param userId ユーザーID�E��EチE��ーから取得！E
+     * @param request レシピ更新リクエスチE
+     * @return 更新されたレシチE
      */
     @PutMapping("/{id}")
     public ResponseEntity<RecipeResponse> updateRecipe(
@@ -152,7 +152,7 @@ public class RecipeController {
      * DELETE /api/recipes/{id}
      * 
      * @param id レシピID
-     * @param userId ユーザーID（ヘッダーから取得）
+     * @param userId ユーザーID�E��EチE��ーから取得！E
      * @return 204 No Content
      */
     @DeleteMapping("/{id}")
@@ -165,13 +165,13 @@ public class RecipeController {
     }
 
     /**
-     * レシピ画像アップロード
+     * レシピ画像アチE�EローチE
      * POST /api/recipes/{id}/image
      * 
      * @param id レシピID
-     * @param userId ユーザーID（ヘッダーから取得）
+     * @param userId ユーザーID�E��EチE��ーから取得！E
      * @param file 画像ファイル
-     * @return 更新されたレシピ
+     * @return 更新されたレシチE
      */
     @PostMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<RecipeResponse> uploadRecipeImage(

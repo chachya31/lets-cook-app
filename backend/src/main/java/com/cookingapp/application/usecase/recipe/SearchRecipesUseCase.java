@@ -1,4 +1,4 @@
-package com.cookingapp.application.usecase;
+package com.cookingapp.application.usecase.recipe;
 
 import com.cookingapp.domain.entity.Recipe;
 import com.cookingapp.domain.repository.RecipeRepository;
@@ -22,27 +22,27 @@ public class SearchRecipesUseCase {
     /**
      * すべての公開レシピを検索
      * 
-     * @return 公開レシピリスト
+     * @return 公開レシピリスチE
      */
     public List<Recipe> executePublic() {
         return recipeRepository.findAllPublic();
     }
 
     /**
-     * 作成者IDでレシピを検索
+     * 作�E老EDでレシピを検索
      * 
-     * @param authorId 作成者ID
-     * @return レシピリスト
+     * @param authorId 作�E老ED
+     * @return レシピリスチE
      */
     public List<Recipe> executeByAuthor(String authorId) {
         return recipeRepository.findByAuthorId(authorId);
     }
 
     /**
-     * キーワードでレシピを検索（タイトルに含まれるもの）
+     * キーワードでレシピを検索�E�タイトルに含まれるも�E�E�E
      * 
-     * @param keyword キーワード
-     * @return レシピリスト
+     * @param keyword キーワーチE
+     * @return レシピリスチE
      */
     public List<Recipe> executeByKeyword(String keyword) {
         List<Recipe> allPublicRecipes = recipeRepository.findAllPublic();

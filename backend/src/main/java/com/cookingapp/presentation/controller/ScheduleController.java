@@ -1,6 +1,6 @@
 package com.cookingapp.presentation.controller;
 
-import com.cookingapp.application.usecase.*;
+import com.cookingapp.application.usecase.schedule.*;
 import com.cookingapp.domain.entity.Schedule;
 import com.cookingapp.domain.valueobject.ScheduleType;
 import com.cookingapp.presentation.dto.request.CreateScheduleRequest;
@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * スケジュール管理コントローラー
+ * スケジュール管琁E��ントローラー
  */
 @RestController
 @RequestMapping("/api/schedules")
@@ -31,7 +31,7 @@ public class ScheduleController {
     private final ConvertScheduleToCookedUseCase convertScheduleToCookedUseCase;
 
     /**
-     * スケジュール一覧取得
+     * スケジュール一覧取征E
      */
     @GetMapping
     public ResponseEntity<List<ScheduleResponse>> getSchedules(
@@ -47,7 +47,7 @@ public class ScheduleController {
     }
 
     /**
-     * スケジュール作成
+     * スケジュール作�E
      */
     @PostMapping
     public ResponseEntity<ScheduleResponse> createSchedule(

@@ -1,4 +1,4 @@
-package com.cookingapp.application.usecase;
+package com.cookingapp.application.usecase.recipe;
 
 import com.cookingapp.domain.entity.Recipe;
 import com.cookingapp.domain.repository.RecipeRepository;
@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 /**
- * レシピ作成ユースケース
+ * レシピ作�Eユースケース
  */
 @Service
 public class CreateRecipeUseCase {
@@ -20,21 +20,21 @@ public class CreateRecipeUseCase {
     }
 
     /**
-     * レシピを作成
+     * レシピを作�E
      * 
-     * @param authorId 作成者ID
+     * @param authorId 作�E老ED
      * @param title タイトル
-     * @param ingredients 食材リスト
-     * @param steps 手順リスト
-     * @param cookingTime 調理時間（分）
-     * @return 作成されたレシピ
+     * @param ingredients 食材リスチE
+     * @param steps 手頁E��スチE
+     * @param cookingTime 調琁E��間（�E�E�E
+     * @return 作�EされたレシチE
      */
     public Recipe execute(String authorId, String title, List<Ingredient> ingredients,
                           List<String> steps, int cookingTime) {
-        // レシピエンティティ作成（バリデーションはエンティティ内で実施）
+        // レシピエンチE��チE��作�E�E�バリチE�EションはエンチE��チE��冁E��実施�E�E
         Recipe recipe = new Recipe(authorId, title, ingredients, steps, cookingTime);
 
-        // リポジトリに保存
+        // リポジトリに保孁E
         return recipeRepository.save(recipe);
     }
 }

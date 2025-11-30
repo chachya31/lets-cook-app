@@ -1,4 +1,4 @@
-package com.cookingapp.application.usecase;
+package com.cookingapp.application.usecase.schedule;
 
 import com.cookingapp.domain.entity.Schedule;
 import com.cookingapp.domain.repository.ScheduleRepository;

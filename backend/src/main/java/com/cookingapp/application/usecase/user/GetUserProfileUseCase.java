@@ -1,4 +1,4 @@
-package com.cookingapp.application.usecase;
+package com.cookingapp.application.usecase.user;
 
 import com.cookingapp.domain.entity.User;
 import com.cookingapp.domain.repository.UserRepository;
@@ -17,7 +17,7 @@ public class GetUserProfileUseCase {
     }
 
     /**
-     * ユーザープロフィールを取得
+     * ユーザープロフィールを取征E
      * 
      * @param userId ユーザーID
      * @return ユーザー

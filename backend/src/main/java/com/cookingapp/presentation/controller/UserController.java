@@ -1,6 +1,6 @@
 package com.cookingapp.presentation.controller;
 
-import com.cookingapp.application.usecase.*;
+import com.cookingapp.application.usecase.user.*;
 import com.cookingapp.domain.entity.User;
 import com.cookingapp.domain.valueobject.Language;
 import com.cookingapp.presentation.dto.*;
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
- * ユーザー管理コントローラー
+ * ユーザー管琁E��ントローラー
  */
 @RestController
 @RequestMapping("/api/users")
@@ -77,7 +77,7 @@ public class UserController {
     }
 
     /**
-     * 確認コード再送信
+     * 確認コード�E送信
      * POST /api/users/resend-code
      */
     @PostMapping("/resend-code")
@@ -109,7 +109,7 @@ public class UserController {
     }
 
     /**
-     * プロフィール取得
+     * プロフィール取征E
      * GET /api/users/profile/{userId}
      */
     @GetMapping("/profile/{userId}")
@@ -154,7 +154,7 @@ public class UserController {
     }
 
     /**
-     * プロフィール画像アップロード
+     * プロフィール画像アチE�EローチE
      * POST /api/users/profile/image
      */
     @PostMapping(value = "/profile/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

@@ -1,4 +1,4 @@
-package com.cookingapp.application.usecase;
+package com.cookingapp.application.usecase.review;
 
 import com.cookingapp.domain.entity.Review;
 import com.cookingapp.domain.exception.ReviewNotFoundException;

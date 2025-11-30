@@ -1,4 +1,4 @@
-package com.cookingapp.application.usecase;
+package com.cookingapp.application.usecase.user;
 
 import com.cookingapp.domain.entity.User;
 import com.cookingapp.domain.repository.UserRepository;
@@ -30,7 +30,7 @@ public class DeleteUserAccountUseCase {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
 
-        // 削除可能かチェック
+        // 削除可能かチェチE��
         if (!user.canDeleteAccount()) {
             throw new IllegalStateException("Cannot delete account at this time");
         }
@@ -41,7 +41,7 @@ public class DeleteUserAccountUseCase {
         // DynamoDBからユーザー削除
         userRepository.delete(userId);
 
-        // TODO: プロフィール画像をS3から削除（タスク4で実装）
-        // TODO: 投稿したレシピとレビューを匿名化（タスク5、7で実装）
+        // TODO: プロフィール画像をS3から削除�E�タスク4で実裁E��E
+        // TODO: 投稿したレシピとレビューを匿名化�E�タスク5、Eで実裁E��E
     }
 }

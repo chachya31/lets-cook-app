@@ -1,4 +1,4 @@
-package com.cookingapp.application.usecase;
+package com.cookingapp.application.usecase.recipe;
 
 import com.cookingapp.application.validation.ImageValidator;
 import com.cookingapp.domain.entity.Recipe;
@@ -12,7 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 /**
- * レシピ画像アップロードユースケース
+ * レシピ画像アチE�Eロードユースケース
  */
 @Service
 public class UploadRecipeImageUseCase {
@@ -30,30 +30,30 @@ public class UploadRecipeImageUseCase {
     }
 
     /**
-     * レシピ画像をアップロード
+     * レシピ画像をアチE�EローチE
      * 
      * @param recipeId レシピID
      * @param userId ユーザーID
      * @param file 画像ファイル
-     * @return 更新されたレシピ
-     * @throws RecipeNotFoundException レシピが見つからない場合
-     * @throws UnauthorizedException 編集権限がない場合
+     * @return 更新されたレシチE
+     * @throws RecipeNotFoundException レシピが見つからなぁE��吁E
+     * @throws UnauthorizedException 編雁E��限がなぁE��吁E
      * @throws IOException ファイル読み込みエラー
      */
     public Recipe execute(String recipeId, String userId, MultipartFile file) throws IOException {
-        // レシピを取得
+        // レシピを取征E
         Recipe recipe = recipeRepository.findById(recipeId)
                 .orElseThrow(() -> new RecipeNotFoundException("Recipe not found: " + recipeId));
 
-        // 編集権限チェック
+        // 編雁E��限チェチE��
         if (!recipe.canEdit(userId)) {
             throw new UnauthorizedException("User does not have permission to edit this recipe");
         }
 
-        // 画像バリデーション
+        // 画像バリチE�Eション
         imageValidator.validate(file);
 
-        // S3にアップロード
+        // S3にアチE�EローチE
         String fileName = "recipes/" + recipeId + "/" + file.getOriginalFilename();
         String imageUrl = s3ImageService.uploadImage(
                 fileName,
@@ -62,10 +62,10 @@ public class UploadRecipeImageUseCase {
                 file.getSize()
         );
 
-        // レシピの画像URLを更新
+        // レシピ�E画像URLを更新
         recipe.updateImageUrl(imageUrl);
 
-        // リポジトリに保存
+        // リポジトリに保孁E
         return recipeRepository.save(recipe);
     }
 }
