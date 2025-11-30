@@ -19,7 +19,19 @@
     "hasAccount": "既にアカウントをお持ちの方はこちら",
     "passwordReset": "パスワードリセット",
     "passwordResetDescription": "パスワードをリセットします",
-    "backToLogin": "ログインに戻る"
+    "backToLogin": "ログインに戻る",
+    "confirmEmail": {
+      "title": "メール確認",
+      "description": "{{email}} に送信された確認コードを入力してください",
+      "codeLabel": "確認コード",
+      "codePlaceholder": "6桁の確認コードを入力",
+      "submit": "確認",
+      "resendCode": "確認コードを再送信",
+      "success": "メールアドレスが確認されました。ログインしてください",
+      "error": "確認コードが無効です",
+      "resendSuccess": "確認コードを再送信しました",
+      "resendError": "確認コードの再送信に失敗しました"
+    }
   },
   "language": {
     "japanese": "日本語",
@@ -33,11 +45,23 @@
     "passwordComplexity": "パスワードは大文字、小文字、数字、特殊文字を含む必要があります",
     "passwordMismatch": "パスワードが一致しません",
     "nicknameRequired": "ニックネームは必須です",
-    "nicknameMaxLength": "ニックネームは50文字以内である必要があります"
+    "nicknameMaxLength": "ニックネームは50文字以内である必要があります",
+    "confirmationCodeRequired": "確認コードは必須です",
+    "confirmationCodeLength": "確認コードは6桁である必要があります"
   },
   "error": {
     "required": "{{field}}は必須です",
     "invalid_email": "有効なメールアドレスを入力してください",
     "invalid_password": "パスワードは8文字以上で、大文字、小文字、数字、特殊文字を含む必要があります"
+  },
+  "imageUploader": {
+    "dragAndDrop": "画像をドラッグ&ドロップ、またはクリックして選択",
+    "formats": "対応形式: {{formats}}",
+    "maxSize": "最大サイズ: {{maxSize}}MB",
+    "removeImage": "画像を削除",
+    "errors": {
+      "fileTooLarge": "ファイルサイズが大きすぎます。最大{{maxSize}}MBまでです",
+      "invalidFormat": "サポートされていないファイル形式です。JPEG、PNGのみ対応しています"
+    }
   }
 }

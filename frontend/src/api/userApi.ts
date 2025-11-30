@@ -43,6 +43,42 @@ export const loginUser = async (data: LoginRequest): Promise<LoginResponse> => {
 };
 
 /**
+ * メール確認コード検証
+ */
+export const confirmSignUp = async (email: string, confirmationCode: string): Promise<void> => {
+  const response = await fetch(`${API_BASE_URL}/api/users/confirm`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email, confirmationCode }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'Confirmation failed');
+  }
+};
+
+/**
+ * 確認コード再送信
+ */
+export const resendConfirmationCode = async (email: string): Promise<void> => {
+  const response = await fetch(`${API_BASE_URL}/api/users/resend-code`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'Resend failed');
+  }
+};
+
+/**
  * プロフィール取得
  */
 export const getUserProfile = async (userId: string, token: string): Promise<User> => {

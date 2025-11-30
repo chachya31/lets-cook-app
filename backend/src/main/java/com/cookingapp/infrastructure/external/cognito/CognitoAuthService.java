@@ -57,6 +57,11 @@ public class CognitoAuthService {
                     .value(email)
                     .build();
             
+            AttributeType nameAttr = AttributeType.builder()
+                    .name("name")
+                    .value(nickname)
+                    .build();
+            
             AttributeType nicknameAttr = AttributeType.builder()
                     .name("nickname")
                     .value(nickname)
@@ -66,7 +71,7 @@ public class CognitoAuthService {
                     .clientId(clientId)
                     .username(email)
                     .password(password)
-                    .userAttributes(emailAttr, nicknameAttr);
+                    .userAttributes(emailAttr, nameAttr, nicknameAttr);
             
             // ClientSecretがある場合のみSECRET_HASHを追加
             if (useClientSecret) {
@@ -76,10 +81,6 @@ public class CognitoAuthService {
             SignUpRequest signUpRequest = signUpRequestBuilder.build();
 
             SignUpResponse response = cognitoClient.signUp(signUpRequest);
-            
-            // 自動確認（開発環境用）
-            // 本番環境ではメール確認が必要
-            confirmSignUp(email);
             
             return response.userSub();
             
@@ -91,19 +92,58 @@ public class CognitoAuthService {
     }
 
     /**
-     * ユーザー確認（開発環境用）
-     * 本番環境ではユーザーがメールリンクをクリックして確認
+     * メール確認コードの検証
+     * 
+     * @param email メールアドレス
+     * @param confirmationCode 確認コード
+     * @throws AuthenticationException 確認に失敗した場合
      */
-    private void confirmSignUp(String username) {
+    public void confirmSignUp(String email, String confirmationCode) {
         try {
-            AdminConfirmSignUpRequest confirmRequest = AdminConfirmSignUpRequest.builder()
-                    .userPoolId(userPoolId)
-                    .username(username)
-                    .build();
+            ConfirmSignUpRequest.Builder confirmRequestBuilder = ConfirmSignUpRequest.builder()
+                    .clientId(clientId)
+                    .username(email)
+                    .confirmationCode(confirmationCode);
             
-            cognitoClient.adminConfirmSignUp(confirmRequest);
+            // ClientSecretがある場合のみSECRET_HASHを追加
+            if (useClientSecret) {
+                confirmRequestBuilder.secretHash(calculateSecretHash(email));
+            }
+            
+            ConfirmSignUpRequest confirmRequest = confirmRequestBuilder.build();
+            cognitoClient.confirmSignUp(confirmRequest);
+            
+        } catch (CodeMismatchException e) {
+            throw new AuthenticationException("Invalid confirmation code", e);
+        } catch (ExpiredCodeException e) {
+            throw new AuthenticationException("Confirmation code has expired", e);
         } catch (CognitoIdentityProviderException e) {
-            // 確認失敗は無視（既に確認済みの可能性）
+            throw new AuthenticationException("Failed to confirm sign up: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 確認コードの再送信
+     * 
+     * @param email メールアドレス
+     * @throws AuthenticationException 再送信に失敗した場合
+     */
+    public void resendConfirmationCode(String email) {
+        try {
+            ResendConfirmationCodeRequest.Builder resendRequestBuilder = ResendConfirmationCodeRequest.builder()
+                    .clientId(clientId)
+                    .username(email);
+            
+            // ClientSecretがある場合のみSECRET_HASHを追加
+            if (useClientSecret) {
+                resendRequestBuilder.secretHash(calculateSecretHash(email));
+            }
+            
+            ResendConfirmationCodeRequest resendRequest = resendRequestBuilder.build();
+            cognitoClient.resendConfirmationCode(resendRequest);
+            
+        } catch (CognitoIdentityProviderException e) {
+            throw new AuthenticationException("Failed to resend confirmation code: " + e.getMessage(), e);
         }
     }
 

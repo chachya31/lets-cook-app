@@ -1,7 +1,9 @@
 package com.cookingapp.presentation.exception;
 
+import com.cookingapp.application.validation.ImageValidationException;
 import com.cookingapp.domain.exception.AuthenticationException;
 import com.cookingapp.domain.exception.UserAlreadyExistsException;
+import com.cookingapp.domain.exception.UserNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -75,6 +77,36 @@ public class GlobalExceptionHandler {
         );
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
+
+    /**
+     * 画像バリデーションエラー（400）
+     */
+    @ExceptionHandler(ImageValidationException.class)
+    public ResponseEntity<ErrorResponse> handleImageValidationException(ImageValidationException ex) {
+        ErrorResponse response = new ErrorResponse(
+                "IMAGE_VALIDATION_ERROR",
+                ex.getMessage(),
+                null,
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    /**
+     * ユーザー未検出エラー（404）
+     */
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleUserNotFoundException(UserNotFoundException ex) {
+        ErrorResponse response = new ErrorResponse(
+                "USER_NOT_FOUND",
+                ex.getMessage(),
+                null,
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     /**

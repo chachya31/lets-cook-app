@@ -10,6 +10,7 @@ interface FormFieldProps {
   error?: string;
   autoComplete?: string;
   required?: boolean;
+  maxLength?: number;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   className?: string;
 }
@@ -27,6 +28,7 @@ export const FormField: React.FC<FormFieldProps> = ({
   error,
   autoComplete,
   required = true,
+  maxLength,
   onChange,
   className = '',
 }) => {
@@ -47,6 +49,7 @@ export const FormField: React.FC<FormFieldProps> = ({
         type={type}
         autoComplete={autoComplete}
         required={required}
+        maxLength={maxLength}
         className={baseClassName}
         placeholder={placeholder}
         value={value}
