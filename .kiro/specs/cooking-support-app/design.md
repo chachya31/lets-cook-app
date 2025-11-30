@@ -158,10 +158,27 @@
   - UpdateScheduleRequest DTO: スケジュール更新リクエスト（実装済み）
   - ScheduleResponse DTO: スケジュールレスポンス（実装済み）
 
-**5. Shopping List Module（未実装）**
-- ShoppingListController: 買い物リストCRUD操作
-- ShoppingListService: 数量合算、自動削除
-- ShoppingListRepository: DynamoDBアクセス
+**5. Shopping List Module（実装済み）**
+- Domain Layer:
+  - ShoppingListItem Entity: 買い物リストアイテムドメインエンティティ（実装済み）
+    - 正規化キー生成ロジック（名前+単位）
+    - 数量更新（合算）
+    - チェック済み/未チェック切り替え
+    - 自動削除判定（チェック済みから3日経過）
+- Application Layer:
+  - AddShoppingListItemUseCase: アイテム追加ユースケース（数量合算ロジック含む）（実装済み）
+  - UpdateShoppingListItemUseCase: アイテム更新ユースケース（チェック状態）（実装済み）
+  - DeleteShoppingListItemUseCase: アイテム削除ユースケース（実装済み）
+  - GetShoppingListUseCase: 買い物リスト取得ユースケース（実装済み）
+  - CleanupExpiredItemsUseCase: 期限切れアイテムクリーンアップユースケース（実装済み）
+- Infrastructure Layer:
+  - DynamoDBShoppingListRepository: DynamoDBリポジトリ（実装済み）
+  - GSI_NormalizedKey: 正規化キーによる検索（実装済み）
+- Presentation Layer:
+  - ShoppingListController: 買い物リストCRUD操作REST APIコントローラー（実装済み）
+  - AddShoppingListItemRequest DTO: アイテム追加リクエスト（実装済み）
+  - UpdateShoppingListItemRequest DTO: アイテム更新リクエスト（実装済み）
+  - ShoppingListItemResponse DTO: アイテムレスポンス（実装済み）
 
 **6. Review Module（実装済み）**
 - Domain Layer:
@@ -251,9 +268,21 @@
 - Schedule型定義: TypeScript型定義（実装済み）
 - 多言語対応（日本語・韓国語）（実装済み）
 
-**6. Shopping List Components（未実装）**
-- ShoppingListPage: 買い物リスト画面
-- ShoppingListItem: リストアイテム
+**6. Shopping List Components（実装済み）**
+- ShoppingListPage: 買い物リスト画面（実装済み）
+  - アイテム追加フォーム（名前、数量、単位）
+  - 未チェックアイテム一覧（購入予定）
+  - チェック済みアイテム一覧（購入済み）
+  - チェック状態の切り替え
+  - アイテム削除
+- shoppingListSlice: Redux状態管理（実装済み）
+- shoppingListApi: API呼び出し関数（実装済み）
+- ShoppingListItem型定義: TypeScript型定義（実装済み）
+- 多言語対応（日本語・韓国語）（実装済み）
+- Schedule型定義: TypeScript型定義（実装済み）
+- 多言語対応（日本語・韓国語）（実装済み）
+
+
 
 **7. Profile Components（一部実装済み）**
 - ProfilePage: プロフィール編集画面（未実装）
@@ -350,12 +379,28 @@
   - LastCookingDateも更新
   - Status: ✅ 実装済み
 
-**Shopping List（未実装）**
+**Shopping List（実装済み）**
 - GET /api/shopping-lists - 買い物リスト取得
+  - Header: X-User-Id
+  - Response: List<ShoppingListItemResponse>
+  - 自動的に期限切れアイテムをクリーンアップ
+  - Status: ✅ 実装済み
 - POST /api/shopping-lists - アイテム追加
-- PUT /api/shopping-lists/{id} - アイテム更新
+  - Request: AddShoppingListItemRequest (name, quantity, unit, sourceRecipeId)
+  - Header: X-User-Id
+  - Response: ShoppingListItemResponse
+  - Validation: 名前100文字以内、数量0.01-9999、単位必須
+  - 同じ正規化キー（名前+単位）のアイテムがある場合は数量を合算
+  - Status: ✅ 実装済み
+- PUT /api/shopping-lists/{id} - アイテム更新（チェック状態）
+  - Request: UpdateShoppingListItemRequest (isChecked)
+  - Header: X-User-Id
+  - Response: ShoppingListItemResponse
+  - Status: ✅ 実装済み
 - DELETE /api/shopping-lists/{id} - アイテム削除
-- Status: ⏳ 未実装
+  - Header: X-User-Id
+  - Response: 204 No Content
+  - Status: ✅ 実装済み
 
 **Review（実装済み）**
 - GET /api/recipes/{recipeId}/reviews - レシピのレビュー一覧取得
@@ -1603,27 +1648,17 @@ npm test
 
 ### 未実装機能
 
-**1. サボり防止アラート機能**
-- アラート判定ロジック
-- アラートモーダル表示
-- クイック料理登録
-
-**2. 買い物リスト管理機能**
-- アイテム追加・更新・削除
-- 数量合算ロジック
-- チェック済みアイテム自動削除
-
-**3. AIアドバイザー機能**
+**1. AIアドバイザー機能**
 - Gemini API統合
 - キャッシュ管理
 - レート制限処理
 
-**4. 管理者機能**
+**2. 管理者機能**
 - ユーザー管理
 - レシピ審査
 - 統計情報表示
 
-**5. 多言語対応（部分実装）**
+**3. 多言語対応（部分実装）**
 - フロントエンド：実装済み（日本語・韓国語）
 - バックエンド：未実装（Accept-Languageヘッダー処理）
 
@@ -1662,10 +1697,9 @@ npm test
 
 ### 次のステップ
 
-1. サボり防止アラート機能の実装（タスク9）
-2. 買い物リスト管理機能の実装（タスク10）
-3. AIアドバイザー機能の実装（タスク6）
-4. 管理者機能の実装（タスク12）
-5. Property-Based Testingの実装（各機能のテストタスク）
-6. エラーハンドリングとロギングの強化（タスク13）
-7. ダッシュボードとホーム画面の実装（タスク14）
+1. 多言語対応の完成（タスク11）
+2. AIアドバイザー機能の実装（タスク6）
+3. 管理者機能の実装（タスク12）
+4. Property-Based Testingの実装（各機能のテストタスク）
+5. エラーハンドリングとロギングの強化（タスク13）
+6. ダッシュボードとホーム画面の実装（タスク14）

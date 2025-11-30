@@ -5,6 +5,7 @@ import com.cookingapp.domain.exception.AuthenticationException;
 import com.cookingapp.domain.exception.RecipeNotFoundException;
 import com.cookingapp.domain.exception.ReviewNotFoundException;
 import com.cookingapp.domain.exception.ScheduleNotFoundException;
+import com.cookingapp.domain.exception.ShoppingListItemNotFoundException;
 import com.cookingapp.domain.exception.UnauthorizedException;
 import com.cookingapp.domain.exception.UserAlreadyExistsException;
 import com.cookingapp.domain.exception.UserNotFoundException;
@@ -165,6 +166,21 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleScheduleNotFoundException(ScheduleNotFoundException ex) {
         ErrorResponse response = new ErrorResponse(
                 "SCHEDULE_NOT_FOUND",
+                ex.getMessage(),
+                null,
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    /**
+     * 買い物リストアイテム未検出エラー（404）
+     */
+    @ExceptionHandler(ShoppingListItemNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleShoppingListItemNotFoundException(ShoppingListItemNotFoundException ex) {
+        ErrorResponse response = new ErrorResponse(
+                "SHOPPING_LIST_ITEM_NOT_FOUND",
                 ex.getMessage(),
                 null,
                 LocalDateTime.now()

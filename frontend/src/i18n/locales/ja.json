@@ -9,7 +9,8 @@
     "save": "保存",
     "saving": "保存中...",
     "cancel": "キャンセル",
-    "remove": "削除"
+    "remove": "削除",
+    "delete": "削除"
   },
   "auth": {
     "login": "ログイン",
@@ -144,5 +145,17 @@
     "title": "料理をしていませんか？",
     "dismiss": "閉じる",
     "quickRegister": "今すぐ料理を登録"
+  },
+  "shoppingList": {
+    "title": "買い物リスト",
+    "addItem": "アイテムを追加",
+    "itemName": "商品名",
+    "itemNamePlaceholder": "例: 玉ねぎ",
+    "quantity": "数量",
+    "unit": "単位",
+    "addButton": "追加",
+    "toBuy": "購入予定",
+    "purchased": "購入済み",
+    "empty": "買い物リストは空です"
   }
 }

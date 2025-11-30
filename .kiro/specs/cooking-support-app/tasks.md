@@ -437,22 +437,30 @@
   - **Property 27: クイック料理登録とアラート非表示**
   - **Validates: Requirements 7.3**
 
-- [ ] 10. 買い物リスト管理機能の実装
-- [ ] 10.1 ドメイン層：ShoppingListItemエンティティの実装
+- [x] 10. 買い物リスト管理機能の実装
+- [x] 10.1 ドメイン層：ShoppingListItemエンティティの実装
   - ShoppingListItemエンティティ（itemId、userId、name、quantity、unit、isChecked、isCheckedAt、normalizedKey）
-  - 正規化キー生成ロジック
-  - 自動削除判定ロジック（3日経過）
+  - 正規化キー生成ロジック（名前+単位）
+  - 数量更新（合算）ロジック
+  - チェック済み/未チェック切り替え
+  - 自動削除判定ロジック（チェック済みから3日経過）
+  - 権限チェック（canEdit）
   - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5_
 
-- [ ] 10.2 インフラ層：ShoppingListRepositoryの実装
-  - DynamoDBアクセス（CRUD操作）
-  - 正規化キーによる検索
+- [x] 10.2 インフラ層：ShoppingListRepositoryの実装
+  - ShoppingListRepositoryインターフェース（save、findById、findByUserId、findByNormalizedKey、delete、existsById、deleteExpiredCheckedItems）
+  - DynamoDBShoppingListRepository実装（CRUD操作）
+  - GSI_NormalizedKey: 正規化キーによる検索
+  - 期限切れアイテム削除
   - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5_
 
-- [ ] 10.3 アプリケーション層：買い物リスト管理ユースケースの実装
-  - アイテム追加（数量合算ロジック）
-  - アイテム更新、削除、取得
-  - 自動削除処理（バッチジョブ）
+- [x] 10.3 アプリケーション層：買い物リスト管理ユースケースの実装
+  - AddShoppingListItemUseCase: アイテム追加（数量合算ロジック）
+  - UpdateShoppingListItemUseCase: アイテム更新（チェック状態）
+  - DeleteShoppingListItemUseCase: アイテム削除
+  - GetShoppingListUseCase: 買い物リスト取得
+  - CleanupExpiredItemsUseCase: 期限切れアイテムクリーンアップ
+  - ShoppingListItemNotFoundException例外クラス
   - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5_
 
 - [ ]* 10.4 プロパティテスト：買い物リストアイテムの作成
@@ -475,15 +483,28 @@
   - **Property 34: チェック済みアイテムの自動削除**
   - **Validates: Requirements 8.5**
 
-- [ ] 10.9 プレゼンテーション層：ShoppingListControllerの実装
-  - REST APIエンドポイント（/api/shopping-lists/*）
-  - リクエスト/レスポンスDTO
-  - バリデーション（フロントエンド・バックエンド両方）
+- [x] 10.9 プレゼンテーション層：ShoppingListControllerの実装
+  - ShoppingListController: REST APIエンドポイント
+    - GET /api/shopping-lists - 買い物リスト取得（X-User-Idヘッダー、自動クリーンアップ）
+    - POST /api/shopping-lists - アイテム追加（X-User-Idヘッダー）
+    - PUT /api/shopping-lists/{id} - アイテム更新（チェック状態、X-User-Idヘッダー）
+    - DELETE /api/shopping-lists/{id} - アイテム削除（X-User-Idヘッダー）
+  - AddShoppingListItemRequest DTO（name、quantity、unit、sourceRecipeId）
+  - UpdateShoppingListItemRequest DTO（isChecked）
+  - ShoppingListItemResponse DTO（itemId、userId、name、quantity、unit、isChecked、isCheckedAt、addedAt、sourceRecipeId）
+  - Jakarta Validationバリデーション（@NotBlank、@Size、@DecimalMin、@DecimalMax）
+  - GlobalExceptionHandlerに例外ハンドラー追加（ShoppingListItemNotFoundException）
   - _Requirements: 8.1, 8.2, 8.3, 8.4_
 
-- [ ] 10.10 フロントエンド：買い物リストコンポーネントの実装
-  - ShoppingListPage、ShoppingListItem
-  - Redux状態管理（shoppingListSlice）
+- [x] 10.10 フロントエンド：買い物リストコンポーネントの実装
+  - ShoppingListPage: 買い物リスト画面（アイテム追加、チェック状態切り替え、削除）
+  - shoppingListSlice: Redux状態管理（fetchShoppingList、addShoppingListItem、updateShoppingListItem、deleteShoppingListItem）
+  - shoppingListApi: API呼び出し関数（getShoppingList、addShoppingListItem、updateShoppingListItem、deleteShoppingListItem）
+  - ShoppingListItem型定義: TypeScript型定義（ShoppingListItem、AddShoppingListItemRequest、UpdateShoppingListItemRequest、ShoppingListState）
+  - Checkbox: UIコンポーネント（実装済み）
+  - i18n翻訳追加（日本語・韓国語）
+  - App.tsxルーティング追加（/shopping-list）
+  - フォームバリデーション（名前100文字以内、数量0.01-9999）
   - _Requirements: 8.1, 8.2, 8.3, 8.4_
 
 - [ ] 11. 多言語対応機能の実装

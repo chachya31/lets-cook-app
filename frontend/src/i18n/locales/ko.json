@@ -9,7 +9,8 @@
     "save": "저장",
     "saving": "저장 중...",
     "cancel": "취소",
-    "remove": "삭제"
+    "remove": "삭제",
+    "delete": "삭제"
   },
   "auth": {
     "login": "로그인",
@@ -144,5 +145,17 @@
     "title": "요리를 하지 않으셨나요?",
     "dismiss": "닫기",
     "quickRegister": "지금 요리 등록"
+  },
+  "shoppingList": {
+    "title": "장보기 목록",
+    "addItem": "항목 추가",
+    "itemName": "상품명",
+    "itemNamePlaceholder": "예: 양파",
+    "quantity": "수량",
+    "unit": "단위",
+    "addButton": "추가",
+    "toBuy": "구매 예정",
+    "purchased": "구매 완료",
+    "empty": "장보기 목록이 비어 있습니다"
   }
 }

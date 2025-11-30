@@ -8,6 +8,7 @@ import RecipeSearchPage from './components/recipe/RecipeSearchPage';
 import RecipeDetailPage from './components/recipe/RecipeDetailPage';
 import RecipeEditPage from './components/recipe/RecipeEdit/RecipeEditPage';
 import SchedulePage from './components/schedule/SchedulePage';
+import ShoppingListPage from './components/shopping/ShoppingListPage';
 import { AlertModal } from './components/alert/AlertModal';
 
 const App: React.FC = () => {
@@ -26,6 +27,7 @@ const App: React.FC = () => {
         <Route path="/recipes/:id" element={<RecipeDetailPage />} />
         <Route path="/recipes/:id/edit" element={<RecipeEditPage />} />
         <Route path="/schedules" element={<SchedulePage />} />
+        <Route path="/shopping-list" element={<ShoppingListPage />} />
       </Routes>
     </div>
   );
