@@ -788,17 +788,48 @@ Attributes:
 - React Hook Formと統合してフォームバリデーションを実装
 
 **画面構造パターン（実装済み）**：
+
+本プロジェクトでは、コンポーネントの責任を明確に分離するため、以下の2つのパターンを採用しています。
+
+**パターン1: シンプルな画面（表示メイン）**
 - 各画面は機能ごとにフォルダ分け（例：Login/、Register/、ConfirmEmail/）
 - 各フォルダには以下のファイルを配置：
   - `○○Page.tsx`: ページコンポーネント（UI、ロジック、状態管理）
   - `○○Config.ts`: フォーム設定ファイル（初期値、バリデーションルール、フィールド定義）
-- この構造により、設定とロジックを分離し、保守性と再利用性を向上
+- 適用対象：フォームがシンプル、イベントハンドラーが少ない画面
 - 例：
   ```
   Login/
   ├── LoginPage.tsx          # ページコンポーネント
   └── loginFormConfig.ts     # フォーム設定
   ```
+
+**パターン2: 複雑な画面（フォーム・操作が多い）**
+- 各画面は機能ごとにフォルダ分け（例：RecipeEdit/）
+- 各フォルダには以下の3つのファイルを配置：
+  - `○○Page.tsx`: 表示コンポーネント（JSX/UIのみ、ビジネスロジックなし）
+  - `use○○Handlers.ts`: イベントハンドラー（カスタムフック、Redux dispatch、ナビゲーション）
+  - `○○Config.ts`: フォーム設定（初期値、バリデーションルール、定数、オプション）
+- 責任の分離：
+  - **表示（Page.tsx）**: UIの構造、propsの受け渡し
+  - **操作（useHandlers.ts）**: イベント処理、状態管理、副作用
+  - **属性（Config.ts）**: 設定値、バリデーションルール、定数
+- 適用対象：複雑なフォーム（5つ以上のフィールド）、多数のイベントハンドラー
+- メリット：
+  - テスタビリティの向上（ロジックを独立してテスト可能）
+  - 再利用性の向上（ハンドラーや設定を他のコンポーネントで共有可能）
+  - 保守性の向上（各ファイルの責任が明確）
+- 例：
+  ```
+  RecipeEdit/
+  ├── RecipeEditPage.tsx           # 表示コンポーネント（UI）
+  ├── useRecipeEditHandlers.ts     # イベントハンドラー（ロジック）
+  └── recipeEditConfig.ts          # フォーム設定（属性）
+  ```
+
+**パターン選択の基準**：
+- パターン1を使用：表示メイン、シンプルなフォーム、イベントハンドラーが1-2個
+- パターン2を使用：複雑なフォーム、多数のイベントハンドラー、動的な要素追加/削除
 
 ## Validation Strategy
 
@@ -1377,24 +1408,27 @@ npm test
 - 食材管理（Ingredient Value Object）
 - 単位管理（Unit Enum）
 - フロントエンド：
-  - レシピ検索ページ
-  - レシピ詳細ページ
-  - レシピ編集ページ（作成・更新両対応）
-  - Redux状態管理
+  - レシピ検索ページ（RecipeSearchPage）
+  - レシピ詳細ページ（RecipeDetailPage）
+  - レシピ編集ページ（RecipeEdit/: RecipeEditPage + useRecipeEditHandlers + recipeEditConfig）
+    - 3層分離パターン適用（表示・操作・属性）
+  - Redux状態管理（recipeSlice）
   - 多言語対応（日本語・韓国語）
+  - shadcn/uiコンポーネント（Input、Label、Textarea）
 
 **4. 認証フロー（✅ 完了）**
-- ログインページ
-- ユーザー登録ページ
-- メール確認ページ
+- ログインページ（Login/: LoginPage + loginFormConfig）
+- ユーザー登録ページ（Register/: RegisterPage + registerFormConfig）
+- メール確認ページ（ConfirmEmail/: ConfirmEmailPage + confirmEmailFormConfig）
 - パスワードリセットページ（プレースホルダー）
-- フォーム設定ファイル分離パターン
+- 2層分離パターン適用（表示+ロジック・設定）
 
 **5. 共通コンポーネント（✅ 完了）**
 - FormField（再利用可能なフォームフィールド）
 - ImageUploader（ドラッグ&ドロップ対応）
-- shadcn/ui統合
+- shadcn/uiコンポーネント（Button、Card、Input、Label、Textarea）
 - Tailwind CSS統合
+- カスタムフック（useForm、useAuth）
 
 **6. インフラストラクチャ（✅ 完了）**
 - LocalStack環境構築

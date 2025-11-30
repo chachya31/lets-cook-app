@@ -6,7 +6,7 @@ import { ConfirmEmailPage } from './components/auth/ConfirmEmail/ConfirmEmailPag
 import { PasswordResetPage } from './components/auth/PasswordReset/PasswordResetPage';
 import RecipeSearchPage from './components/recipe/RecipeSearchPage';
 import RecipeDetailPage from './components/recipe/RecipeDetailPage';
-import RecipeEditPage from './components/recipe/RecipeEditPage';
+import RecipeEditPage from './components/recipe/RecipeEdit/RecipeEditPage';
 
 const App: React.FC = () => {
   return (

@@ -1,112 +1,40 @@
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate, useParams } from 'react-router-dom';
-import { AppDispatch, RootState } from '../../store/store';
-import { fetchRecipe, createRecipe, updateRecipe, clearCurrentRecipe } from '../../store/recipeSlice';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { Textarea } from '../ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { Ingredient } from '../../types/recipe';
+import { Button } from '../../ui/button';
+import { Input } from '../../ui/input';
+import { Label } from '../../ui/label';
+import { Textarea } from '../../ui/textarea';
+import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card';
+import { useRecipeEditHandlers } from './useRecipeEditHandlers';
 
 /**
  * レシピ編集ページ
+ * 表示のみを担当し、ロジックはuseRecipeEditHandlersに委譲
  */
 const RecipeEditPage: React.FC = () => {
   const { t } = useTranslation();
-  const { id } = useParams<{ id: string }>();
-  const dispatch = useDispatch<AppDispatch>();
-  const navigate = useNavigate();
-  const { currentRecipe, loading, error } = useSelector((state: RootState) => state.recipe);
-  const { user } = useSelector((state: RootState) => state.auth);
+  const {
+    // 状態
+    title,
+    setTitle,
+    cookingTime,
+    setCookingTime,
+    ingredients,
+    steps,
+    isEditMode,
+    loading,
+    error,
 
-  const [title, setTitle] = useState('');
-  const [cookingTime, setCookingTime] = useState(0);
-  const [ingredients, setIngredients] = useState<Ingredient[]>([
-    { name: '', quantity: 0, unit: 'g', note: '', optional: false },
-  ]);
-  const [steps, setSteps] = useState<string[]>(['']);
-
-  const isEditMode = !!id;
-
-  useEffect(() => {
-    if (isEditMode && id) {
-      dispatch(fetchRecipe(id));
-    }
-    return () => {
-      dispatch(clearCurrentRecipe());
-    };
-  }, [dispatch, id, isEditMode]);
-
-  useEffect(() => {
-    if (currentRecipe && isEditMode) {
-      setTitle(currentRecipe.title);
-      setCookingTime(currentRecipe.cookingTime);
-      setIngredients(currentRecipe.ingredients);
-      setSteps(currentRecipe.steps);
-    }
-  }, [currentRecipe, isEditMode]);
-
-  const handleAddIngredient = () => {
-    setIngredients([...ingredients, { name: '', quantity: 0, unit: 'g', note: '', optional: false }]);
-  };
-
-  const handleRemoveIngredient = (index: number) => {
-    setIngredients(ingredients.filter((_, i) => i !== index));
-  };
-
-  const handleIngredientChange = (index: number, field: keyof Ingredient, value: string | number | boolean) => {
-    const newIngredients = [...ingredients];
-    newIngredients[index] = { ...newIngredients[index], [field]: value };
-    setIngredients(newIngredients);
-  };
-
-  const handleAddStep = () => {
-    setSteps([...steps, '']);
-  };
-
-  const handleRemoveStep = (index: number) => {
-    setSteps(steps.filter((_, i) => i !== index));
-  };
-
-  const handleStepChange = (index: number, value: string) => {
-    const newSteps = [...steps];
-    newSteps[index] = value;
-    setSteps(newSteps);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user) return;
-
-    const recipeData = {
-      title,
-      ingredients,
-      steps: steps.filter((s) => s.trim() !== ''),
-      cookingTime,
-    };
-
-    if (isEditMode && id) {
-      await dispatch(updateRecipe({ recipeId: id, userId: user.userId, recipe: recipeData }));
-      navigate(`/recipes/${id}`);
-    } else {
-      const result = await dispatch(createRecipe({ userId: user.userId, recipe: recipeData }));
-      if (result.meta.requestStatus === 'fulfilled') {
-        const newRecipe = result.payload as any;
-        navigate(`/recipes/${newRecipe.recipeId}`);
-      }
-    }
-  };
-
-  const handleCancel = () => {
-    if (isEditMode && id) {
-      navigate(`/recipes/${id}`);
-    } else {
-      navigate('/recipes');
-    }
-  };
+    // イベントハンドラー
+    handleAddIngredient,
+    handleRemoveIngredient,
+    handleIngredientChange,
+    handleAddStep,
+    handleRemoveStep,
+    handleStepChange,
+    handleSubmit,
+    handleCancel,
+  } = useRecipeEditHandlers();
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -121,6 +49,7 @@ const RecipeEditPage: React.FC = () => {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* 基本情報 */}
         <Card>
           <CardHeader>
             <CardTitle>{t('recipe.basicInfo')}</CardTitle>
@@ -142,7 +71,9 @@ const RecipeEditPage: React.FC = () => {
                 id="cookingTime"
                 type="number"
                 value={cookingTime}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCookingTime(parseInt(e.target.value) || 0)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setCookingTime(parseInt(e.target.value) || 0)
+                }
                 required
                 min={0}
               />
@@ -150,6 +81,7 @@ const RecipeEditPage: React.FC = () => {
           </CardContent>
         </Card>
 
+        {/* 食材 */}
         <Card>
           <CardHeader>
             <CardTitle>{t('recipe.ingredients')}</CardTitle>
@@ -161,7 +93,9 @@ const RecipeEditPage: React.FC = () => {
                   <Label>{t('recipe.ingredientName')}</Label>
                   <Input
                     value={ingredient.name}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleIngredientChange(index, 'name', e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      handleIngredientChange(index, 'name', e.target.value)
+                    }
                     required
                   />
                 </div>
@@ -182,7 +116,9 @@ const RecipeEditPage: React.FC = () => {
                   <Label>{t('recipe.unit')}</Label>
                   <Input
                     value={ingredient.unit}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleIngredientChange(index, 'unit', e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      handleIngredientChange(index, 'unit', e.target.value)
+                    }
                     required
                   />
                 </div>
@@ -202,6 +138,7 @@ const RecipeEditPage: React.FC = () => {
           </CardContent>
         </Card>
 
+        {/* 手順 */}
         <Card>
           <CardHeader>
             <CardTitle>{t('recipe.steps')}</CardTitle>
@@ -212,7 +149,9 @@ const RecipeEditPage: React.FC = () => {
                 <span className="font-bold mt-2">{index + 1}.</span>
                 <Textarea
                   value={step}
-                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleStepChange(index, e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                    handleStepChange(index, e.target.value)
+                  }
                   required
                   className="flex-1"
                   rows={2}
@@ -233,6 +172,7 @@ const RecipeEditPage: React.FC = () => {
           </CardContent>
         </Card>
 
+        {/* アクションボタン */}
         <div className="flex gap-2 justify-end">
           <Button type="button" variant="outline" onClick={handleCancel}>
             {t('common.cancel')}
