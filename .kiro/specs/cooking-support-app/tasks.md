@@ -250,22 +250,29 @@
   - 静的ヒント表示
   - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
 
-- [ ] 7. レビュー機能の実装
-- [ ] 7.1 ドメイン層：Reviewエンティティの実装
-  - Reviewエンティティ（reviewId、recipeId、userId、rating、comment、status、reportedCount）
-  - 通報カウント増加ロジック
-  - 自動非表示判定ロジック
+- [x] 7. レビュー機能の実装
+- [x] 7.1 ドメイン層：Reviewエンティティの実装
+  - Reviewエンティティ（reviewId、recipeId、userId、rating、comment、status、reportedCount、createdAt、updatedAt）
+  - ReviewStatus Value Object（VISIBLE、HIDDEN）
+  - 通報カウント増加ロジック（incrementReportCount）
+  - 自動非表示判定ロジック（shouldHide）
+  - 権限チェック（canEdit）
+  - バリデーション（rating 1-5、comment 300文字以内）
   - _Requirements: 5.1, 5.3, 5.4_
 
-- [ ] 7.2 インフラ層：ReviewRepositoryの実装
-  - DynamoDBアクセス（CRUD操作）
-  - GSI検索（UserId）
+- [x] 7.2 インフラ層：ReviewRepositoryの実装
+  - ReviewRepositoryインターフェース（save、findById、findByRecipeId、findByUserId、delete、existsById）
+  - DynamoDBReviewRepository実装（CRUD操作）
+  - GSI検索（GSI_User: UserId + CreatedAt）
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
 
-- [ ] 7.3 アプリケーション層：レビュー管理ユースケースの実装
-  - レビュー作成、更新、削除、取得
-  - 通報処理
-  - 自動非表示処理
+- [x] 7.3 アプリケーション層：レビュー管理ユースケースの実装
+  - CreateReviewUseCase: レビュー作成
+  - UpdateReviewUseCase: レビュー更新（権限チェック付き）
+  - DeleteReviewUseCase: レビュー削除（権限チェック付き）
+  - GetReviewsByRecipeUseCase: レシピIDでレビュー一覧取得（表示可能なレビューのみ）
+  - ReportReviewUseCase: レビュー通報（通報カウント増加、3回以上で自動非表示）
+  - ReviewNotFoundException例外クラス
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
 
 - [ ]* 7.4 プロパティテスト：レビュー作成の成功
@@ -292,17 +299,30 @@
   - **Property 7: 表示可能レビューのフィルタリング**
   - **Validates: Requirements 2.3**
 
-- [ ] 7.10 プレゼンテーション層：ReviewControllerの実装
-  - REST APIエンドポイント（/api/recipes/{id}/reviews、/api/reviews/*）
-  - リクエスト/レスポンスDTO
-  - バリデーション（フロントエンド・バックエンド両方）
+- [x] 7.10 プレゼンテーション層：ReviewControllerの実装
+  - ReviewController: REST APIエンドポイント
+    - GET /api/recipes/{recipeId}/reviews - レビュー一覧取得
+    - POST /api/recipes/{recipeId}/reviews - レビュー作成（X-User-Idヘッダー）
+    - PUT /api/reviews/{reviewId} - レビュー更新（X-User-Idヘッダー）
+    - DELETE /api/reviews/{reviewId} - レビュー削除（X-User-Idヘッダー）
+    - POST /api/reviews/{reviewId}/report - レビュー通報
+  - CreateReviewRequest DTO（rating、comment）
+  - UpdateReviewRequest DTO（rating、comment）
+  - ReviewResponse DTO（reviewId、recipeId、userId、rating、comment、status、reportedCount、createdAt、updatedAt）
+  - Jakarta Validationバリデーション（@NotNull、@Min、@Max、@Size）
+  - GlobalExceptionHandlerに例外ハンドラー追加（ReviewNotFoundException）
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
 
-- [ ] 7.11 フロントエンド：レビューコンポーネントの実装
-  - ReviewList、ReviewForm
-  - Redux状態管理（reviewSlice）
-  - フォームバリデーション
-  - 通報ボタン
+- [x] 7.11 フロントエンド：レビューコンポーネントの実装
+  - ReviewList: レビュー一覧コンポーネント（星評価表示、編集・削除・通報ボタン）
+  - ReviewForm: レビュー投稿フォームコンポーネント（星評価選択、コメント入力、バリデーション）
+  - reviewSlice: Redux状態管理（fetchReviewsByRecipe、createReview、updateReview、deleteReview、reportReview）
+  - reviewApi: API呼び出し関数（getReviewsByRecipe、createReview、updateReview、deleteReview、reportReview）
+  - useReview: カスタムフック（レビュー管理）
+  - Review型定義（Review、CreateReviewRequest、UpdateReviewRequest、ReviewState）
+  - RecipeDetailPageにレビューセクション追加
+  - i18n翻訳追加（日本語・韓国語）
+  - フォームバリデーション（星評価1-5、コメント300文字以内）
   - _Requirements: 5.1, 5.2, 5.3_
 
 - [ ] 8. スケジュール管理機能の実装

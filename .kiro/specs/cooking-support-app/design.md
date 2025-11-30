@@ -150,10 +150,23 @@
 - ShoppingListService: 数量合算、自動削除
 - ShoppingListRepository: DynamoDBアクセス
 
-**6. Review Module（未実装）**
-- ReviewController: レビューCRUD操作
-- ReviewService: 通報処理、自動非表示
-- ReviewRepository: DynamoDBアクセス
+**6. Review Module（実装済み）**
+- Domain Layer:
+  - Review Entity: レビュードメインエンティティ（実装済み）
+  - ReviewStatus Value Object: レビューステータス（実装済み）
+- Application Layer:
+  - CreateReviewUseCase: レビュー作成ユースケース（実装済み）
+  - UpdateReviewUseCase: レビュー更新ユースケース（実装済み）
+  - DeleteReviewUseCase: レビュー削除ユースケース（実装済み）
+  - GetReviewsByRecipeUseCase: レシピIDでレビュー一覧取得（実装済み）
+  - ReportReviewUseCase: レビュー通報ユースケース（実装済み）
+- Infrastructure Layer:
+  - DynamoDBReviewRepository: DynamoDBリポジトリ（実装済み）
+- Presentation Layer:
+  - ReviewController: レビューCRUD操作REST APIコントローラー（実装済み）
+  - CreateReviewRequest DTO: レビュー作成リクエスト（実装済み）
+  - UpdateReviewRequest DTO: レビュー更新リクエスト（実装済み）
+  - ReviewResponse DTO: レビューレスポンス（実装済み）
 
 **7. AI Advisor Module（未実装）**
 - AIAdvisorController: AIアドバイス取得
@@ -189,14 +202,18 @@
 
 **4. Recipe Components（実装済み）**
 - RecipeSearchPage: レシピ検索画面（実装済み）
-- RecipeDetailPage: レシピ詳細画面（実装済み）
+- RecipeDetailPage: レシピ詳細画面（レビューセクション含む）（実装済み）
 - RecipeEditPage: レシピ編集画面（作成・更新両対応）（実装済み）
 - recipeSlice: Redux状態管理（実装済み）
 - recipeApi: API呼び出し関数（実装済み）
 - Recipe型定義: TypeScript型定義（実装済み）
+- ReviewList: レビュー一覧コンポーネント（実装済み）
+- ReviewForm: レビュー投稿フォームコンポーネント（実装済み）
+- reviewSlice: Redux状態管理（実装済み）
+- reviewApi: API呼び出し関数（実装済み）
+- useReview: カスタムフック（実装済み）
+- Review型定義: TypeScript型定義（実装済み）
 - AIAdvisorPanel: AIアドバイザーパネル（未実装）
-- ReviewList: レビュー一覧（未実装）
-- ReviewForm: レビュー投稿フォーム（未実装）
 
 **5. Schedule Components（未実装）**
 - SchedulePage: スケジュール管理画面
@@ -290,13 +307,32 @@
 - DELETE /api/shopping-lists/{id} - アイテム削除
 - Status: ⏳ 未実装
 
-**Review（未実装）**
-- GET /api/recipes/{id}/reviews - レビュー一覧取得
-- POST /api/recipes/{id}/reviews - レビュー作成
-- PUT /api/reviews/{id} - レビュー更新
-- DELETE /api/reviews/{id} - レビュー削除
-- POST /api/reviews/{id}/report - レビュー通報
-- Status: ⏳ 未実装
+**Review（実装済み）**
+- GET /api/recipes/{recipeId}/reviews - レシピのレビュー一覧取得
+  - Response: List<ReviewResponse>
+  - 表示可能なレビュー（VISIBLE）のみを返す
+  - Status: ✅ 実装済み
+- POST /api/recipes/{recipeId}/reviews - レビュー作成
+  - Request: CreateReviewRequest (rating, comment)
+  - Header: X-User-Id
+  - Response: ReviewResponse
+  - Validation: 星評価1-5、コメント300文字以内
+  - Status: ✅ 実装済み
+- PUT /api/reviews/{reviewId} - レビュー更新
+  - Request: UpdateReviewRequest (rating, comment)
+  - Header: X-User-Id
+  - Response: ReviewResponse
+  - 権限チェック：自分のレビューのみ更新可能
+  - Status: ✅ 実装済み
+- DELETE /api/reviews/{reviewId} - レビュー削除
+  - Header: X-User-Id
+  - Response: 204 No Content
+  - 権限チェック：自分のレビューのみ削除可能
+  - Status: ✅ 実装済み
+- POST /api/reviews/{reviewId}/report - レビュー通報
+  - Response: ReviewResponse
+  - 通報カウント増加、3回以上で自動非表示
+  - Status: ✅ 実装済み
 
 **AI Advisor（未実装）**
 - POST /api/ai-advisor/advice - AIアドバイス取得
@@ -383,15 +419,15 @@ Attributes:
   - NormalizedKey (String)
 ```
 
-**Reviews テーブル**
+**Reviews テーブル（実装済み）**
 ```
 Partition Key: RecipeId (String)
 Sort Key: ReviewId (String, UUID)
-GSI_User: UserId (PK)
+GSI_User: UserId (PK), CreatedAt (SK)
 Attributes:
   - UserId (String)
   - Rating (Number, 1-5)
-  - Comment (String, max 300 chars)
+  - Comment (String, max 300 chars, optional)
   - Status (String: "visible" | "hidden")
   - ReportedCount (Number)
   - CreatedAt (String, ISO8601)
@@ -452,16 +488,22 @@ Attributes:
 - normalizedKey: String
 - shouldAutoDelete(): boolean
 
-**Review Entity**
+**Review Entity（実装済み）**
 - reviewId: UUID
 - recipeId: UUID
 - userId: UUID
 - rating: int (1-5)
-- comment: String
+- comment: String (optional, max 300 chars)
 - status: ReviewStatus (enum: VISIBLE, HIDDEN)
 - reportedCount: int
+- createdAt: Instant
+- updatedAt: Instant
+- create(recipeId, userId, rating, comment): Review
+- update(rating, comment): void
 - incrementReportCount(): void
 - shouldHide(): boolean
+- canEdit(requestUserId): boolean
+- isVisible(): boolean
 
 
 ## Correctness Properties
@@ -905,9 +947,9 @@ Attributes:
 - CookingTime：0以上の整数（分）
 - Image：5MB以下、JPEG/PNG（オプション）
 
-**レビュー投稿（未実装）**：
-- Rating：1〜5の整数
-- Comment：0〜300文字
+**レビュー投稿（実装済み）**：
+- Rating：1〜5の整数（必須）
+- Comment：0〜300文字（オプション）
 
 ## Project Structure
 
@@ -1089,22 +1131,22 @@ frontend/
 │   ├── store/                                 # Redux状態管理（実装済み）
 │   │   ├── slices/                            # Reduxスライス
 │   │   │   ├── authSlice.ts                   # 認証状態管理（実装済み）
-│   │   │   ├── recipeSlice.ts                 # （未実装）
+│   │   │   ├── reviewSlice.ts                 # レビュー状態管理（実装済み）
 │   │   │   ├── scheduleSlice.ts               # （未実装）
-│   │   │   ├── shoppingListSlice.ts           # （未実装）
-│   │   │   └── reviewSlice.ts                 # （未実装）
+│   │   │   └── shoppingListSlice.ts           # （未実装）
+│   │   ├── recipeSlice.ts                     # レシピ状態管理（実装済み）
 │   │   └── store.ts                           # Reduxストア設定（実装済み）
 │   ├── api/                                   # API呼び出し（実装済み）
-│   │   ├── client.ts                          # APIクライアント設定（実装済み）
 │   │   ├── userApi.ts                         # ユーザーAPI（実装済み）
-│   │   ├── recipeApi.ts                       # （未実装）
+│   │   ├── recipeApi.ts                       # レシピAPI（実装済み）
+│   │   ├── reviewApi.ts                       # レビューAPI（実装済み）
 │   │   ├── scheduleApi.ts                     # （未実装）
 │   │   ├── shoppingListApi.ts                 # （未実装）
-│   │   ├── reviewApi.ts                       # （未実装）
 │   │   └── aiAdvisorApi.ts                    # （未実装）
 │   ├── hooks/                                 # カスタムフック（実装済み）
 │   │   ├── useAuth.ts                         # 認証フック（実装済み）
 │   │   ├── useForm.ts                         # フォームフック（実装済み）
+│   │   ├── useReview.ts                       # レビューフック（実装済み）
 │   │   ├── useRecipe.ts                       # （未実装）
 │   │   └── useAlert.ts                        # （未実装）
 │   ├── lib/                                   # ライブラリユーティリティ（実装済み）
@@ -1121,10 +1163,10 @@ frontend/
 │   ├── types/                                 # TypeScript型定義（実装済み）
 │   │   ├── user.ts                            # ユーザー型（実装済み）
 │   │   ├── auth.ts                            # 認証型（実装済み）
-│   │   ├── recipe.ts                          # （未実装）
+│   │   ├── recipe.ts                          # レシピ型（実装済み）
+│   │   ├── review.ts                          # レビュー型（実装済み）
 │   │   ├── schedule.ts                        # （未実装）
-│   │   ├── shoppingList.ts                    # （未実装）
-│   │   └── review.ts                          # （未実装）
+│   │   └── shoppingList.ts                    # （未実装）
 │   ├── App.tsx                                # ルートコンポーネント（実装済み）
 │   ├── index.tsx                              # エントリーポイント（実装済み）
 │   ├── index.css                              # グローバルスタイル（Tailwind）（実装済み）
@@ -1383,7 +1425,26 @@ npm test
 
 ### 完了済み機能
 
-**1. ユーザー管理機能（✅ 完了）**
+**1. レビュー機能（✅ 完了）**
+- バックエンド：
+  - レビュー作成（星評価1-5、コメント300文字以内）
+  - レビュー更新（自分のレビューのみ）
+  - レビュー削除（自分のレビューのみ）
+  - レシピIDでレビュー一覧取得（表示可能なレビューのみ）
+  - レビュー通報（通報カウント増加、3回以上で自動非表示）
+  - DynamoDB統合（Reviews テーブル、GSI_User）
+  - バリデーション（Jakarta Validation）
+- フロントエンド：
+  - ReviewList: レビュー一覧コンポーネント（星評価表示、編集・削除・通報ボタン）
+  - ReviewForm: レビュー投稿フォームコンポーネント（星評価選択、コメント入力）
+  - Redux状態管理（reviewSlice）
+  - API呼び出し（reviewApi）
+  - カスタムフック（useReview）
+  - RecipeDetailPageにレビューセクション統合
+  - 多言語対応（日本語・韓国語）
+  - フォームバリデーション
+
+**2. ユーザー管理機能（✅ 完了）**
 - ユーザー登録（Cognito + DynamoDB）
 - ログイン（Cognito認証）
 - プロフィール取得・更新
@@ -1392,13 +1453,13 @@ npm test
 - 確認コード再送信
 - プロフィール画像アップロード（S3）
 
-**2. 画像管理機能（✅ 完了）**
+**3. 画像管理機能（✅ 完了）**
 - S3統合（LocalStack対応）
 - 画像バリデーション（サイズ、フォーマット）
 - Pre-signed URL生成
 - 画像アップロード・取得・削除
 
-**3. レシピ管理機能（✅ 完了）**
+**4. レシピ管理機能（✅ 完了）**
 - レシピ作成
 - レシピ更新
 - レシピ削除（論理削除）
@@ -1416,23 +1477,23 @@ npm test
   - 多言語対応（日本語・韓国語）
   - shadcn/uiコンポーネント（Input、Label、Textarea）
 
-**4. 認証フロー（✅ 完了）**
+**5. 認証フロー（✅ 完了）**
 - ログインページ（Login/: LoginPage + loginFormConfig）
 - ユーザー登録ページ（Register/: RegisterPage + registerFormConfig）
 - メール確認ページ（ConfirmEmail/: ConfirmEmailPage + confirmEmailFormConfig）
 - パスワードリセットページ（プレースホルダー）
 - 2層分離パターン適用（表示+ロジック・設定）
 
-**5. 共通コンポーネント（✅ 完了）**
+**6. 共通コンポーネント（✅ 完了）**
 - FormField（再利用可能なフォームフィールド）
 - ImageUploader（ドラッグ&ドロップ対応）
 - shadcn/uiコンポーネント（Button、Card、Input、Label、Textarea）
 - Tailwind CSS統合
 - カスタムフック（useForm、useAuth）
 
-**6. インフラストラクチャ（✅ 完了）**
+**7. インフラストラクチャ（✅ 完了）**
 - LocalStack環境構築
-- DynamoDB テーブル作成（Users, Recipes）
+- DynamoDB テーブル作成（Users, Recipes, Reviews）
 - S3バケット作成
 - Cognito ユーザープール設定
 - Docker Compose設定
@@ -1455,22 +1516,17 @@ npm test
 - 数量合算ロジック
 - チェック済みアイテム自動削除
 
-**4. レビュー機能**
-- レビュー投稿・編集・削除
-- 通報機能
-- 自動非表示処理
-
-**5. AIアドバイザー機能**
+**4. AIアドバイザー機能**
 - Gemini API統合
 - キャッシュ管理
 - レート制限処理
 
-**6. 管理者機能**
+**5. 管理者機能**
 - ユーザー管理
 - レシピ審査
 - 統計情報表示
 
-**7. 多言語対応（部分実装）**
+**6. 多言語対応（部分実装）**
 - フロントエンド：実装済み（日本語・韓国語）
 - バックエンド：未実装（Accept-Languageヘッダー処理）
 
@@ -1509,12 +1565,11 @@ npm test
 
 ### 次のステップ
 
-1. スケジュール管理機能の実装（タスク6）
-2. サボり防止アラート機能の実装（タスク7）
-3. 買い物リスト管理機能の実装（タスク8）
-4. レビュー機能の実装（タスク9）
-5. AIアドバイザー機能の実装（タスク10）
-6. 管理者機能の実装（タスク11）
-7. Property-Based Testingの実装（各機能のテストタスク）
-8. エラーハンドリングとロギングの強化（タスク13）
-9. ダッシュボードとホーム画面の実装（タスク14）
+1. スケジュール管理機能の実装（タスク8）
+2. サボり防止アラート機能の実装（タスク9）
+3. 買い物リスト管理機能の実装（タスク10）
+4. AIアドバイザー機能の実装（タスク6）
+5. 管理者機能の実装（タスク12）
+6. Property-Based Testingの実装（各機能のテストタスク）
+7. エラーハンドリングとロギングの強化（タスク13）
+8. ダッシュボードとホーム画面の実装（タスク14）

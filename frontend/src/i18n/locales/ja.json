@@ -101,5 +101,24 @@
     "addStep": "手順を追加",
     "basicInfo": "基本情報",
     "notFound": "レシピが見つかりません"
+  },
+  "review": {
+    "title": "レビュー",
+    "noReviews": "まだレビューがありません",
+    "rating": "評価",
+    "comment": "コメント",
+    "commentPlaceholder": "レビューを書く（任意）",
+    "submit": "投稿",
+    "update": "更新",
+    "edit": "編集",
+    "delete": "削除",
+    "report": "通報",
+    "deleteConfirm": "本当にこのレビューを削除しますか？",
+    "reportConfirm": "このレビューを通報しますか？",
+    "reportSuccess": "レビューを通報しました",
+    "validation": {
+      "ratingRange": "評価は1〜5の範囲で選択してください",
+      "commentMaxLength": "コメントは300文字以内で入力してください"
+    }
   }
 }

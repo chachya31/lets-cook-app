@@ -3,6 +3,7 @@ package com.cookingapp.presentation.exception;
 import com.cookingapp.application.validation.ImageValidationException;
 import com.cookingapp.domain.exception.AuthenticationException;
 import com.cookingapp.domain.exception.RecipeNotFoundException;
+import com.cookingapp.domain.exception.ReviewNotFoundException;
 import com.cookingapp.domain.exception.UnauthorizedException;
 import com.cookingapp.domain.exception.UserAlreadyExistsException;
 import com.cookingapp.domain.exception.UserNotFoundException;
@@ -139,6 +140,21 @@ public class GlobalExceptionHandler {
         );
 
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
+
+    /**
+     * レビュー未検出エラー（404）
+     */
+    @ExceptionHandler(ReviewNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleReviewNotFoundException(ReviewNotFoundException ex) {
+        ErrorResponse response = new ErrorResponse(
+                "REVIEW_NOT_FOUND",
+                ex.getMessage(),
+                null,
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     /**

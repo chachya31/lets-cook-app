@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AppDispatch, RootState } from '../../store/store';
@@ -6,6 +6,10 @@ import { fetchRecipe, deleteRecipe, clearCurrentRecipe } from '../../store/recip
 import { useTranslation } from 'react-i18next';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { ReviewList } from './ReviewList';
+import { ReviewForm } from './ReviewForm';
+import { useReview } from '../../hooks/useReview';
+import { Review } from '../../types/review';
 
 /**
  * レシピ詳細ページ
@@ -17,10 +21,22 @@ const RecipeDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const { currentRecipe, loading, error } = useSelector((state: RootState) => state.recipe);
   const { user } = useSelector((state: RootState) => state.auth);
+  const {
+    reviews,
+    loading: reviewLoading,
+    fetchReviews,
+    createReview,
+    updateReview,
+    deleteReview: deleteReviewAction,
+    reportReview,
+  } = useReview();
+  const [editingReview, setEditingReview] = useState<Review | null>(null);
+  const [showReviewForm, setShowReviewForm] = useState(false);
 
   useEffect(() => {
     if (id) {
       dispatch(fetchRecipe(id));
+      fetchReviews(id);
     }
     return () => {
       dispatch(clearCurrentRecipe());
@@ -69,6 +85,46 @@ const RecipeDetailPage: React.FC = () => {
   }
 
   const isAuthor = user && currentRecipe.authorId === user.userId;
+
+  const handleReviewSubmit = async (rating: number, comment: string) => {
+    if (!id || !user) return;
+
+    try {
+      if (editingReview) {
+        await updateReview(editingReview.reviewId, user.userId, { rating, comment });
+        setEditingReview(null);
+      } else {
+        await createReview(id, user.userId, { rating, comment });
+        setShowReviewForm(false);
+      }
+    } catch (err) {
+      console.error('Failed to submit review:', err);
+    }
+  };
+
+  const handleReviewEdit = (review: Review) => {
+    setEditingReview(review);
+    setShowReviewForm(true);
+  };
+
+  const handleReviewDelete = async (reviewId: string) => {
+    if (!user) return;
+    if (window.confirm(t('review.deleteConfirm'))) {
+      await deleteReviewAction(reviewId, user.userId);
+    }
+  };
+
+  const handleReviewReport = async (reviewId: string) => {
+    if (window.confirm(t('review.reportConfirm'))) {
+      await reportReview(reviewId);
+      alert(t('review.reportSuccess'));
+    }
+  };
+
+  const handleCancelReview = () => {
+    setEditingReview(null);
+    setShowReviewForm(false);
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -137,6 +193,39 @@ const RecipeDetailPage: React.FC = () => {
               </li>
             ))}
           </ol>
+        </CardContent>
+      </Card>
+
+      {/* レビューセクション */}
+      <Card className="mt-6">
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <CardTitle>{t('review.title')}</CardTitle>
+            {user && !showReviewForm && (
+              <Button onClick={() => setShowReviewForm(true)}>
+                {t('review.submit')}
+              </Button>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent>
+          {showReviewForm && (
+            <div className="mb-6">
+              <ReviewForm
+                editingReview={editingReview}
+                onSubmit={handleReviewSubmit}
+                onCancel={handleCancelReview}
+                loading={reviewLoading}
+              />
+            </div>
+          )}
+          <ReviewList
+            reviews={reviews}
+            currentUserId={user?.userId}
+            onEdit={handleReviewEdit}
+            onDelete={handleReviewDelete}
+            onReport={handleReviewReport}
+          />
         </CardContent>
       </Card>
     </div>

@@ -21,24 +21,56 @@ frontend/
 ├── src/
 │   ├── components/        # Reactコンポーネント
 │   │   ├── ui/            # shadcn/uiコンポーネント
-│   │   ├── auth/          # 認証関連
-│   │   ├── dashboard/     # ダッシュボード
-│   │   ├── recipe/        # レシピ関連
-│   │   ├── schedule/      # スケジュール関連
-│   │   ├── shopping/      # 買い物リスト
-│   │   ├── profile/       # プロフィール
-│   │   ├── admin/         # 管理者機能
-│   │   └── common/        # 共通コンポーネント
-│   ├── lib/               # ライブラリユーティリティ
-│   ├── store/             # Redux状態管理
-│   ├── api/               # API呼び出し
-│   ├── hooks/             # カスタムフック
-│   ├── utils/             # ユーティリティ関数
-│   ├── types/             # TypeScript型定義
-│   └── i18n/              # 多言語対応
+│   │   ├── auth/          # 認証関連（実装済み）
+│   │   ├── recipe/        # レシピ関連（実装済み）
+│   │   ├── common/        # 共通コンポーネント（実装済み）
+│   │   ├── dashboard/     # ダッシュボード（未実装）
+│   │   ├── schedule/      # スケジュール関連（未実装）
+│   │   ├── shopping/      # 買い物リスト（未実装）
+│   │   ├── profile/       # プロフィール（未実装）
+│   │   └── admin/         # 管理者機能（未実装）
+│   ├── lib/               # ライブラリユーティリティ（実装済み）
+│   ├── store/             # Redux状態管理（実装済み）
+│   ├── api/               # API呼び出し（実装済み）
+│   ├── hooks/             # カスタムフック（実装済み）
+│   ├── utils/             # ユーティリティ関数（実装済み）
+│   ├── types/             # TypeScript型定義（実装済み）
+│   └── i18n/              # 多言語対応（実装済み）
 └── tests/
-    ├── unit/              # ユニットテスト
-    └── property/          # プロパティベーステスト
+    ├── unit/              # ユニットテスト（未実装）
+    └── property/          # プロパティベーステスト（未実装）
+```
+
+## 実装済み機能
+
+### 1. 認証機能
+- ログイン（Login/: LoginPage + loginFormConfig）
+- ユーザー登録（Register/: RegisterPage + registerFormConfig）
+- メール確認（ConfirmEmail/: ConfirmEmailPage + confirmEmailFormConfig）
+- Redux状態管理（authSlice）
+- カスタムフック（useAuth、useForm）
+
+### 2. レシピ機能
+- レシピ検索（RecipeSearchPage）
+- レシピ詳細（RecipeDetailPage）
+- レシピ編集（RecipeEdit/: RecipeEditPage + useRecipeEditHandlers + recipeEditConfig）
+- Redux状態管理（recipeSlice）
+- API呼び出し（recipeApi）
+
+### 3. レビュー機能
+- レビュー一覧（ReviewList）
+- レビュー投稿フォーム（ReviewForm）
+- 星評価選択（1-5）
+- コメント入力（300文字以内）
+- 編集・削除・通報機能
+- Redux状態管理（reviewSlice）
+- API呼び出し（reviewApi）
+- カスタムフック（useReview）
+
+### 4. 共通コンポーネント
+- FormField: 再利用可能なフォームフィールド
+- ImageUploader: ドラッグ&ドロップ対応画像アップローダー
+- shadcn/uiコンポーネント（Button、Card、Input、Label、Textarea）
 ```
 
 ## セットアップ
