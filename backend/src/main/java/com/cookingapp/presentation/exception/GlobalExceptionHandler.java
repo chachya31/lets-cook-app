@@ -11,6 +11,8 @@ import com.cookingapp.domain.exception.UserAlreadyExistsException;
 import com.cookingapp.domain.exception.UserNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -22,6 +24,7 @@ import software.amazon.awssdk.services.dynamodb.model.ResourceNotFoundException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -31,6 +34,30 @@ import java.util.Map;
 public class GlobalExceptionHandler {
     
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+    private final MessageSource messageSource;
+
+    public GlobalExceptionHandler(MessageSource messageSource) {
+        this.messageSource = messageSource;
+    }
+
+    /**
+     * 現在のロケールを取得
+     */
+    private Locale getCurrentLocale() {
+        return LocaleContextHolder.getLocale();
+    }
+
+    /**
+     * メッセージを取得（国際化対応）
+     */
+    private String getMessage(String code, Object... args) {
+        try {
+            return messageSource.getMessage(code, args, getCurrentLocale());
+        } catch (Exception e) {
+            logger.warn("Message not found for code: {}", code);
+            return code;
+        }
+    }
 
     /**
      * バリデーションエラー（400）
@@ -46,7 +73,7 @@ public class GlobalExceptionHandler {
 
         ErrorResponse response = new ErrorResponse(
                 "VALIDATION_ERROR",
-                "Validation failed",
+                getMessage("error.bad_request"),
                 errors,
                 LocalDateTime.now()
         );
@@ -61,7 +88,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException ex) {
         ErrorResponse response = new ErrorResponse(
                 "AUTHENTICATION_ERROR",
-                ex.getMessage(),
+                getMessage("error.auth.unauthorized"),
                 null,
                 LocalDateTime.now()
         );
@@ -76,7 +103,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleUserAlreadyExistsException(UserAlreadyExistsException ex) {
         ErrorResponse response = new ErrorResponse(
                 "USER_ALREADY_EXISTS",
-                ex.getMessage(),
+                getMessage("error.auth.user_already_exists"),
                 null,
                 LocalDateTime.now()
         );
@@ -89,9 +116,12 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(ImageValidationException.class)
     public ResponseEntity<ErrorResponse> handleImageValidationException(ImageValidationException ex) {
+        String messageKey = ex.getMessage().contains("size") ? 
+                "validation.image.size.exceeded" : "validation.image.format.invalid";
+        
         ErrorResponse response = new ErrorResponse(
                 "IMAGE_VALIDATION_ERROR",
-                ex.getMessage(),
+                getMessage(messageKey),
                 null,
                 LocalDateTime.now()
         );
@@ -106,7 +136,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleUserNotFoundException(UserNotFoundException ex) {
         ErrorResponse response = new ErrorResponse(
                 "USER_NOT_FOUND",
-                ex.getMessage(),
+                getMessage("error.auth.user_not_found"),
                 null,
                 LocalDateTime.now()
         );
@@ -121,7 +151,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleRecipeNotFoundException(RecipeNotFoundException ex) {
         ErrorResponse response = new ErrorResponse(
                 "RECIPE_NOT_FOUND",
-                ex.getMessage(),
+                getMessage("error.recipe.not_found"),
                 null,
                 LocalDateTime.now()
         );
@@ -136,7 +166,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleUnauthorizedException(UnauthorizedException ex) {
         ErrorResponse response = new ErrorResponse(
                 "UNAUTHORIZED",
-                ex.getMessage(),
+                getMessage("error.forbidden"),
                 null,
                 LocalDateTime.now()
         );
@@ -151,7 +181,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleReviewNotFoundException(ReviewNotFoundException ex) {
         ErrorResponse response = new ErrorResponse(
                 "REVIEW_NOT_FOUND",
-                ex.getMessage(),
+                getMessage("error.review.not_found"),
                 null,
                 LocalDateTime.now()
         );
@@ -166,7 +196,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleScheduleNotFoundException(ScheduleNotFoundException ex) {
         ErrorResponse response = new ErrorResponse(
                 "SCHEDULE_NOT_FOUND",
-                ex.getMessage(),
+                getMessage("error.schedule.not_found"),
                 null,
                 LocalDateTime.now()
         );
@@ -181,7 +211,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleShoppingListItemNotFoundException(ShoppingListItemNotFoundException ex) {
         ErrorResponse response = new ErrorResponse(
                 "SHOPPING_LIST_ITEM_NOT_FOUND",
-                ex.getMessage(),
+                getMessage("error.shoppingList.not_found"),
                 null,
                 LocalDateTime.now()
         );
@@ -196,7 +226,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex) {
         ErrorResponse response = new ErrorResponse(
                 "INVALID_ARGUMENT",
-                ex.getMessage(),
+                getMessage("error.bad_request"),
                 null,
                 LocalDateTime.now()
         );
@@ -211,7 +241,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleIllegalStateException(IllegalStateException ex) {
         ErrorResponse response = new ErrorResponse(
                 "INVALID_STATE",
-                ex.getMessage(),
+                getMessage("error.bad_request"),
                 null,
                 LocalDateTime.now()
         );
@@ -280,7 +310,7 @@ public class GlobalExceptionHandler {
         
         ErrorResponse response = new ErrorResponse(
                 "INTERNAL_SERVER_ERROR",
-                "An unexpected error occurred: " + ex.getMessage(),
+                getMessage("error.internal_server"),
                 details,
                 LocalDateTime.now()
         );

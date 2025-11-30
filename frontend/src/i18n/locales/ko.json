@@ -157,5 +157,12 @@
     "toBuy": "구매 예정",
     "purchased": "구매 완료",
     "empty": "장보기 목록이 비어 있습니다"
+  },
+  "profile": {
+    "title": "프로필",
+    "language": "언어",
+    "selectLanguage": "언어 선택",
+    "changeLanguage": "언어 변경",
+    "languageChanged": "언어를 변경했습니다"
   }
 }

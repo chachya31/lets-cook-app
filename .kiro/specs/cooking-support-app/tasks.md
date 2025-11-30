@@ -507,31 +507,35 @@
   - フォームバリデーション（名前100文字以内、数量0.01-9999）
   - _Requirements: 8.1, 8.2, 8.3, 8.4_
 
-- [ ] 11. 多言語対応機能の実装
-- [ ] 11.1 バックエンド：多言語メッセージファイルの作成
+- [x] 11. 多言語対応機能の実装
+- [x] 11.1 バックエンド：多言語メッセージファイルの作成
   - messages_ja.properties（日本語）
   - messages_ko.properties（韓国語）
   - エラーメッセージ、バリデーションメッセージ
   - _Requirements: 9.3, 9.4_
 
-- [ ] 11.2 バックエンド：Accept-Languageヘッダー処理の実装
+- [x] 11.2 バックエンド：Accept-Languageヘッダー処理の実装
   - リクエストヘッダーから言語を取得
   - メッセージソースから適切な言語のメッセージを返す
+  - MessageConfig設定クラス（MessageSource、LocaleResolver）
+  - GlobalExceptionHandlerに国際化対応追加
   - _Requirements: 9.4_
 
 - [ ]* 11.3 プロパティテスト：優先言語でのエラーメッセージ
   - **Property 38: 優先言語でのエラーメッセージ**
   - **Validates: Requirements 9.4**
 
-- [ ] 11.4 フロントエンド：i18next設定とロケールファイルの作成
-  - i18n.ts設定
+- [x] 11.4 フロントエンド：i18next設定とロケールファイルの作成
+  - i18n.ts設定（localStorageとブラウザ言語設定からの初期言語取得）
   - ja.json（日本語翻訳）
   - ko.json（韓国語翻訳）
+  - プロフィール翻訳追加
   - _Requirements: 9.1, 9.2, 9.3_
 
-- [ ] 11.5 フロントエンド：LanguageSelectorコンポーネントの実装
-  - 言語選択UI
-  - PreferredLanguage保存
+- [x] 11.5 フロントエンド：LanguageSelectorコンポーネントの実装
+  - 言語選択UI（Select UIコンポーネント）
+  - PreferredLanguage保存（localStorage）
+  - i18n言語切り替え
   - _Requirements: 9.1_
 
 - [ ]* 11.6 プロパティテスト：優先言語の保存

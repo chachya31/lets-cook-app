@@ -1179,14 +1179,15 @@ backend/
 │   │   │               │   ├── DynamoDBConfig.java      # （実装済み）
 │   │   │               │   ├── CognitoConfig.java       # （実装済み）
 │   │   │               │   ├── S3Config.java            # （実装済み）
-│   │   │               │   └── CorsConfig.java          # （実装済み）
+│   │   │               │   ├── CorsConfig.java          # （実装済み）
+│   │   │               │   └── MessageConfig.java       # （実装済み）
 │   │   │               └── cache/             # キャッシュ管理（未実装）
 │   │   └── resources/
 │   │       ├── application.yml                # アプリケーション設定（共通）
 │   │       ├── application-local.yml          # ローカル開発設定（LocalStack）
 │   │       └── messages/                      # 多言語メッセージ
-│   │           ├── messages_ja.properties     # 日本語
-│   │           └── messages_ko.properties     # 韓国語
+│   │           ├── messages_ja.properties     # 日本語（実装済み）
+│   │           └── messages_ko.properties     # 韓国語（実装済み）
 │   └── test/
 │       ├── java/
 │       │   └── com/
@@ -1207,16 +1208,16 @@ frontend/
 ├── src/
 │   ├── components/                            # Reactコンポーネント
 │   │   ├── ui/                                # shadcn/uiコンポーネント
-│   │   │   ├── button.tsx
-│   │   │   ├── card.tsx
-│   │   │   ├── dialog.tsx
-│   │   │   ├── form.tsx
-│   │   │   ├── input.tsx
-│   │   │   ├── select.tsx
-│   │   │   ├── checkbox.tsx
-│   │   │   ├── toast.tsx
-│   │   │   ├── calendar.tsx
-│   │   │   └── label.tsx
+│   │   │   ├── button.tsx                     # （実装済み）
+│   │   │   ├── card.tsx                       # （実装済み）
+│   │   │   ├── dialog.tsx                     # （実装済み）
+│   │   │   ├── form.tsx                       # （実装済み）
+│   │   │   ├── input.tsx                      # （実装済み）
+│   │   │   ├── select.tsx                     # （実装済み）
+│   │   │   ├── checkbox.tsx                   # （実装済み）
+│   │   │   ├── toast.tsx                      # （未実装）
+│   │   │   ├── calendar.tsx                   # （未実装）
+│   │   │   └── label.tsx                      # （実装済み）
 │   │   ├── auth/                              # 認証関連（実装済み）
 │   │   │   ├── Login/                         # ログイン機能
 │   │   │   │   ├── LoginPage.tsx              # ログインページ（実装済み）
@@ -1254,7 +1255,7 @@ frontend/
 │   │   ├── profile/                           # プロフィール（一部実装済み）
 │   │   │   ├── ProfilePage.tsx                # （未実装）
 │   │   │   ├── ImageUploader.tsx              # （実装済み）
-│   │   │   └── LanguageSelector.tsx           # （未実装）
+│   │   │   └── LanguageSelector.tsx           # （実装済み）
 │   │   └── admin/                             # 管理者機能（未実装）
 │   │       ├── AdminDashboard.tsx
 │   │       ├── UserManagement.tsx
@@ -1288,10 +1289,10 @@ frontend/
 │   │   ├── dateUtils.ts                       # （未実装）
 │   │   └── normalize.ts                       # （未実装）
 │   ├── i18n/                                  # 多言語対応（実装済み）
-│   │   ├── i18n.ts                            # i18next設定（実装済み）
+│   │   ├── i18n.ts                            # i18next設定（localStorage、ブラウザ言語設定対応）（実装済み）
 │   │   └── locales/
-│   │       ├── ja.json                        # 日本語翻訳（認証、バリデーション、画像アップロード、レシピ、レビュー、スケジュール、アラート）（実装済み）
-│   │       └── ko.json                        # 韓国語翻訳（認証、バリデーション、画像アップロード、レシピ、レビュー、スケジュール、アラート）（実装済み）
+│   │       ├── ja.json                        # 日本語翻訳（認証、バリデーション、画像アップロード、レシピ、レビュー、スケジュール、アラート、買い物リスト、プロフィール）（実装済み）
+│   │       └── ko.json                        # 韓国語翻訳（認証、バリデーション、画像アップロード、レシピ、レビュー、スケジュール、アラート、買い物リスト、プロフィール）（実装済み）
 │   ├── types/                                 # TypeScript型定義（実装済み）
 │   │   ├── user.ts                            # ユーザー型（実装済み）
 │   │   ├── auth.ts                            # 認証型（実装済み）
@@ -1646,6 +1647,19 @@ npm test
 - Cognito ユーザープール設定
 - Docker Compose設定
 
+**9. 多言語対応（✅ 完了）**
+- バックエンド：
+  - messages_ja.properties（日本語メッセージファイル）
+  - messages_ko.properties（韓国語メッセージファイル）
+  - MessageConfig（MessageSource、LocaleResolver設定）
+  - GlobalExceptionHandler（Accept-Languageヘッダー処理、国際化対応）
+  - エラーメッセージ、バリデーションメッセージ、成功メッセージ
+- フロントエンド：
+  - i18next設定（localStorage、ブラウザ言語設定からの初期言語取得）
+  - LanguageSelector（言語選択UIコンポーネント、localStorage保存）
+  - Select UIコンポーネント（shadcn/ui）
+  - 認証、レシピ、レビュー、スケジュール、アラート、買い物リスト、プロフィールの翻訳
+
 ### 未実装機能
 
 **1. AIアドバイザー機能**
@@ -1657,10 +1671,6 @@ npm test
 - ユーザー管理
 - レシピ審査
 - 統計情報表示
-
-**3. 多言語対応（部分実装）**
-- フロントエンド：実装済み（日本語・韓国語）
-- バックエンド：未実装（Accept-Languageヘッダー処理）
 
 ### 技術スタック
 
@@ -1720,9 +1730,8 @@ npm test
 
 ### 次のステップ
 
-1. 多言語対応の完成（タスク11）
-2. AIアドバイザー機能の実装（タスク6）
-3. 管理者機能の実装（タスク12）
-4. Property-Based Testingの実装（各機能のテストタスク）
-5. エラーハンドリングとロギングの強化（タスク13）
-6. ダッシュボードとホーム画面の実装（タスク14）
+1. AIアドバイザー機能の実装（タスク6）
+2. 管理者機能の実装（タスク12）
+3. Property-Based Testingの実装（各機能のテストタスク）
+4. エラーハンドリングとロギングの強化（タスク13）
+5. ダッシュボードとホーム画面の実装（タスク14）
