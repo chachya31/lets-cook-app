@@ -140,10 +140,23 @@
   - RecipeResponse DTO: レシピレスポンス（実装済み）
   - IngredientDto: 食材DTO（実装済み）
 
-**4. Schedule Management Module（未実装）**
-- ScheduleController: スケジュールCRUD操作
-- ScheduleService: 予定/実績管理、アラート判定
-- ScheduleRepository: DynamoDBアクセス
+**4. Schedule Management Module（実装済み）**
+- Domain Layer:
+  - Schedule Entity: スケジュールドメインエンティティ（実装済み）
+  - ScheduleType Value Object: スケジュールタイプ（実装済み）
+- Application Layer:
+  - CreateScheduleUseCase: スケジュール作成ユースケース（実装済み）
+  - UpdateScheduleUseCase: スケジュール更新ユースケース（実装済み）
+  - DeleteScheduleUseCase: スケジュール削除ユースケース（実装済み）
+  - GetSchedulesUseCase: スケジュール取得ユースケース（実装済み）
+  - ConvertScheduleToCookedUseCase: 予定を実績に変換するユースケース（実装済み）
+- Infrastructure Layer:
+  - DynamoDBScheduleRepository: DynamoDBリポジトリ（実装済み）
+- Presentation Layer:
+  - ScheduleController: スケジュールCRUD操作REST APIコントローラー（実装済み）
+  - CreateScheduleRequest DTO: スケジュール作成リクエスト（実装済み）
+  - UpdateScheduleRequest DTO: スケジュール更新リクエスト（実装済み）
+  - ScheduleResponse DTO: スケジュールレスポンス（実装済み）
 
 **5. Shopping List Module（未実装）**
 - ShoppingListController: 買い物リストCRUD操作
@@ -215,10 +228,12 @@
 - Review型定義: TypeScript型定義（実装済み）
 - AIAdvisorPanel: AIアドバイザーパネル（未実装）
 
-**5. Schedule Components（未実装）**
-- SchedulePage: スケジュール管理画面
-- CalendarView: カレンダー表示
-- ScheduleForm: 予定/実績登録フォーム
+**5. Schedule Components（実装済み）**
+- SchedulePage: スケジュール管理画面（実装済み）
+- scheduleSlice: Redux状態管理（実装済み）
+- scheduleApi: API呼び出し関数（実装済み）
+- Schedule型定義: TypeScript型定義（実装済み）
+- 多言語対応（日本語・韓国語）（実装済み）
 
 **6. Shopping List Components（未実装）**
 - ShoppingListPage: 買い物リスト画面
@@ -292,13 +307,32 @@
   - Validation: ファイルサイズ5MB以下、JPEG/PNG形式
   - Status: ✅ 実装済み
 
-**Schedule Management（未実装）**
+**Schedule Management（実装済み）**
 - GET /api/schedules - スケジュール一覧取得
+  - Query Parameters: startDate (required), endDate (required)
+  - Header: X-User-Id
+  - Response: List<ScheduleResponse>
+  - Status: ✅ 実装済み
 - POST /api/schedules - スケジュール作成
+  - Request: CreateScheduleRequest (date, type, recipeId, recipeTitle, memo)
+  - Header: X-User-Id
+  - Response: ScheduleResponse
+  - Validation: 日付形式YYYY-MM-DD、タイプplanned/cooked、メモ120文字以内
+  - Status: ✅ 実装済み
 - PUT /api/schedules/{id} - スケジュール更新
+  - Request: UpdateScheduleRequest (memo)
+  - Header: X-User-Id
+  - Response: ScheduleResponse
+  - Status: ✅ 実装済み
 - DELETE /api/schedules/{id} - スケジュール削除
-- GET /api/schedules/alert - アラート判定
-- Status: ⏳ 未実装
+  - Header: X-User-Id
+  - Response: 204 No Content
+  - Status: ✅ 実装済み
+- POST /api/schedules/{id}/convert-to-cooked - 予定を実績に変換
+  - Header: X-User-Id
+  - Response: ScheduleResponse
+  - LastCookingDateも更新
+  - Status: ✅ 実装済み
 
 **Shopping List（未実装）**
 - GET /api/shopping-lists - 買い物リスト取得
@@ -1113,10 +1147,8 @@ frontend/
 │   │   │   ├── AIAdvisorPanel.tsx
 │   │   │   ├── ReviewList.tsx
 │   │   │   └── ReviewForm.tsx
-│   │   ├── schedule/                          # スケジュール関連（未実装）
-│   │   │   ├── SchedulePage.tsx
-│   │   │   ├── CalendarView.tsx
-│   │   │   └── ScheduleForm.tsx
+│   │   ├── schedule/                          # スケジュール関連（実装済み）
+│   │   │   └── SchedulePage.tsx               # （実装済み）
 │   │   ├── shopping/                          # 買い物リスト（未実装）
 │   │   │   ├── ShoppingListPage.tsx
 │   │   │   └── ShoppingListItem.tsx
@@ -1132,7 +1164,7 @@ frontend/
 │   │   ├── slices/                            # Reduxスライス
 │   │   │   ├── authSlice.ts                   # 認証状態管理（実装済み）
 │   │   │   ├── reviewSlice.ts                 # レビュー状態管理（実装済み）
-│   │   │   ├── scheduleSlice.ts               # （未実装）
+│   │   │   ├── scheduleSlice.ts               # スケジュール状態管理（実装済み）
 │   │   │   └── shoppingListSlice.ts           # （未実装）
 │   │   ├── recipeSlice.ts                     # レシピ状態管理（実装済み）
 │   │   └── store.ts                           # Reduxストア設定（実装済み）
@@ -1140,7 +1172,7 @@ frontend/
 │   │   ├── userApi.ts                         # ユーザーAPI（実装済み）
 │   │   ├── recipeApi.ts                       # レシピAPI（実装済み）
 │   │   ├── reviewApi.ts                       # レビューAPI（実装済み）
-│   │   ├── scheduleApi.ts                     # （未実装）
+│   │   ├── scheduleApi.ts                     # スケジュールAPI（実装済み）
 │   │   ├── shoppingListApi.ts                 # （未実装）
 │   │   └── aiAdvisorApi.ts                    # （未実装）
 │   ├── hooks/                                 # カスタムフック（実装済み）
@@ -1165,7 +1197,7 @@ frontend/
 │   │   ├── auth.ts                            # 認証型（実装済み）
 │   │   ├── recipe.ts                          # レシピ型（実装済み）
 │   │   ├── review.ts                          # レビュー型（実装済み）
-│   │   ├── schedule.ts                        # （未実装）
+│   │   ├── schedule.ts                        # スケジュール型（実装済み）
 │   │   └── shoppingList.ts                    # （未実装）
 │   ├── App.tsx                                # ルートコンポーネント（実装済み）
 │   ├── index.tsx                              # エントリーポイント（実装済み）
@@ -1425,7 +1457,23 @@ npm test
 
 ### 完了済み機能
 
-**1. レビュー機能（✅ 完了）**
+**1. スケジュール管理機能（✅ 完了）**
+- バックエンド：
+  - スケジュール作成（日付、タイプ、レシピID、レシピ名、メモ）
+  - スケジュール更新（メモ更新）
+  - スケジュール削除（権限チェック付き）
+  - スケジュール一覧取得（日付範囲検索）
+  - 予定を実績に変換（LastCookingDate更新）
+  - DynamoDB統合（Schedules テーブル）
+  - バリデーション（Jakarta Validation）
+- フロントエンド：
+  - SchedulePage: スケジュール管理画面（検索、作成、更新、削除、変換）
+  - Redux状態管理（scheduleSlice）
+  - API呼び出し（scheduleApi）
+  - 多言語対応（日本語・韓国語）
+  - フォームバリデーション
+
+**2. レビュー機能（✅ 完了）**
 - バックエンド：
   - レビュー作成（星評価1-5、コメント300文字以内）
   - レビュー更新（自分のレビューのみ）
@@ -1444,7 +1492,7 @@ npm test
   - 多言語対応（日本語・韓国語）
   - フォームバリデーション
 
-**2. ユーザー管理機能（✅ 完了）**
+**3. ユーザー管理機能（✅ 完了）**
 - ユーザー登録（Cognito + DynamoDB）
 - ログイン（Cognito認証）
 - プロフィール取得・更新
@@ -1453,13 +1501,13 @@ npm test
 - 確認コード再送信
 - プロフィール画像アップロード（S3）
 
-**3. 画像管理機能（✅ 完了）**
+**4. 画像管理機能（✅ 完了）**
 - S3統合（LocalStack対応）
 - 画像バリデーション（サイズ、フォーマット）
 - Pre-signed URL生成
 - 画像アップロード・取得・削除
 
-**4. レシピ管理機能（✅ 完了）**
+**5. レシピ管理機能（✅ 完了）**
 - レシピ作成
 - レシピ更新
 - レシピ削除（論理削除）
@@ -1477,21 +1525,21 @@ npm test
   - 多言語対応（日本語・韓国語）
   - shadcn/uiコンポーネント（Input、Label、Textarea）
 
-**5. 認証フロー（✅ 完了）**
+**6. 認証フロー（✅ 完了）**
 - ログインページ（Login/: LoginPage + loginFormConfig）
 - ユーザー登録ページ（Register/: RegisterPage + registerFormConfig）
 - メール確認ページ（ConfirmEmail/: ConfirmEmailPage + confirmEmailFormConfig）
 - パスワードリセットページ（プレースホルダー）
 - 2層分離パターン適用（表示+ロジック・設定）
 
-**6. 共通コンポーネント（✅ 完了）**
+**7. 共通コンポーネント（✅ 完了）**
 - FormField（再利用可能なフォームフィールド）
 - ImageUploader（ドラッグ&ドロップ対応）
 - shadcn/uiコンポーネント（Button、Card、Input、Label、Textarea）
 - Tailwind CSS統合
 - カスタムフック（useForm、useAuth）
 
-**7. インフラストラクチャ（✅ 完了）**
+**8. インフラストラクチャ（✅ 完了）**
 - LocalStack環境構築
 - DynamoDB テーブル作成（Users, Recipes, Reviews）
 - S3バケット作成
@@ -1500,33 +1548,27 @@ npm test
 
 ### 未実装機能
 
-**1. スケジュール管理機能**
-- カレンダー表示
-- 料理予定・実績登録
-- 予定→実績変換
-- LastCookingDate更新
-
-**2. サボり防止アラート機能**
+**1. サボり防止アラート機能**
 - アラート判定ロジック
 - アラートモーダル表示
 - クイック料理登録
 
-**3. 買い物リスト管理機能**
+**2. 買い物リスト管理機能**
 - アイテム追加・更新・削除
 - 数量合算ロジック
 - チェック済みアイテム自動削除
 
-**4. AIアドバイザー機能**
+**3. AIアドバイザー機能**
 - Gemini API統合
 - キャッシュ管理
 - レート制限処理
 
-**5. 管理者機能**
+**4. 管理者機能**
 - ユーザー管理
 - レシピ審査
 - 統計情報表示
 
-**6. 多言語対応（部分実装）**
+**5. 多言語対応（部分実装）**
 - フロントエンド：実装済み（日本語・韓国語）
 - バックエンド：未実装（Accept-Languageヘッダー処理）
 
@@ -1565,11 +1607,10 @@ npm test
 
 ### 次のステップ
 
-1. スケジュール管理機能の実装（タスク8）
-2. サボり防止アラート機能の実装（タスク9）
-3. 買い物リスト管理機能の実装（タスク10）
-4. AIアドバイザー機能の実装（タスク6）
-5. 管理者機能の実装（タスク12）
-6. Property-Based Testingの実装（各機能のテストタスク）
-7. エラーハンドリングとロギングの強化（タスク13）
-8. ダッシュボードとホーム画面の実装（タスク14）
+1. サボり防止アラート機能の実装（タスク9）
+2. 買い物リスト管理機能の実装（タスク10）
+3. AIアドバイザー機能の実装（タスク6）
+4. 管理者機能の実装（タスク12）
+5. Property-Based Testingの実装（各機能のテストタスク）
+6. エラーハンドリングとロギングの強化（タスク13）
+7. ダッシュボードとホーム画面の実装（タスク14）

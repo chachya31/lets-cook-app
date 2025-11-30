@@ -325,21 +325,29 @@
   - フォームバリデーション（星評価1-5、コメント300文字以内）
   - _Requirements: 5.1, 5.2, 5.3_
 
-- [ ] 8. スケジュール管理機能の実装
-- [ ] 8.1 ドメイン層：Scheduleエンティティの実装
+- [x] 8. スケジュール管理機能の実装
+- [x] 8.1 ドメイン層：Scheduleエンティティの実装
   - Scheduleエンティティ（scheduleId、userId、date、type、recipeId、recipeTitle、memo）
-  - 予定→実績変換ロジック
+  - ScheduleType Value Object（PLANNED、COOKED）
+  - 予定→実績変換ロジック（convertToCooked）
+  - メモ更新ロジック（updateMemo）
+  - 権限チェック（canEdit）
   - _Requirements: 6.1, 6.2, 6.3, 6.4_
 
-- [ ] 8.2 インフラ層：ScheduleRepositoryの実装
-  - DynamoDBアクセス（CRUD操作）
-  - 日付範囲検索
+- [x] 8.2 インフラ層：ScheduleRepositoryの実装
+  - ScheduleRepositoryインターフェース（save、findById、findByUserIdAndDateRange、delete、existsById）
+  - DynamoDBScheduleRepository実装（CRUD操作）
+  - SortKey構築（Date#Type#RecipeId形式）
+  - 日付範囲検索（QueryRequest）
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [ ] 8.3 アプリケーション層：スケジュール管理ユースケースの実装
-  - スケジュール作成、更新、削除、取得
-  - 予定→実績変換
-  - LastCookingDate更新
+- [x] 8.3 アプリケーション層：スケジュール管理ユースケースの実装
+  - CreateScheduleUseCase: スケジュール作成
+  - UpdateScheduleUseCase: スケジュール更新（権限チェック付き）
+  - DeleteScheduleUseCase: スケジュール削除（権限チェック付き）
+  - GetSchedulesUseCase: スケジュール一覧取得（日付範囲検索）
+  - ConvertScheduleToCookedUseCase: 予定→実績変換（LastCookingDate更新）
+  - ScheduleNotFoundException例外クラス
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
 
 - [ ]* 8.4 プロパティテスト：カレンダー表示の完全性
@@ -362,16 +370,27 @@
   - **Property 24: 過去のスケジュール編集・削除権限**
   - **Validates: Requirements 6.5**
 
-- [ ] 8.9 プレゼンテーション層：ScheduleControllerの実装
-  - REST APIエンドポイント（/api/schedules/*）
-  - リクエスト/レスポンスDTO
-  - バリデーション（フロントエンド・バックエンド両方）
+- [x] 8.9 プレゼンテーション層：ScheduleControllerの実装
+  - ScheduleController: REST APIエンドポイント
+    - GET /api/schedules - スケジュール一覧取得（startDate、endDateパラメータ、X-User-Idヘッダー）
+    - POST /api/schedules - スケジュール作成（X-User-Idヘッダー）
+    - PUT /api/schedules/{id} - スケジュール更新（X-User-Idヘッダー）
+    - DELETE /api/schedules/{id} - スケジュール削除（X-User-Idヘッダー）
+    - POST /api/schedules/{id}/convert-to-cooked - 予定を実績に変換（X-User-Idヘッダー）
+  - CreateScheduleRequest DTO（date、type、recipeId、recipeTitle、memo）
+  - UpdateScheduleRequest DTO（memo）
+  - ScheduleResponse DTO（scheduleId、userId、date、type、recipeId、recipeTitle、memo、createdAt）
+  - Jakarta Validationバリデーション（@NotBlank、@Pattern、@Size）
+  - GlobalExceptionHandlerに例外ハンドラー追加（ScheduleNotFoundException）
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [ ] 8.10 フロントエンド：スケジュールコンポーネントの実装
-  - SchedulePage、CalendarView、ScheduleForm
-  - Redux状態管理（scheduleSlice）
-  - カレンダーライブラリ統合（react-calendar等）
+- [x] 8.10 フロントエンド：スケジュールコンポーネントの実装
+  - SchedulePage: スケジュール管理画面（検索、作成、更新、削除、予定→実績変換）
+  - scheduleSlice: Redux状態管理（fetchSchedules、createSchedule、updateSchedule、deleteSchedule、convertToCooked）
+  - scheduleApi: API呼び出し関数（getSchedules、createSchedule、updateSchedule、deleteSchedule、convertToCooked）
+  - Schedule型定義（Schedule、CreateScheduleRequest、UpdateScheduleRequest、ScheduleSearchParams、ScheduleState）
+  - i18n翻訳追加（日本語・韓国語）
+  - App.tsxルーティング追加（/schedules）
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
 
 - [ ] 9. サボり防止アラート機能の実装

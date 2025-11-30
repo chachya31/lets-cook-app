@@ -2,12 +2,14 @@ import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './slices/authSlice';
 import recipeReducer from './recipeSlice';
 import reviewReducer from './slices/reviewSlice';
+import scheduleReducer from './slices/scheduleSlice';
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     recipe: recipeReducer,
     review: reviewReducer,
+    schedule: scheduleReducer,
   },
 });
 

@@ -120,5 +120,24 @@
       "ratingRange": "評価は1〜5の範囲で選択してください",
       "commentMaxLength": "コメントは300文字以内で入力してください"
     }
+  },
+  "schedule": {
+    "title": "スケジュール管理",
+    "startDate": "開始日",
+    "endDate": "終了日",
+    "search": "検索",
+    "createNew": "新規作成",
+    "cancel": "キャンセル",
+    "date": "日付",
+    "type": "種類",
+    "planned": "予定",
+    "cooked": "実績",
+    "recipeId": "レシピID",
+    "recipeTitle": "レシピ名",
+    "memo": "メモ",
+    "create": "作成",
+    "noSchedules": "スケジュールがありません",
+    "convertToCooked": "実績に変換",
+    "confirmDelete": "本当にこのスケジュールを削除しますか？"
   }
 }

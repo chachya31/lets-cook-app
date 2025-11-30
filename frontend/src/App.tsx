@@ -7,6 +7,7 @@ import { PasswordResetPage } from './components/auth/PasswordReset/PasswordReset
 import RecipeSearchPage from './components/recipe/RecipeSearchPage';
 import RecipeDetailPage from './components/recipe/RecipeDetailPage';
 import RecipeEditPage from './components/recipe/RecipeEdit/RecipeEditPage';
+import SchedulePage from './components/schedule/SchedulePage';
 
 const App: React.FC = () => {
   return (
@@ -22,6 +23,7 @@ const App: React.FC = () => {
         <Route path="/recipes/new" element={<RecipeEditPage />} />
         <Route path="/recipes/:id" element={<RecipeDetailPage />} />
         <Route path="/recipes/:id/edit" element={<RecipeEditPage />} />
+        <Route path="/schedules" element={<SchedulePage />} />
       </Routes>
     </div>
   );
