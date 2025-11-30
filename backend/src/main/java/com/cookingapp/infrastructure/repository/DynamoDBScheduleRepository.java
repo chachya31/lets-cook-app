@@ -3,7 +3,6 @@ package com.cookingapp.infrastructure.repository;
 import com.cookingapp.domain.entity.Schedule;
 import com.cookingapp.domain.repository.ScheduleRepository;
 import com.cookingapp.domain.valueobject.ScheduleType;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
@@ -18,12 +17,18 @@ import java.util.stream.Collectors;
  * DynamoDB実装のScheduleRepository
  */
 @Repository
-@RequiredArgsConstructor
 public class DynamoDBScheduleRepository implements ScheduleRepository {
-    private static final String TABLE_NAME = "Schedules";
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE;
 
     private final DynamoDbClient dynamoDbClient;
+    private final String tableName;
+
+    public DynamoDBScheduleRepository(
+            DynamoDbClient dynamoDbClient,
+            @org.springframework.beans.factory.annotation.Value("${aws.dynamodb.table.schedules:Schedules}") String tableName) {
+        this.dynamoDbClient = dynamoDbClient;
+        this.tableName = tableName;
+    }
 
     @Override
     public Schedule save(Schedule schedule) {
@@ -43,7 +48,7 @@ public class DynamoDBScheduleRepository implements ScheduleRepository {
         item.put("CreatedAt", AttributeValue.builder().s(schedule.getCreatedAt().toString()).build());
 
         PutItemRequest request = PutItemRequest.builder()
-                .tableName(TABLE_NAME)
+                .tableName(tableName)
                 .item(item)
                 .build();
 
@@ -55,7 +60,7 @@ public class DynamoDBScheduleRepository implements ScheduleRepository {
     public Optional<Schedule> findById(String scheduleId) {
         // ScheduleIdでスキャン（非効率だが、IDでの検索は稀なため許容）
         ScanRequest scanRequest = ScanRequest.builder()
-                .tableName(TABLE_NAME)
+                .tableName(tableName)
                 .filterExpression("ScheduleId = :scheduleId")
                 .expressionAttributeValues(Map.of(
                         ":scheduleId", AttributeValue.builder().s(scheduleId).build()
@@ -76,7 +81,7 @@ public class DynamoDBScheduleRepository implements ScheduleRepository {
         String endSortKey = endDate.format(DATE_FORMATTER) + "~"; // 日付の最後まで含める
 
         QueryRequest queryRequest = QueryRequest.builder()
-                .tableName(TABLE_NAME)
+                .tableName(tableName)
                 .keyConditionExpression("UserId = :userId AND SortKey BETWEEN :startKey AND :endKey")
                 .expressionAttributeValues(Map.of(
                         ":userId", AttributeValue.builder().s(userId).build(),
@@ -107,7 +112,7 @@ public class DynamoDBScheduleRepository implements ScheduleRepository {
                 .build());
 
         DeleteItemRequest request = DeleteItemRequest.builder()
-                .tableName(TABLE_NAME)
+                .tableName(tableName)
                 .key(key)
                 .build();
 

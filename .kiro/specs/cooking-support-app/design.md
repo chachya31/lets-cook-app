@@ -1672,7 +1672,8 @@ npm test
 - DynamoDB
 - S3
 - Cognito
-- Lombok
+- Lombok（最小限使用：`@Builder`, `@Getter`のみ、セキュリティ考慮）
+- SLF4J（ロギング：`Logger`直接定義、`@Slf4j`不使用）
 
 **フロントエンド**
 - TypeScript
@@ -1683,6 +1684,7 @@ npm test
 - shadcn/ui + Radix UI
 - Tailwind CSS
 - Vite
+- Fetch API（axios不使用、バンドルサイズ最適化）
 
 **インフラストラクチャ**
 - LocalStack（ローカル開発）
@@ -1694,6 +1696,27 @@ npm test
 - fast-check（Property-Based Testing、未実装）
 - JUnit 5（Unit Testing、未実装）
 - Vitest（Unit Testing、未実装）
+
+### コード品質とベストプラクティス
+
+**バックエンド**
+- ✅ **テーブル名管理**: すべてのDynamoDBリポジトリで`@Value`アノテーション + コンストラクタインジェクションを使用
+- ✅ **ロギング**: `Logger`直接定義（セキュリティ重視、`@Slf4j`不使用）
+- ✅ **依存関係の最小化**: Lombokの使用を安全な機能のみに限定
+- ✅ **設定の一元管理**: `application.yml`でテーブル名を管理
+- ✅ **Clean Architecture**: レイヤー分離の徹底
+
+**フロントエンド**
+- ✅ **API共通化**: `apiClient.ts`で重複コード削減（59%削減）
+- ✅ **エラーハンドリング**: 一元管理されたエラー処理
+- ✅ **型安全性**: TypeScriptジェネリクスの活用
+- ✅ **バンドルサイズ最適化**: 依存関係の最小化（355KB、10%削減）
+- ✅ **コンポーネント設計**: 責任の明確な分離（表示・操作・属性）
+
+**セキュリティ**
+- ✅ **透明性**: コード生成ツールの使用を最小限に
+- ✅ **ログ出力**: 機密情報のマスキング
+- ✅ **依存関係**: 業界標準ライブラリの使用（SLF4J、Fetch API）
 
 ### 次のステップ
 

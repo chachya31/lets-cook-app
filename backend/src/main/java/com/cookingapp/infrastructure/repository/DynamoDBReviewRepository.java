@@ -3,8 +3,8 @@ package com.cookingapp.infrastructure.repository;
 import com.cookingapp.domain.entity.Review;
 import com.cookingapp.domain.repository.ReviewRepository;
 import com.cookingapp.domain.valueobject.ReviewStatus;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
@@ -16,16 +16,20 @@ import java.util.stream.Collectors;
 /**
  * DynamoDB ReviewRepository Implementation
  */
-@Slf4j
 @Repository
-@RequiredArgsConstructor
 public class DynamoDBReviewRepository implements ReviewRepository {
-    private final DynamoDbClient dynamoDbClient;
-    
-    @org.springframework.beans.factory.annotation.Value("${aws.dynamodb.table.reviews:Reviews}")
-    private String tableName;
-    
+    private static final Logger log = LoggerFactory.getLogger(DynamoDBReviewRepository.class);
     private static final String GSI_USER_INDEX = "GSI_User";
+
+    private final DynamoDbClient dynamoDbClient;
+    private final String tableName;
+
+    public DynamoDBReviewRepository(
+            DynamoDbClient dynamoDbClient,
+            @org.springframework.beans.factory.annotation.Value("${aws.dynamodb.table.reviews:Reviews}") String tableName) {
+        this.dynamoDbClient = dynamoDbClient;
+        this.tableName = tableName;
+    }
 
     @Override
     public Review save(Review review) {

@@ -1,6 +1,5 @@
 import { Recipe, RecipeRequest, RecipeSearchParams } from '../types/recipe';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+import { apiGet, apiPost, apiPut, apiDelete, apiPostFile } from '../utils/apiClient';
 
 /**
  * レシピを検索
@@ -10,61 +9,22 @@ export const searchRecipes = async (params?: RecipeSearchParams): Promise<Recipe
   if (params?.keyword) queryParams.append('keyword', params.keyword);
   if (params?.authorId) queryParams.append('authorId', params.authorId);
 
-  const url = `${API_BASE_URL}/api/recipes${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
-  
-  const response = await fetch(url, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Failed to search recipes');
-  }
-
-  return response.json();
+  const endpoint = `/api/recipes${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+  return apiGet<Recipe[]>(endpoint);
 };
 
 /**
  * レシピ詳細を取得
  */
 export const getRecipe = async (recipeId: string): Promise<Recipe> => {
-  const response = await fetch(`${API_BASE_URL}/api/recipes/${recipeId}`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Failed to get recipe');
-  }
-
-  return response.json();
+  return apiGet<Recipe>(`/api/recipes/${recipeId}`);
 };
 
 /**
  * レシピを作成
  */
 export const createRecipe = async (userId: string, recipe: RecipeRequest): Promise<Recipe> => {
-  const response = await fetch(`${API_BASE_URL}/api/recipes`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-User-Id': userId,
-    },
-    body: JSON.stringify(recipe),
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Failed to create recipe');
-  }
-
-  return response.json();
+  return apiPost<Recipe>('/api/recipes', recipe, userId);
 };
 
 /**
@@ -75,38 +35,14 @@ export const updateRecipe = async (
   userId: string,
   recipe: RecipeRequest
 ): Promise<Recipe> => {
-  const response = await fetch(`${API_BASE_URL}/api/recipes/${recipeId}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-User-Id': userId,
-    },
-    body: JSON.stringify(recipe),
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Failed to update recipe');
-  }
-
-  return response.json();
+  return apiPut<Recipe>(`/api/recipes/${recipeId}`, recipe, userId);
 };
 
 /**
  * レシピを削除
  */
 export const deleteRecipe = async (recipeId: string, userId: string): Promise<void> => {
-  const response = await fetch(`${API_BASE_URL}/api/recipes/${recipeId}`, {
-    method: 'DELETE',
-    headers: {
-      'X-User-Id': userId,
-    },
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Failed to delete recipe');
-  }
+  return apiDelete<void>(`/api/recipes/${recipeId}`, userId);
 };
 
 /**
@@ -119,19 +55,5 @@ export const uploadRecipeImage = async (
 ): Promise<Recipe> => {
   const formData = new FormData();
   formData.append('file', file);
-
-  const response = await fetch(`${API_BASE_URL}/api/recipes/${recipeId}/image`, {
-    method: 'POST',
-    headers: {
-      'X-User-Id': userId,
-    },
-    body: formData,
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Failed to upload recipe image');
-  }
-
-  return response.json();
+  return apiPostFile<Recipe>(`/api/recipes/${recipeId}/image`, formData, userId);
 };

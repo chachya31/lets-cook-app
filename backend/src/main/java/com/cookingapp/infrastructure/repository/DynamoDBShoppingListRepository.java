@@ -3,8 +3,8 @@ package com.cookingapp.infrastructure.repository;
 import com.cookingapp.domain.entity.ShoppingListItem;
 import com.cookingapp.domain.repository.ShoppingListRepository;
 import com.cookingapp.domain.valueobject.Unit;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
@@ -18,20 +18,19 @@ import java.util.stream.Collectors;
 /**
  * DynamoDB買い物リストリポジトリ実装
  */
-@Slf4j
 @Repository
-@RequiredArgsConstructor
 public class DynamoDBShoppingListRepository implements ShoppingListRepository {
+    private static final Logger log = LoggerFactory.getLogger(DynamoDBShoppingListRepository.class);
     private static final String GSI_NORMALIZED_KEY = "GSI_NormalizedKey";
 
     private final DynamoDbClient dynamoDbClient;
-    
-    private String getTableName() {
-        String tableName = System.getProperty("aws.dynamodb.table.shoppingLists");
-        if (tableName == null || tableName.isEmpty()) {
-            tableName = "ShoppingLists";
-        }
-        return tableName;
+    private final String tableName;
+
+    public DynamoDBShoppingListRepository(
+            DynamoDbClient dynamoDbClient,
+            @org.springframework.beans.factory.annotation.Value("${aws.dynamodb.table.shoppingLists:ShoppingLists}") String tableName) {
+        this.dynamoDbClient = dynamoDbClient;
+        this.tableName = tableName;
     }
 
     @Override
@@ -57,7 +56,7 @@ public class DynamoDBShoppingListRepository implements ShoppingListRepository {
         itemMap.put("NormalizedKey", AttributeValue.builder().s(item.getNormalizedKey()).build());
 
         PutItemRequest request = PutItemRequest.builder()
-                .tableName(getTableName())
+                .tableName(tableName)
                 .item(itemMap)
                 .build();
 
@@ -73,7 +72,7 @@ public class DynamoDBShoppingListRepository implements ShoppingListRepository {
         key.put("ItemId", AttributeValue.builder().s(itemId).build());
 
         GetItemRequest request = GetItemRequest.builder()
-                .tableName(getTableName())
+                .tableName(tableName)
                 .key(key)
                 .build();
 
@@ -92,7 +91,7 @@ public class DynamoDBShoppingListRepository implements ShoppingListRepository {
         expressionValues.put(":userId", AttributeValue.builder().s(userId).build());
 
         QueryRequest request = QueryRequest.builder()
-                .tableName(getTableName())
+                .tableName(tableName)
                 .keyConditionExpression("UserId = :userId")
                 .expressionAttributeValues(expressionValues)
                 .build();
@@ -111,7 +110,7 @@ public class DynamoDBShoppingListRepository implements ShoppingListRepository {
         expressionValues.put(":normalizedKey", AttributeValue.builder().s(normalizedKey).build());
 
         QueryRequest request = QueryRequest.builder()
-                .tableName(getTableName())
+                .tableName(tableName)
                 .indexName(GSI_NORMALIZED_KEY)
                 .keyConditionExpression("UserId = :userId AND NormalizedKey = :normalizedKey")
                 .expressionAttributeValues(expressionValues)
@@ -133,7 +132,7 @@ public class DynamoDBShoppingListRepository implements ShoppingListRepository {
         key.put("ItemId", AttributeValue.builder().s(itemId).build());
 
         DeleteItemRequest request = DeleteItemRequest.builder()
-                .tableName(getTableName())
+                .tableName(tableName)
                 .key(key)
                 .build();
 

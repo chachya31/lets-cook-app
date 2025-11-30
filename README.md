@@ -43,12 +43,24 @@
 
 ```
 .
-├── backend/           # バックエンド（Spring Boot）
-├── frontend/          # フロントエンド（React + TypeScript）
-├── infrastructure/    # インフラストラクチャ（AWS CDK + LocalStack）
-├── docs/              # ドキュメント
-└── .kiro/specs/       # 仕様書
+├── backend/                # バックエンド（Spring Boot）
+├── frontend/               # フロントエンド（React + TypeScript）
+├── infrastructure/         # インフラストラクチャ（AWS CDK + LocalStack）
+├── docs/                   # ドキュメント
+├── .kiro/
+│   ├── specs/             # 仕様書
+│   ├── hooks/             # Kiro Agent Hooks設定
+│   └── steering/          # Kiroステアリングルール
+├── CODING_STANDARDS.md    # コーディング規約
+└── README.md              # このファイル
 ```
+
+## ドキュメント
+
+- **[コーディング規約](CODING_STANDARDS.md)** - プロジェクトのコーディング規約
+- **[設計書](.kiro/specs/cooking-support-app/design.md)** - システム設計書
+- **[タスク管理](.kiro/specs/cooking-support-app/tasks.md)** - 実装タスク一覧
+- **[Kiro Hooks](.kiro/hooks/README.md)** - コード品質チェックの自動化設定
 
 ## セットアップ
 

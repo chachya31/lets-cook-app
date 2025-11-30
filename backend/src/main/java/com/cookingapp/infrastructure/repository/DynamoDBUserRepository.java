@@ -30,7 +30,6 @@ public class DynamoDBUserRepository implements UserRepository {
             DynamoDbClient dynamoDbClient,
             @org.springframework.beans.factory.annotation.Value("${aws.dynamodb.table.users:Users}") String tableName) {
         this.dynamoDbClient = dynamoDbClient;
-        System.out.println("★ " + tableName);
         this.tableName = tableName;
     }
 

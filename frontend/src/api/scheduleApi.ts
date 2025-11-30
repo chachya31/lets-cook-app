@@ -1,6 +1,5 @@
 import { Schedule, CreateScheduleRequest, UpdateScheduleRequest, ScheduleSearchParams } from '../types/schedule';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+import { apiGet, apiPost, apiPut, apiDelete } from '../utils/apiClient';
 
 /**
  * スケジュール一覧取得
@@ -9,23 +8,10 @@ export const getSchedules = async (
   userId: string,
   params: ScheduleSearchParams
 ): Promise<Schedule[]> => {
-  const response = await fetch(
-    `${API_BASE_URL}/api/schedules?startDate=${params.startDate}&endDate=${params.endDate}`,
-    {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-User-Id': userId,
-      },
-    }
+  return apiGet<Schedule[]>(
+    `/api/schedules?startDate=${params.startDate}&endDate=${params.endDate}`,
+    userId
   );
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Failed to fetch schedules');
-  }
-
-  return response.json();
 };
 
 /**
@@ -35,21 +21,7 @@ export const createSchedule = async (
   userId: string,
   request: CreateScheduleRequest
 ): Promise<Schedule> => {
-  const response = await fetch(`${API_BASE_URL}/api/schedules`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-User-Id': userId,
-    },
-    body: JSON.stringify(request),
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Failed to create schedule');
-  }
-
-  return response.json();
+  return apiPost<Schedule>('/api/schedules', request, userId);
 };
 
 /**
@@ -60,21 +32,7 @@ export const updateSchedule = async (
   scheduleId: string,
   request: UpdateScheduleRequest
 ): Promise<Schedule> => {
-  const response = await fetch(`${API_BASE_URL}/api/schedules/${scheduleId}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-User-Id': userId,
-    },
-    body: JSON.stringify(request),
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Failed to update schedule');
-  }
-
-  return response.json();
+  return apiPut<Schedule>(`/api/schedules/${scheduleId}`, request, userId);
 };
 
 /**
@@ -84,18 +42,7 @@ export const deleteSchedule = async (
   userId: string,
   scheduleId: string
 ): Promise<void> => {
-  const response = await fetch(`${API_BASE_URL}/api/schedules/${scheduleId}`, {
-    method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-User-Id': userId,
-    },
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Failed to delete schedule');
-  }
+  return apiDelete<void>(`/api/schedules/${scheduleId}`, userId);
 };
 
 /**
@@ -105,21 +52,5 @@ export const convertToCooked = async (
   userId: string,
   scheduleId: string
 ): Promise<Schedule> => {
-  const response = await fetch(
-    `${API_BASE_URL}/api/schedules/${scheduleId}/convert-to-cooked`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-User-Id': userId,
-      },
-    }
-  );
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Failed to convert schedule to cooked');
-  }
-
-  return response.json();
+  return apiPost<Schedule>(`/api/schedules/${scheduleId}/convert-to-cooked`, {}, userId);
 };
