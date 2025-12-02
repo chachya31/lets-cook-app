@@ -78,6 +78,8 @@ backend/
 
 ## ビルドと実行
 
+### コマンドラインから実行
+
 ```bash
 # ビルド
 ./gradlew build
@@ -85,8 +87,41 @@ backend/
 # テスト実行
 ./gradlew test
 
-# アプリケーション起動
+# アプリケーション起動（ローカル環境）
 ./gradlew bootRun
+```
+
+### VS Code / Kiroでデバッグ実行
+
+1. **Java Extension Pack**がインストールされていることを確認
+2. VS Codeの「実行とデバッグ」パネルを開く（Ctrl+Shift+D / Cmd+Shift+D）
+3. メインクラス `CookingAppApplication` を右クリック → 「Run Java」または「Debug Java」を選択
+
+**デバッグ設定のポイント**：
+- エンコーディング：UTF-8（日本語文字化け防止）
+- プロファイル：local（LocalStack使用）
+- JVMオプション：`-Dfile.encoding=UTF-8 -Dconsole.encoding=UTF-8`
+
+**手動でlaunch.jsonを作成する場合**：
+
+`.vscode/launch.json` に以下を追加：
+
+```json
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Debug Backend (Spring Boot)",
+      "request": "launch",
+      "mainClass": "com.cookingapp.CookingAppApplication",
+      "projectName": "backend",
+      "cwd": "${workspaceFolder}/backend",
+      "vmArgs": "-Dfile.encoding=UTF-8 -Dconsole.encoding=UTF-8 -Dspring.profiles.active=local",
+      "console": "integratedTerminal"
+    }
+  ]
+}
 ```
 
 ## 環境変数

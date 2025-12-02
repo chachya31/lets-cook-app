@@ -8,6 +8,20 @@ group = 'com.cookingapp'
 version = '1.0.0'
 sourceCompatibility = '21'
 
+// エンコーディング設定（日本語文字化け防止）
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+tasks.withType(Test) {
+    systemProperty 'file.encoding', 'UTF-8'
+}
+
+tasks.withType(JavaExec) {
+    systemProperty 'file.encoding', 'UTF-8'
+    systemProperty 'console.encoding', 'UTF-8'
+}
+
 repositories {
     mavenCentral()
 }
@@ -38,4 +52,12 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+// Spring Boot起動時のエンコーディング設定
+bootRun {
+    systemProperty 'file.encoding', 'UTF-8'
+    systemProperty 'console.encoding', 'UTF-8'
+    systemProperty 'spring.profiles.active', 'local'
+    jvmArgs = ['-Dfile.encoding=UTF-8', '-Dconsole.encoding=UTF-8']
 }
