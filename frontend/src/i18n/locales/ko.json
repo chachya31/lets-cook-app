@@ -110,7 +110,21 @@
     "steps": "조리 순서",
     "addStep": "단계 추가",
     "basicInfo": "기본 정보",
-    "notFound": "레시피를 찾을 수 없습니다"
+    "notFound": "레시피를 찾을 수 없습니다",
+    "units": {
+      "tbsp": "큰술",
+      "tsp": "작은술",
+      "cup": "컵",
+      "piece": "개",
+      "pack": "팩",
+      "can": "캔",
+      "bottle": "병",
+      "slice": "장",
+      "clove": "쪽",
+      "pinch": "꼬집",
+      "to_taste": "적당량",
+      "as_needed": "필요에 따라"
+    }
   },
   "review": {
     "title": "리뷰",

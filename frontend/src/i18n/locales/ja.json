@@ -110,7 +110,21 @@
     "steps": "手順",
     "addStep": "手順を追加",
     "basicInfo": "基本情報",
-    "notFound": "レシピが見つかりません"
+    "notFound": "レシピが見つかりません",
+    "units": {
+      "tbsp": "大さじ",
+      "tsp": "小さじ",
+      "cup": "カップ",
+      "piece": "個",
+      "pack": "パック",
+      "can": "缶",
+      "bottle": "本",
+      "slice": "枚",
+      "clove": "片",
+      "pinch": "つまみ",
+      "to_taste": "適量",
+      "as_needed": "必要に応じて"
+    }
   },
   "review": {
     "title": "レビュー",

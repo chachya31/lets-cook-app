@@ -34,7 +34,7 @@ public class DynamoDBScheduleRepository implements ScheduleRepository {
     public Schedule save(Schedule schedule) {
         Map<String, AttributeValue> item = new HashMap<>();
         item.put("UserId", AttributeValue.builder().s(schedule.getUserId()).build());
-        item.put("SortKey", AttributeValue.builder()
+        item.put("DateTypeRecipeId", AttributeValue.builder()
                 .s(buildSortKey(schedule.getDate(), schedule.getType(), schedule.getRecipeId()))
                 .build());
         item.put("ScheduleId", AttributeValue.builder().s(schedule.getScheduleId()).build());
@@ -77,12 +77,14 @@ public class DynamoDBScheduleRepository implements ScheduleRepository {
 
     @Override
     public List<Schedule> findByUserIdAndDateRange(String userId, LocalDate startDate, LocalDate endDate) {
+        // SortKeyは "Date#Type#RecipeId" 形式なので、日付の範囲で前方一致検索
         String startSortKey = startDate.format(DATE_FORMATTER);
-        String endSortKey = endDate.format(DATE_FORMATTER) + "~"; // 日付の最後まで含める
+        // endDateの翌日を使って、endDate当日の全てのアイテムを含める
+        String endSortKey = endDate.plusDays(1).format(DATE_FORMATTER);
 
         QueryRequest queryRequest = QueryRequest.builder()
                 .tableName(tableName)
-                .keyConditionExpression("UserId = :userId AND SortKey BETWEEN :startKey AND :endKey")
+                .keyConditionExpression("UserId = :userId AND DateTypeRecipeId BETWEEN :startKey AND :endKey")
                 .expressionAttributeValues(Map.of(
                         ":userId", AttributeValue.builder().s(userId).build(),
                         ":startKey", AttributeValue.builder().s(startSortKey).build(),
@@ -107,7 +109,7 @@ public class DynamoDBScheduleRepository implements ScheduleRepository {
         Schedule s = schedule.get();
         Map<String, AttributeValue> key = new HashMap<>();
         key.put("UserId", AttributeValue.builder().s(s.getUserId()).build());
-        key.put("SortKey", AttributeValue.builder()
+        key.put("DateTypeRecipeId", AttributeValue.builder()
                 .s(buildSortKey(s.getDate(), s.getType(), s.getRecipeId()))
                 .build());
 

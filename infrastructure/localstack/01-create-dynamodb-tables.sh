@@ -18,24 +18,14 @@ awslocal dynamodb create-table \
     AttributeName=RecipeId,AttributeType=S \
     AttributeName=CreatedAt,AttributeType=S \
     AttributeName=AuthorId,AttributeType=S \
-    AttributeName=Category,AttributeType=S \
   --key-schema \
     AttributeName=RecipeId,KeyType=HASH \
-    AttributeName=CreatedAt,KeyType=RANGE \
   --global-secondary-indexes \
     "[
       {
         \"IndexName\": \"GSI_Author\",
         \"KeySchema\": [
           {\"AttributeName\":\"AuthorId\",\"KeyType\":\"HASH\"},
-          {\"AttributeName\":\"CreatedAt\",\"KeyType\":\"RANGE\"}
-        ],
-        \"Projection\": {\"ProjectionType\":\"ALL\"}
-      },
-      {
-        \"IndexName\": \"GSI_Category\",
-        \"KeySchema\": [
-          {\"AttributeName\":\"Category\",\"KeyType\":\"HASH\"},
           {\"AttributeName\":\"CreatedAt\",\"KeyType\":\"RANGE\"}
         ],
         \"Projection\": {\"ProjectionType\":\"ALL\"}
