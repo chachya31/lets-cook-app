@@ -173,5 +173,22 @@
     "selectLanguage": "언어 선택",
     "changeLanguage": "언어 변경",
     "languageChanged": "언어를 변경했습니다"
+  },
+  "dashboard": {
+    "title": "대시보드",
+    "recentRecipes": "최근 레시피",
+    "upcomingSchedules": "다가오는 일정",
+    "shoppingList": "장보기 목록",
+    "viewAll": "모두 보기",
+    "noRecentRecipes": "최근 레시피가 없습니다",
+    "noUpcomingSchedules": "다가오는 일정이 없습니다",
+    "noShoppingItems": "장보기 목록이 비어 있습니다",
+    "quickActions": "빠른 작업",
+    "createRecipe": "레시피 작성",
+    "addSchedule": "일정 추가",
+    "addShoppingItem": "장보기 목록에 추가",
+    "searchRecipes": "레시피 검색",
+    "manageSchedules": "일정 관리",
+    "manageShoppingList": "장보기 목록 관리"
   }
 }

@@ -173,5 +173,22 @@
     "selectLanguage": "言語を選択",
     "changeLanguage": "言語を変更",
     "languageChanged": "言語を変更しました"
+  },
+  "dashboard": {
+    "title": "ダッシュボード",
+    "recentRecipes": "最近のレシピ",
+    "upcomingSchedules": "今後の予定",
+    "shoppingList": "買い物リスト",
+    "viewAll": "すべて表示",
+    "noRecentRecipes": "最近のレシピはありません",
+    "noUpcomingSchedules": "今後の予定はありません",
+    "noShoppingItems": "買い物リストは空です",
+    "quickActions": "クイックアクション",
+    "createRecipe": "レシピを作成",
+    "addSchedule": "予定を追加",
+    "addShoppingItem": "買い物リストに追加",
+    "searchRecipes": "レシピを検索",
+    "manageSchedules": "スケジュールを管理",
+    "manageShoppingList": "買い物リストを管理"
   }
 }

@@ -7,7 +7,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * CORS設定
@@ -36,7 +35,8 @@ public class CorsConfig {
             "Authorization",
             "Content-Type",
             "Accept",
-            "Accept-Language"
+            "Accept-Language",
+            "X-User-Id"
         ));
         
         // 認証情報（Cookie、Authorization header）を含むリクエストを許可

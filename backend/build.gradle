@@ -11,6 +11,8 @@ sourceCompatibility = '21'
 // エンコーディング設定（日本語文字化け防止）
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
+    // パラメータ名を保持（Spring MVCのパラメータバインディングに必要）
+    options.compilerArgs << '-parameters'
 }
 
 tasks.withType(Test) {

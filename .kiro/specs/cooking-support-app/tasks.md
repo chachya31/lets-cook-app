@@ -94,20 +94,13 @@
   - _Requirements: 1.1, 1.2_
 
 - [x] 4. プロフィール画像管理機能の実装
-
-
-
 - [x] 4.1 インフラ層：S3ImageServiceの実装
-
-
   - 画像アップロード（pre-signed URL使用）
   - 画像取得
   - 画像削除
   - _Requirements: 1.4, 3.5_
 
 - [x] 4.2 アプリケーション層：画像バリデーションロジックの実装
-
-
   - ファイルサイズチェック（5MB以下）
   - フォーマットチェック（JPEG、PNG）
   - _Requirements: 1.4, 3.5_
@@ -117,15 +110,11 @@
   - **Validates: Requirements 1.4**
 
 - [x] 4.4 プレゼンテーション層：画像アップロードエンドポイントの実装
-
-
   - POST /api/users/profile/image
   - POST /api/recipes/{id}/image
   - _Requirements: 1.4, 3.5_
 
 - [x] 4.5 フロントエンド：ImageUploaderコンポーネントの実装
-
-
   - ドラッグ&ドロップ対応
   - プレビュー表示
   - バリデーション（サイズ、フォーマット）
@@ -621,15 +610,15 @@
   - 再試行ボタンと閉じるボタン
   - _Requirements: 12.5_
 
-- [ ] 14. ダッシュボードとホーム画面の実装
-- [ ] 14.1 フロントエンド：DashboardPageコンポーネントの実装
+- [x] 14. ダッシュボードとホーム画面の実装
+- [x] 14.1 フロントエンド：DashboardPageコンポーネントの実装
   - ホーム画面レイアウト
   - 最近のレシピ表示
   - スケジュール概要表示
   - 買い物リスト概要表示
   - _Requirements: 全体_
 
-- [ ] 14.2 フロントエンド：共通コンポーネントの実装
+- [x] 14.2 フロントエンド：共通コンポーネントの実装
   - Header、Footer
   - LoadingSkeleton
   - ErrorBanner
