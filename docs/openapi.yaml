@@ -1,0 +1,178 @@
+openapi: 3.0.3
+info:
+  title: 自炊支援・食費節約アプリ API
+  description: |
+    一人暮らしまたは2〜4人家族の世帯を対象とした自炊支援・食費節約Webアプリケーションのバックエンド API仕様書。
+    
+    ## 主要機能
+    - ユーザー管理（登録、ログイン、プロフィール管理）
+    - レシピ管理（作成、検索、編集、削除）
+    - レビュー機能（星評価、コメント、通報）
+    - スケジュール管理（料理予定と実績）
+    - 買い物リスト管理
+    - サボり防止アラート
+    - 管理者機能
+    
+    ## 認証
+    - Cognito認証を使用
+    - アクセストークンの有効期限: 1時間
+    - リフレッシュトークンの有効期限: 90日
+    
+    ## 多言語対応
+    - 日本語（ja）
+    - 韓国語（ko）
+    - Accept-Languageヘッダーでエラーメッセージの言語を指定
+    
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@example.com
+  license:
+    name: Private
+
+servers:
+  - url: http://localhost:8080
+    description: ローカル開発環境
+  - url: https://api-dev.example.com
+    description: 開発環境
+  - url: https://api.example.com
+    description: 本番環境
+
+tags:
+  - name: Users
+    description: ユーザー管理
+  - name: Recipes
+    description: レシピ管理
+  - name: Reviews
+    description: レビュー管理
+  - name: Schedules
+    description: スケジュール管理
+  - name: Shopping Lists
+    description: 買い物リスト管理
+  - name: Alerts
+    description: アラート機能
+  - name: Admin
+    description: 管理者機能
+
+paths:
+  # ========================================
+  # Users API
+  # ========================================
+  /api/users/register:
+    post:
+      tags:
+        - Users
+      summary: ユーザー登録
+      description: 新規ユーザーを登録します。Cognitoにユーザーを作成し、DynamoDBにプロフィール情報を保存します。
+      operationId: registerUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterUserRequest'
+      responses:
+        '201':
+          description: ユーザー登録成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: ユーザーが既に存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    # ========================================
+    # Request Schemas
+    # ========================================
+    RegisterUserRequest:
+      type: object
+      required:
+        - email
+        - password
+        - nickname
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        password:
+          type: string
+          minLength: 8
+          pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).*$'
+          example: Password123!
+        nickname:
+          type: string
+          minLength: 1
+          maxLength: 50
+          example: 山田太郎
+        preferredLanguage:
+          type: string
+          enum: [ja, ko]
+          example: ja
+    
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+    
+    # ========================================
+    # Response Schemas
+    # ========================================
+    UserResponse:
+      type: object
+      properties:
+        userId:
+          type: string
+          format: uuid
+        email:
+          type: string
+        nickname:
+          type: string
+        displayName:
+          type: string
+        profileImageUrl:
+          type: string
+        preferredLanguage:
+          type: string
+        lastCookingDate:
+          type: string
+          format: date
+        timezone:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    
+    ErrorResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+        error:
+          type: string
+        message:
+          type: string
+        path:
+          type: string
