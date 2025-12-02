@@ -70,7 +70,7 @@ public class ScheduleController {
      */
     @PutMapping("/{scheduleId}")
     public ResponseEntity<ScheduleResponse> updateSchedule(
-            @PathVariable String scheduleId,
+            @PathVariable("scheduleId") String scheduleId,
             @RequestHeader("X-User-Id") String userId,
             @Valid @RequestBody UpdateScheduleRequest request
     ) {
@@ -83,7 +83,7 @@ public class ScheduleController {
      */
     @DeleteMapping("/{scheduleId}")
     public ResponseEntity<Void> deleteSchedule(
-            @PathVariable String scheduleId,
+            @PathVariable("scheduleId") String scheduleId,
             @RequestHeader("X-User-Id") String userId
     ) {
         deleteScheduleUseCase.execute(scheduleId, userId);
@@ -95,7 +95,7 @@ public class ScheduleController {
      */
     @PostMapping("/{scheduleId}/convert-to-cooked")
     public ResponseEntity<ScheduleResponse> convertToCooked(
-            @PathVariable String scheduleId,
+            @PathVariable("scheduleId") String scheduleId,
             @RequestHeader("X-User-Id") String userId
     ) {
         Schedule schedule = convertScheduleToCookedUseCase.execute(scheduleId, userId);

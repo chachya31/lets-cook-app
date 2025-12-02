@@ -12,15 +12,23 @@ public enum Unit {
     ML("ml", "ミリリットル"),
     L("l", "リットル"),
     
+    // 計量
+    TABLESPOON("tbsp", "大さじ"),
+    TEASPOON("tsp", "小さじ"),
+    CUP("cup", "カップ"),
+    
     // 個数
-    PIECE("個", "個"),
-    PACK("パック", "パック"),
+    PIECE("piece", "個"),
+    PACK("pack", "パック"),
+    CAN("can", "缶"),
+    BOTTLE("bottle", "本"),
+    SLICE("slice", "枚"),
+    CLOVE("clove", "片"),
     
     // その他
-    TABLESPOON("大さじ", "大さじ"),
-    TEASPOON("小さじ", "小さじ"),
-    CUP("カップ", "カップ"),
-    APPROPRIATE("適量", "適量");
+    PINCH("pinch", "ひとつまみ"),
+    TO_TASTE("to_taste", "適量"),
+    AS_NEEDED("as_needed", "必要に応じて");
 
     private final String code;
     private final String displayName;
@@ -40,17 +48,36 @@ public enum Unit {
 
     /**
      * コードから単位を取得
+     * 旧形式（日本語コード）との後方互換性あり
      * 
      * @param code 単位コード
      * @return 単位
      * @throws IllegalArgumentException 無効なコード
      */
     public static Unit fromCode(String code) {
+        // 新形式のコードで検索
         for (Unit unit : values()) {
             if (unit.code.equals(code)) {
                 return unit;
             }
         }
-        throw new IllegalArgumentException("Invalid unit code: " + code);
+        
+        // 旧形式（日本語コード）との互換性対応
+        switch (code) {
+            case "大さじ":
+                return TABLESPOON;
+            case "小さじ":
+                return TEASPOON;
+            case "個":
+                return PIECE;
+            case "パック":
+                return PACK;
+            case "カップ":
+                return CUP;
+            case "適量":
+                return TO_TASTE;
+            default:
+                throw new IllegalArgumentException("Invalid unit code: " + code);
+        }
     }
 }

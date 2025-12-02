@@ -5,7 +5,15 @@ import { Input } from '../../ui/input';
 import { Label } from '../../ui/label';
 import { Textarea } from '../../ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../../ui/select';
 import { useRecipeEditHandlers } from './useRecipeEditHandlers';
+import { unitOptions } from './recipeEditConfig';
 
 /**
  * レシピ編集ページ
@@ -112,15 +120,25 @@ const RecipeEditPage: React.FC = () => {
                     step="0.1"
                   />
                 </div>
-                <div className="w-24">
+                <div className="w-32">
                   <Label>{t('recipe.unit')}</Label>
-                  <Input
+                  <Select
                     value={ingredient.unit}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      handleIngredientChange(index, 'unit', e.target.value)
+                    onValueChange={(value) =>
+                      handleIngredientChange(index, 'unit', value)
                     }
-                    required
-                  />
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={t('recipe.selectUnit')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {unitOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <Button
                   type="button"

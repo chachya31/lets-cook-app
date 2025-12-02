@@ -79,7 +79,7 @@ public class ShoppingListController {
     @PutMapping("/{itemId}")
     public ResponseEntity<ShoppingListItemResponse> updateItem(
             @RequestHeader("X-User-Id") String userId,
-            @PathVariable String itemId,
+            @PathVariable("itemId") String itemId,
             @Valid @RequestBody UpdateShoppingListItemRequest request
     ) {
         log.info("PUT /api/shopping-lists/{} - userId={}, isChecked={}",
@@ -100,7 +100,7 @@ public class ShoppingListController {
     @DeleteMapping("/{itemId}")
     public ResponseEntity<Void> deleteItem(
             @RequestHeader("X-User-Id") String userId,
-            @PathVariable String itemId
+            @PathVariable("itemId") String itemId
     ) {
         log.info("DELETE /api/shopping-lists/{} - userId={}", itemId, userId);
         

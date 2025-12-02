@@ -34,7 +34,7 @@ public class ReviewController {
      * レシピのレビュー一覧を取得
      */
     @GetMapping("/recipes/{recipeId}/reviews")
-    public ResponseEntity<List<ReviewResponse>> getReviewsByRecipe(@PathVariable String recipeId) {
+    public ResponseEntity<List<ReviewResponse>> getReviewsByRecipe(@PathVariable("recipeId") String recipeId) {
         log.info("GET /api/recipes/{}/reviews", recipeId);
         
         List<Review> reviews = getReviewsByRecipeUseCase.execute(recipeId);
@@ -50,7 +50,7 @@ public class ReviewController {
      */
     @PostMapping("/recipes/{recipeId}/reviews")
     public ResponseEntity<ReviewResponse> createReview(
-            @PathVariable String recipeId,
+            @PathVariable("recipeId") String recipeId,
             @RequestHeader("X-User-Id") String userId,
             @Valid @RequestBody CreateReviewRequest request) {
         log.info("POST /api/recipes/{}/reviews by userId={}", recipeId, userId);
@@ -70,7 +70,7 @@ public class ReviewController {
      */
     @PutMapping("/reviews/{reviewId}")
     public ResponseEntity<ReviewResponse> updateReview(
-            @PathVariable String reviewId,
+            @PathVariable("reviewId") String reviewId,
             @RequestHeader("X-User-Id") String userId,
             @Valid @RequestBody UpdateReviewRequest request) {
         log.info("PUT /api/reviews/{} by userId={}", reviewId, userId);
@@ -90,7 +90,7 @@ public class ReviewController {
      */
     @DeleteMapping("/reviews/{reviewId}")
     public ResponseEntity<Void> deleteReview(
-            @PathVariable String reviewId,
+            @PathVariable("reviewId") String reviewId,
             @RequestHeader("X-User-Id") String userId) {
         log.info("DELETE /api/reviews/{} by userId={}", reviewId, userId);
         
@@ -103,7 +103,7 @@ public class ReviewController {
      * レビューを通報
      */
     @PostMapping("/reviews/{reviewId}/report")
-    public ResponseEntity<ReviewResponse> reportReview(@PathVariable String reviewId) {
+    public ResponseEntity<ReviewResponse> reportReview(@PathVariable("reviewId") String reviewId) {
         log.info("POST /api/reviews/{}/report", reviewId);
         
         Review review = reportReviewUseCase.execute(reviewId);

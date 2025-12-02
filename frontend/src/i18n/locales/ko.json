@@ -105,6 +105,7 @@
     "ingredientName": "재료명",
     "quantity": "수량",
     "unit": "단위",
+    "selectUnit": "단위 선택",
     "optional": "선택",
     "addIngredient": "재료 추가",
     "steps": "조리 순서",

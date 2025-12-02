@@ -10,6 +10,7 @@ import { ReviewList } from './ReviewList';
 import { ReviewForm } from './ReviewForm';
 import { useReview } from '../../hooks/useReview';
 import { Review } from '../../types/review';
+import { formatUnit } from '../../utils/unitHelper';
 
 /**
  * レシピ詳細ページ
@@ -166,7 +167,7 @@ const RecipeDetailPage: React.FC = () => {
                 <span className="font-medium">{ingredient.name}</span>
                 <span className="mx-2">-</span>
                 <span>
-                  {ingredient.quantity} {ingredient.unit}
+                  {ingredient.quantity} {formatUnit(ingredient.unit, t)}
                 </span>
                 {ingredient.optional && (
                   <span className="ml-2 text-sm text-gray-500">({t('recipe.optional')})</span>

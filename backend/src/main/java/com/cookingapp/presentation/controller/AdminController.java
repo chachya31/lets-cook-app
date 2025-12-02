@@ -74,7 +74,7 @@ public class AdminController {
      * @return 204 No Content
      */
     @PutMapping("/users/{userId}/suspend")
-    public ResponseEntity<Void> suspendUser(@PathVariable String userId) {
+    public ResponseEntity<Void> suspendUser(@PathVariable("userId") String userId) {
         log.info("ユーザー停止リクエスト: userId={}", userId);
         
         suspendUserUseCase.execute(userId);
@@ -89,7 +89,7 @@ public class AdminController {
      * @return 204 No Content
      */
     @DeleteMapping("/users/{userId}")
-    public ResponseEntity<Void> deleteUser(@PathVariable String userId) {
+    public ResponseEntity<Void> deleteUser(@PathVariable("userId") String userId) {
         log.info("ユーザー削除リクエスト: userId={}", userId);
         
         deleteUserByAdminUseCase.execute(userId);
@@ -125,7 +125,7 @@ public class AdminController {
      */
     @PutMapping("/recipes/{recipeId}/status")
     public ResponseEntity<RecipeResponse> setRecipeStatus(
-            @PathVariable String recipeId,
+            @PathVariable("recipeId") String recipeId,
             @Valid @RequestBody SetRecipeStatusRequest request) {
         log.info("レシピステータス設定リクエスト: recipeId={}, isPublic={}", 
             recipeId, request.isPublic());
@@ -142,7 +142,7 @@ public class AdminController {
      * @return 204 No Content
      */
     @DeleteMapping("/recipes/{recipeId}")
-    public ResponseEntity<Void> deleteRecipe(@PathVariable String recipeId) {
+    public ResponseEntity<Void> deleteRecipe(@PathVariable("recipeId") String recipeId) {
         log.info("管理者によるレシピ削除リクエスト: recipeId={}", recipeId);
         
         deleteRecipeByAdminUseCase.execute(recipeId);

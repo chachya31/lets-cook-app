@@ -113,7 +113,7 @@ public class UserController {
      * GET /api/users/profile/{userId}
      */
     @GetMapping("/profile/{userId}")
-    public ResponseEntity<UserResponse> getProfile(@PathVariable String userId) {
+    public ResponseEntity<UserResponse> getProfile(@PathVariable("userId") String userId) {
         User user = getUserProfileUseCase.execute(userId);
         return ResponseEntity.ok(UserResponse.from(user));
     }
@@ -124,7 +124,7 @@ public class UserController {
      */
     @PutMapping("/profile/{userId}")
     public ResponseEntity<UserResponse> updateProfile(
-            @PathVariable String userId,
+            @PathVariable("userId") String userId,
             @Valid @RequestBody UpdateProfileRequest request) {
 
         Language language = request.getPreferredLanguage() != null
@@ -148,7 +148,7 @@ public class UserController {
      * DELETE /api/users/account/{userId}
      */
     @DeleteMapping("/account/{userId}")
-    public ResponseEntity<Void> deleteAccount(@PathVariable String userId) {
+    public ResponseEntity<Void> deleteAccount(@PathVariable("userId") String userId) {
         deleteUserAccountUseCase.execute(userId);
         return ResponseEntity.noContent().build();
     }

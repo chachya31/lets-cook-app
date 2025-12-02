@@ -84,7 +84,7 @@ public class RecipeController {
      * @return レシピ詳細
      */
     @GetMapping("/{id}")
-    public ResponseEntity<RecipeResponse> getRecipe(@PathVariable String id) {
+    public ResponseEntity<RecipeResponse> getRecipe(@PathVariable("id") String id) {
         Recipe recipe = getRecipeUseCase.execute(id);
         return ResponseEntity.ok(RecipeResponse.from(recipe));
     }
@@ -128,7 +128,7 @@ public class RecipeController {
      */
     @PutMapping("/{id}")
     public ResponseEntity<RecipeResponse> updateRecipe(
-            @PathVariable String id,
+            @PathVariable("id") String id,
             @RequestHeader("X-User-Id") String userId,
             @Valid @RequestBody RecipeRequest request) {
         
@@ -158,7 +158,7 @@ public class RecipeController {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteRecipe(
-            @PathVariable String id,
+            @PathVariable("id") String id,
             @RequestHeader("X-User-Id") String userId) {
         
         deleteRecipeUseCase.execute(id, userId);
@@ -176,7 +176,7 @@ public class RecipeController {
      */
     @PostMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<RecipeResponse> uploadRecipeImage(
-            @PathVariable String id,
+            @PathVariable("id") String id,
             @RequestHeader("X-User-Id") String userId,
             @RequestParam("file") MultipartFile file) throws IOException {
         

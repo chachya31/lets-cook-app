@@ -13,6 +13,7 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Checkbox } from '../ui/checkbox';
 import { Card } from '../ui/card';
+import { formatUnit } from '../../utils/unitHelper';
 
 const ShoppingListPage: React.FC = () => {
   const { t } = useTranslation();
@@ -168,7 +169,7 @@ const ShoppingListPage: React.FC = () => {
                   <div>
                     <p className="font-medium">{item.name}</p>
                     <p className="text-sm text-gray-600">
-                      {item.quantity} {item.unit}
+                      {item.quantity} {formatUnit(item.unit, t)}
                     </p>
                   </div>
                 </div>
@@ -200,7 +201,7 @@ const ShoppingListPage: React.FC = () => {
                   <div>
                     <p className="font-medium line-through">{item.name}</p>
                     <p className="text-sm text-gray-600">
-                      {item.quantity} {item.unit}
+                      {item.quantity} {formatUnit(item.unit, t)}
                     </p>
                   </div>
                 </div>

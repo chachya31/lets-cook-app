@@ -105,6 +105,7 @@
     "ingredientName": "食材名",
     "quantity": "数量",
     "unit": "単位",
+    "selectUnit": "単位を選択",
     "optional": "任意",
     "addIngredient": "食材を追加",
     "steps": "手順",
