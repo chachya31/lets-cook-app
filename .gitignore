@@ -5,6 +5,7 @@ backend/.gradle/
 backend/out/
 backend/*.iml
 backend/.idea/
+backend/.jqwik-database
 
 # Frontend
 frontend/node_modules/
