@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * スケジュール管琁E��ントローラー
+ * スケジュール管理コントローラー
  */
 @RestController
 @RequestMapping("/api/schedules")
@@ -31,13 +31,13 @@ public class ScheduleController {
     private final ConvertScheduleToCookedUseCase convertScheduleToCookedUseCase;
 
     /**
-     * スケジュール一覧取征E
+     * スケジュール一覧取得
      */
     @GetMapping
     public ResponseEntity<List<ScheduleResponse>> getSchedules(
             @RequestHeader("X-User-Id") String userId,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
+            @RequestParam(name="startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(name="endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
     ) {
         List<Schedule> schedules = getSchedulesUseCase.execute(userId, startDate, endDate);
         List<ScheduleResponse> response = schedules.stream()
@@ -47,7 +47,7 @@ public class ScheduleController {
     }
 
     /**
-     * スケジュール作�E
+     * スケジュール作成
      */
     @PostMapping
     public ResponseEntity<ScheduleResponse> createSchedule(

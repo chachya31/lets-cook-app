@@ -34,9 +34,10 @@ export const login = createAsyncThunk(
   async (data: LoginRequest, { rejectWithValue }) => {
     try {
       const response = await loginUser(data);
-      // トークンをlocalStorageに保存
+      // トークンとユーザーIDをlocalStorageに保存
       localStorage.setItem('accessToken', response.accessToken);
       localStorage.setItem('refreshToken', response.refreshToken);
+      localStorage.setItem('userId', response.user.userId);
       return response;
     } catch (error) {
       return rejectWithValue((error as Error).message);
@@ -55,6 +56,7 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
+      localStorage.removeItem('userId');
     },
     clearError: (state) => {
       state.error = null;

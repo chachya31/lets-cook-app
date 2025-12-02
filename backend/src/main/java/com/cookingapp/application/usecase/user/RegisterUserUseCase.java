@@ -25,21 +25,21 @@ public class RegisterUserUseCase {
      * ユーザーを登録
      * 
      * @param email メールアドレス
-     * @param password パスワーチE
-     * @param nickname ニックネ�Eム
-     * @param preferredLanguage 優先言誁E
+     * @param password パスワード
+     * @param nickname ニックネーム
+     * @param preferredLanguage 優先言語
      * @return 登録されたユーザー
-     * @throws UserAlreadyExistsException ユーザーが既に存在する場吁E
+     * @throws UserAlreadyExistsException ユーザーが既に存在する場合
      */
     public User execute(String email, String password, String nickname, Language preferredLanguage) {
-        // パスワードバリチE�Eション
+        // パスワードバリデーション
         if (!User.validatePassword(password)) {
             throw new IllegalArgumentException(
                 "Password must be at least 8 characters long and contain uppercase, lowercase, numbers, and special characters"
             );
         }
 
-        // メールアドレスの重褁E��ェチE��
+        // メールアドレスの重複チェック
         if (userRepository.findByEmail(email).isPresent()) {
             throw new UserAlreadyExistsException("User with email " + email + " already exists");
         }
@@ -47,10 +47,10 @@ public class RegisterUserUseCase {
         // Cognitoにユーザー登録
         String cognitoUserId = cognitoAuthService.signUp(email, password, nickname);
 
-        // ユーザーエンチE��チE��作�E
+        // ユーザーエンティティ作成
         User user = new User(email, nickname, preferredLanguage);
 
-        // DynamoDBに保孁E
+        // DynamoDBに保存
         return userRepository.save(user);
     }
 }

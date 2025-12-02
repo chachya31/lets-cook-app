@@ -14,7 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 /**
- * プロフィール画像アチE�Eロードユースケース
+ * プロフィール画像アップロードユースケース
  */
 @Service
 public class UploadProfileImageUseCase {
@@ -35,37 +35,37 @@ public class UploadProfileImageUseCase {
     }
 
     /**
-     * プロフィール画像をアチE�EローチE
+     * プロフィール画像をアップロード
      * 
      * @param userId ユーザーID
      * @param file 画像ファイル
      * @return 更新されたユーザー
-     * @throws UserNotFoundException ユーザーが見つからなぁE
-     * @throws ImageValidationException 画像バリチE�Eションエラー
+     * @throws UserNotFoundException ユーザーが見つからない場合
+     * @throws ImageValidationException 画像バリデーションエラー
      */
     public User execute(String userId, MultipartFile file) {
         logger.info("Uploading profile image for user: {}", userId);
 
-        // ユーザーの存在確誁E
+        // ユーザーの存在確認
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found: " + userId));
 
-        // 画像バリチE�Eション
+        // 画像バリデーション
         imageValidator.validate(file);
 
         try {
-            // 既存�E画像を削除
+            // 既存の画像を削除
             if (user.getProfileImageUrl() != null && !user.getProfileImageUrl().isEmpty()) {
                 try {
                     s3ImageService.deleteImage(user.getProfileImageUrl());
                     logger.info("Deleted old profile image for user: {}", userId);
                 } catch (Exception e) {
                     logger.warn("Failed to delete old profile image: {}", e.getMessage());
-                    // 削除失敗しても続衁E
+                    // 削除失敗しても続行
                 }
             }
 
-            // 新しい画像をアチE�EローチE
+            // 新しい画像をアップロード
             String imageUrl = s3ImageService.uploadImage(
                     file.getOriginalFilename(),
                     file.getContentType(),

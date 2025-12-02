@@ -12,7 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 /**
- * レシピ画像アチE�Eロードユースケース
+ * レシピ画像アップロードユースケース
  */
 @Service
 public class UploadRecipeImageUseCase {
@@ -30,30 +30,30 @@ public class UploadRecipeImageUseCase {
     }
 
     /**
-     * レシピ画像をアチE�EローチE
+     * レシピ画像をアップロード
      * 
      * @param recipeId レシピID
      * @param userId ユーザーID
      * @param file 画像ファイル
-     * @return 更新されたレシチE
-     * @throws RecipeNotFoundException レシピが見つからなぁE��吁E
-     * @throws UnauthorizedException 編雁E��限がなぁE��吁E
+     * @return 更新されたレシピ
+     * @throws RecipeNotFoundException レシピが見つからない場合
+     * @throws UnauthorizedException 編集権限がない場合
      * @throws IOException ファイル読み込みエラー
      */
     public Recipe execute(String recipeId, String userId, MultipartFile file) throws IOException {
-        // レシピを取征E
+        // レシピを取得
         Recipe recipe = recipeRepository.findById(recipeId)
                 .orElseThrow(() -> new RecipeNotFoundException("Recipe not found: " + recipeId));
 
-        // 編雁E��限チェチE��
+        // 編集権限チェック
         if (!recipe.canEdit(userId)) {
             throw new UnauthorizedException("User does not have permission to edit this recipe");
         }
 
-        // 画像バリチE�Eション
+        // 画像バリデーション
         imageValidator.validate(file);
 
-        // S3にアチE�EローチE
+        // S3にアップロード
         String fileName = "recipes/" + recipeId + "/" + file.getOriginalFilename();
         String imageUrl = s3ImageService.uploadImage(
                 fileName,
@@ -62,10 +62,10 @@ public class UploadRecipeImageUseCase {
                 file.getSize()
         );
 
-        // レシピ�E画像URLを更新
+        // レシピの画像URLを更新
         recipe.updateImageUrl(imageUrl);
 
-        // リポジトリに保孁E
+        // リポジトリに保存
         return recipeRepository.save(recipe);
     }
 }

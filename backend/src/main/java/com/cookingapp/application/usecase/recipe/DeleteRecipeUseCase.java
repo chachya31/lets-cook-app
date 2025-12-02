@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 /**
  * レシピ削除ユースケース
- * スケジュールと買ぁE��リスト�E参�Eを保持するため、論理削除を実施
+ * スケジュールと買い物リストの参照を保持するため、論理削除を実施
  */
 @Service
 public class DeleteRecipeUseCase {
@@ -20,19 +20,19 @@ public class DeleteRecipeUseCase {
     }
 
     /**
-     * レシピを削除�E�論理削除�E�E
+     * レシピを削除（論理削除）
      * 
      * @param recipeId レシピID
      * @param userId ユーザーID
-     * @throws RecipeNotFoundException レシピが見つからなぁE��吁E
-     * @throws UnauthorizedException 削除権限がなぁE��吁E
+     * @throws RecipeNotFoundException レシピが見つからない場合
+     * @throws UnauthorizedException 削除権限がない場合
      */
     public void execute(String recipeId, String userId) {
-        // レシピを取征E
+        // レシピを取得
         Recipe recipe = recipeRepository.findById(recipeId)
                 .orElseThrow(() -> new RecipeNotFoundException("Recipe not found: " + recipeId));
 
-        // 削除権限チェチE��
+        // 削除権限チェック
         if (!recipe.canDelete(userId)) {
             throw new UnauthorizedException("User does not have permission to delete this recipe");
         }
@@ -40,7 +40,7 @@ public class DeleteRecipeUseCase {
         // 論理削除
         recipe.markAsDeleted();
 
-        // リポジトリに保孁E
+        // リポジトリに保存
         recipeRepository.save(recipe);
     }
 }

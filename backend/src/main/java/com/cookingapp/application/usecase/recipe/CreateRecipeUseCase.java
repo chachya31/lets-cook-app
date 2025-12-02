@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 /**
- * レシピ作�Eユースケース
+ * レシピ作成ユースケース
  */
 @Service
 public class CreateRecipeUseCase {
@@ -20,21 +20,21 @@ public class CreateRecipeUseCase {
     }
 
     /**
-     * レシピを作�E
+     * レシピを作成
      * 
-     * @param authorId 作�E老ED
+     * @param authorId 作成者ID
      * @param title タイトル
-     * @param ingredients 食材リスチE
-     * @param steps 手頁E��スチE
-     * @param cookingTime 調琁E��間（�E�E�E
-     * @return 作�EされたレシチE
+     * @param ingredients 食材リスト
+     * @param steps 手順リスト
+     * @param cookingTime 調理時間（分）
+     * @return 作成されたレシピ
      */
     public Recipe execute(String authorId, String title, List<Ingredient> ingredients,
                           List<String> steps, int cookingTime) {
-        // レシピエンチE��チE��作�E�E�バリチE�EションはエンチE��チE��冁E��実施�E�E
+        // レシピエンティティ作成（バリデーションはエンティティ側で実施）
         Recipe recipe = new Recipe(authorId, title, ingredients, steps, cookingTime);
 
-        // リポジトリに保孁E
+        // リポジトリに保存
         return recipeRepository.save(recipe);
     }
 }

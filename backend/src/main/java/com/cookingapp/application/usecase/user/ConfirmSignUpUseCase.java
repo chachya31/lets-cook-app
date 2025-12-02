@@ -16,10 +16,10 @@ public class ConfirmSignUpUseCase {
     }
 
     /**
-     * 確認コードを検証してユーザーを有効匁E
+     * 確認コードを検証してユーザーを有効化
      * 
      * @param email メールアドレス
-     * @param confirmationCode 確認コーチE
+     * @param confirmationCode 確認コード
      */
     public void execute(String email, String confirmationCode) {
         cognitoAuthService.confirmSignUp(email, confirmationCode);

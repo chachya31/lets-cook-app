@@ -27,20 +27,20 @@ public class UpdateRecipeUseCase {
      * @param recipeId レシピID
      * @param userId ユーザーID
      * @param title タイトル
-     * @param ingredients 食材リスチE
-     * @param steps 手頁E��スチE
-     * @param cookingTime 調琁E��間（�E�E�E
-     * @return 更新されたレシチE
-     * @throws RecipeNotFoundException レシピが見つからなぁE��吁E
-     * @throws UnauthorizedException 編雁E��限がなぁE��吁E
+     * @param ingredients 食材リスト
+     * @param steps 手順リスト
+     * @param cookingTime 調理時間（分）
+     * @return 更新されたレシピ
+     * @throws RecipeNotFoundException レシピが見つからない場合
+     * @throws UnauthorizedException 編集権限がない場合
      */
     public Recipe execute(String recipeId, String userId, String title, List<Ingredient> ingredients,
                           List<String> steps, int cookingTime) {
-        // レシピを取征E
+        // レシピを取得
         Recipe recipe = recipeRepository.findById(recipeId)
                 .orElseThrow(() -> new RecipeNotFoundException("Recipe not found: " + recipeId));
 
-        // 編雁E��限チェチE��
+        // 編集権限チェック
         if (!recipe.canEdit(userId)) {
             throw new UnauthorizedException("User does not have permission to edit this recipe");
         }
@@ -48,7 +48,7 @@ public class UpdateRecipeUseCase {
         // レシピを更新
         recipe.update(title, ingredients, steps, cookingTime);
 
-        // リポジトリに保孁E
+        // リポジトリに保存
         return recipeRepository.save(recipe);
     }
 }

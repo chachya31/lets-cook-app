@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 /**
  * CreateReviewUseCase
- * レビュー作�Eユースケース
+ * レビュー作成ユースケース
  */
 @Slf4j
 @Service

@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 /**
  * ReviewController
- * レビュー管琁EEST APIコントローラー
+ * レビュー管理REST APIコントローラー
  */
 @Slf4j
 @RestController
@@ -31,7 +31,7 @@ public class ReviewController {
     private final ReportReviewUseCase reportReviewUseCase;
 
     /**
-     * レシピ�Eレビュー一覧を取征E
+     * レシピのレビュー一覧を取得
      */
     @GetMapping("/recipes/{recipeId}/reviews")
     public ResponseEntity<List<ReviewResponse>> getReviewsByRecipe(@PathVariable String recipeId) {
@@ -46,7 +46,7 @@ public class ReviewController {
     }
 
     /**
-     * レビューを作�E
+     * レビューを作成
      */
     @PostMapping("/recipes/{recipeId}/reviews")
     public ResponseEntity<ReviewResponse> createReview(

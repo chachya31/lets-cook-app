@@ -17,7 +17,7 @@ public class GetUserProfileUseCase {
     }
 
     /**
-     * ユーザープロフィールを取征E
+     * ユーザープロフィールを取得
      * 
      * @param userId ユーザーID
      * @return ユーザー

@@ -18,11 +18,11 @@ public class GetRecipeUseCase {
     }
 
     /**
-     * レシピを取征E
+     * レシピを取得
      * 
      * @param recipeId レシピID
-     * @return レシチE
-     * @throws RecipeNotFoundException レシピが見つからなぁE��吁E
+     * @return レシピ
+     * @throws RecipeNotFoundException レシピが見つからない場合
      */
     public Recipe execute(String recipeId) {
         return recipeRepository.findById(recipeId)

@@ -4,7 +4,7 @@ import com.cookingapp.infrastructure.external.cognito.CognitoAuthService;
 import org.springframework.stereotype.Service;
 
 /**
- * 確認コード�E送信ユースケース
+ * 確認コード再送信ユースケース
  */
 @Service
 public class ResendConfirmationCodeUseCase {

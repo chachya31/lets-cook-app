@@ -22,27 +22,27 @@ public class SearchRecipesUseCase {
     /**
      * すべての公開レシピを検索
      * 
-     * @return 公開レシピリスチE
+     * @return 公開レシピリスト
      */
     public List<Recipe> executePublic() {
         return recipeRepository.findAllPublic();
     }
 
     /**
-     * 作�E老EDでレシピを検索
+     * 作成者IDでレシピを検索
      * 
-     * @param authorId 作�E老ED
-     * @return レシピリスチE
+     * @param authorId 作成者ID
+     * @return レシピリスト
      */
     public List<Recipe> executeByAuthor(String authorId) {
         return recipeRepository.findByAuthorId(authorId);
     }
 
     /**
-     * キーワードでレシピを検索�E�タイトルに含まれるも�E�E�E
+     * キーワードでレシピを検索（タイトルに含まれるもの）
      * 
-     * @param keyword キーワーチE
-     * @return レシピリスチE
+     * @param keyword キーワード
+     * @return レシピリスト
      */
     public List<Recipe> executeByKeyword(String keyword) {
         List<Recipe> allPublicRecipes = recipeRepository.findAllPublic();

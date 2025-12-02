@@ -21,11 +21,11 @@ public class UpdateUserProfileUseCase {
      * ユーザープロフィールを更新
      * 
      * @param userId ユーザーID
-     * @param nickname ニックネ�Eム
-     * @param displayName 表示吁E
-     * @param preferredLanguage 優先言誁E
+     * @param nickname ニックネーム
+     * @param displayName 表示名
+     * @param preferredLanguage 優先言語
      * @param timezone タイムゾーン
-     * @param marketingOptOut マ�EケチE��ングオプトアウチE
+     * @param marketingOptOut マーケティングオプトアウト
      * @return 更新されたユーザー
      */
     public User execute(String userId, String nickname, String displayName, 

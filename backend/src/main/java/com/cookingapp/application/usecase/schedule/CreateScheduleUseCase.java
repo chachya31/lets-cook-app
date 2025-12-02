@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 
 /**
- * スケジュール作�Eユースケース
+ * スケジュール作成ユースケース
  */
 @Service
 @RequiredArgsConstructor

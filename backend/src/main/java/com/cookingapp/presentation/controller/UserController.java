@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
- * ユーザー管琁E��ントローラー
+ * ユーザー管理コントローラー
  */
 @RestController
 @RequestMapping("/api/users")
@@ -77,7 +77,7 @@ public class UserController {
     }
 
     /**
-     * 確認コード�E送信
+     * 確認コード再送信
      * POST /api/users/resend-code
      */
     @PostMapping("/resend-code")
@@ -109,7 +109,7 @@ public class UserController {
     }
 
     /**
-     * プロフィール取征E
+     * プロフィール取得
      * GET /api/users/profile/{userId}
      */
     @GetMapping("/profile/{userId}")
@@ -154,7 +154,7 @@ public class UserController {
     }
 
     /**
-     * プロフィール画像アチE�EローチE
+     * プロフィール画像アップロード
      * POST /api/users/profile/image
      */
     @PostMapping(value = "/profile/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
