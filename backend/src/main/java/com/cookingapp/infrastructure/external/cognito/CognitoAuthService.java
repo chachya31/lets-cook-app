@@ -20,7 +20,7 @@ import java.util.Map;
  * ユーザー登録、ログイン、トークン管理を提供
  */
 @Service
-public class CognitoAuthService {
+public class CognitoAuthService implements com.cookingapp.domain.service.AuthService {
     
     private final CognitoIdentityProviderClient cognitoClient;
     private final String userPoolId;

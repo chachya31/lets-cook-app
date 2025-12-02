@@ -2,7 +2,7 @@ package com.cookingapp.application.usecase.user;
 
 import com.cookingapp.domain.entity.User;
 import com.cookingapp.domain.repository.UserRepository;
-import com.cookingapp.infrastructure.external.cognito.CognitoAuthService;
+import com.cookingapp.domain.service.AuthService;
 import org.springframework.stereotype.Service;
 
 /**
@@ -11,11 +11,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class DeleteUserAccountUseCase {
     
-    private final CognitoAuthService cognitoAuthService;
+    private final AuthService authService;
     private final UserRepository userRepository;
 
-    public DeleteUserAccountUseCase(CognitoAuthService cognitoAuthService, UserRepository userRepository) {
-        this.cognitoAuthService = cognitoAuthService;
+    public DeleteUserAccountUseCase(AuthService authService, UserRepository userRepository) {
+        this.authService = authService;
         this.userRepository = userRepository;
     }
 
@@ -36,7 +36,7 @@ public class DeleteUserAccountUseCase {
         }
 
         // Cognitoからユーザー削除
-        cognitoAuthService.deleteUser(user.getEmail());
+        authService.deleteUser(user.getEmail());
 
         // DynamoDBからユーザー削除
         userRepository.delete(userId);

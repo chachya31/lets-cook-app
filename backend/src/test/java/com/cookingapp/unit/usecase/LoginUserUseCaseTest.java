@@ -4,8 +4,8 @@ import com.cookingapp.application.usecase.user.LoginUserUseCase;
 import com.cookingapp.domain.entity.User;
 import com.cookingapp.domain.exception.AuthenticationException;
 import com.cookingapp.domain.repository.UserRepository;
+import com.cookingapp.domain.service.AuthService;
 import com.cookingapp.domain.valueobject.Language;
-import com.cookingapp.infrastructure.external.cognito.CognitoAuthService;
 import com.cookingapp.infrastructure.external.cognito.dto.AuthTokens;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -33,7 +33,7 @@ import static org.mockito.Mockito.*;
 class LoginUserUseCaseTest {
 
     @Mock
-    private CognitoAuthService cognitoAuthService;
+    private AuthService authService;
 
     @Mock
     private UserRepository userRepository;
@@ -42,7 +42,7 @@ class LoginUserUseCaseTest {
 
     @BeforeEach
     void setUp() {
-        loginUserUseCase = new LoginUserUseCase(cognitoAuthService, userRepository);
+        loginUserUseCase = new LoginUserUseCase(authService, userRepository);
     }
 
     @Test
@@ -61,7 +61,7 @@ class LoginUserUseCaseTest {
         
         User existingUser = new User(email, "testuser", Language.JA);
         
-        when(cognitoAuthService.signIn(email, password)).thenReturn(tokens);
+        when(authService.signIn(email, password)).thenReturn(tokens);
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(existingUser));
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -75,7 +75,7 @@ class LoginUserUseCaseTest {
         assertThat(result.getUser().getEmail()).isEqualTo(email);
         assertThat(result.getUser().getLastLoginDate()).isNotNull();
 
-        verify(cognitoAuthService).signIn(email, password);
+        verify(authService).signIn(email, password);
         verify(userRepository).findByEmail(email);
         verify(userRepository).save(any(User.class));
     }
@@ -87,7 +87,7 @@ class LoginUserUseCaseTest {
         String email = "test@example.com";
         String password = "wrongpassword";
 
-        when(cognitoAuthService.signIn(email, password))
+        when(authService.signIn(email, password))
                 .thenThrow(new AuthenticationException("Invalid credentials"));
 
         // Act & Assert
@@ -95,7 +95,7 @@ class LoginUserUseCaseTest {
                 .isInstanceOf(AuthenticationException.class)
                 .hasMessageContaining("Invalid credentials");
 
-        verify(cognitoAuthService).signIn(email, password);
+        verify(authService).signIn(email, password);
         verify(userRepository, never()).findByEmail(anyString());
         verify(userRepository, never()).save(any(User.class));
     }
@@ -111,7 +111,7 @@ class LoginUserUseCaseTest {
         User existingUser = new User(email, "testuser", Language.JA);
         LocalDateTime beforeLogin = LocalDateTime.now();
         
-        when(cognitoAuthService.signIn(email, password)).thenReturn(tokens);
+        when(authService.signIn(email, password)).thenReturn(tokens);
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(existingUser));
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -138,9 +138,9 @@ class LoginUserUseCaseTest {
         attributes.put("nickname", "newuser");
         attributes.put("locale", "ja");
         
-        when(cognitoAuthService.signIn(email, password)).thenReturn(tokens);
+        when(authService.signIn(email, password)).thenReturn(tokens);
         when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
-        when(cognitoAuthService.getUserAttributes("access-token")).thenReturn(attributes);
+        when(authService.getUserAttributes("access-token")).thenReturn(attributes);
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act
@@ -152,7 +152,7 @@ class LoginUserUseCaseTest {
         assertThat(result.getUser().getEmail()).isEqualTo(email);
         assertThat(result.getUser().getNickname()).isEqualTo("newuser");
         
-        verify(cognitoAuthService).getUserAttributes("access-token");
+        verify(authService).getUserAttributes("access-token");
         verify(userRepository, times(2)).save(any(User.class)); // 作成時と最終ログイン更新時
     }
 
@@ -165,9 +165,9 @@ class LoginUserUseCaseTest {
         
         AuthTokens tokens = new AuthTokens("access-token", "refresh-token", "id-token", 3600);
         
-        when(cognitoAuthService.signIn(email, password)).thenReturn(tokens);
+        when(authService.signIn(email, password)).thenReturn(tokens);
         when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
-        when(cognitoAuthService.getUserAttributes("access-token"))
+        when(authService.getUserAttributes("access-token"))
                 .thenThrow(new RuntimeException("Cognito error"));
 
         // Act & Assert
@@ -175,6 +175,6 @@ class LoginUserUseCaseTest {
                 .isInstanceOf(AuthenticationException.class)
                 .hasMessageContaining("Failed to create user");
 
-        verify(cognitoAuthService).getUserAttributes("access-token");
+        verify(authService).getUserAttributes("access-token");
     }
 }

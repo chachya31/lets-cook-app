@@ -3,8 +3,8 @@ package com.cookingapp.application.usecase.user;
 import com.cookingapp.domain.entity.User;
 import com.cookingapp.domain.exception.UserAlreadyExistsException;
 import com.cookingapp.domain.repository.UserRepository;
+import com.cookingapp.domain.service.AuthService;
 import com.cookingapp.domain.valueobject.Language;
-import com.cookingapp.infrastructure.external.cognito.CognitoAuthService;
 import org.springframework.stereotype.Service;
 
 /**
@@ -13,11 +13,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class RegisterUserUseCase {
     
-    private final CognitoAuthService cognitoAuthService;
+    private final AuthService authService;
     private final UserRepository userRepository;
 
-    public RegisterUserUseCase(CognitoAuthService cognitoAuthService, UserRepository userRepository) {
-        this.cognitoAuthService = cognitoAuthService;
+    public RegisterUserUseCase(AuthService authService, UserRepository userRepository) {
+        this.authService = authService;
         this.userRepository = userRepository;
     }
 
@@ -45,7 +45,7 @@ public class RegisterUserUseCase {
         }
 
         // Cognitoにユーザー登録
-        String cognitoUserId = cognitoAuthService.signUp(email, password, nickname);
+        String cognitoUserId = authService.signUp(email, password, nickname);
 
         // ユーザーエンティティ作成
         User user = new User(email, nickname, preferredLanguage);

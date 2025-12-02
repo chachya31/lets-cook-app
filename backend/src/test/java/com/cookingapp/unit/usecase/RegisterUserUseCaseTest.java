@@ -4,8 +4,8 @@ import com.cookingapp.application.usecase.user.RegisterUserUseCase;
 import com.cookingapp.domain.entity.User;
 import com.cookingapp.domain.exception.UserAlreadyExistsException;
 import com.cookingapp.domain.repository.UserRepository;
+import com.cookingapp.domain.service.AuthService;
 import com.cookingapp.domain.valueobject.Language;
-import com.cookingapp.infrastructure.external.cognito.CognitoAuthService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,7 +29,7 @@ import static org.mockito.Mockito.*;
 class RegisterUserUseCaseTest {
 
     @Mock
-    private CognitoAuthService cognitoAuthService;
+    private AuthService authService;
 
     @Mock
     private UserRepository userRepository;
@@ -38,7 +38,7 @@ class RegisterUserUseCaseTest {
 
     @BeforeEach
     void setUp() {
-        registerUserUseCase = new RegisterUserUseCase(cognitoAuthService, userRepository);
+        registerUserUseCase = new RegisterUserUseCase(authService, userRepository);
     }
 
     @Test
@@ -51,7 +51,7 @@ class RegisterUserUseCaseTest {
         Language language = Language.JA;
 
         when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
-        when(cognitoAuthService.signUp(email, password, nickname)).thenReturn("cognito-user-id");
+        when(authService.signUp(email, password, nickname)).thenReturn("cognito-user-id");
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act
@@ -65,7 +65,7 @@ class RegisterUserUseCaseTest {
         assertThat(result.getUserId()).isNotNull();
 
         verify(userRepository).findByEmail(email);
-        verify(cognitoAuthService).signUp(email, password, nickname);
+        verify(authService).signUp(email, password, nickname);
         verify(userRepository).save(any(User.class));
     }
 
@@ -84,7 +84,7 @@ class RegisterUserUseCaseTest {
                 .hasMessageContaining("Password must be at least 8 characters");
 
         verify(userRepository, never()).findByEmail(anyString());
-        verify(cognitoAuthService, never()).signUp(anyString(), anyString(), anyString());
+        verify(authService, never()).signUp(anyString(), anyString(), anyString());
         verify(userRepository, never()).save(any(User.class));
     }
 
@@ -106,7 +106,7 @@ class RegisterUserUseCaseTest {
                 .hasMessageContaining("User with email " + email + " already exists");
 
         verify(userRepository).findByEmail(email);
-        verify(cognitoAuthService, never()).signUp(anyString(), anyString(), anyString());
+        verify(authService, never()).signUp(anyString(), anyString(), anyString());
         verify(userRepository, never()).save(any(User.class));
     }
 
@@ -120,14 +120,14 @@ class RegisterUserUseCaseTest {
         Language language = Language.JA;
 
         when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
-        when(cognitoAuthService.signUp(email, password, nickname)).thenReturn("cognito-user-id");
+        when(authService.signUp(email, password, nickname)).thenReturn("cognito-user-id");
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act
         registerUserUseCase.execute(email, password, nickname, language);
 
         // Assert
-        verify(cognitoAuthService).signUp(email, password, nickname);
+        verify(authService).signUp(email, password, nickname);
     }
 
     @Test
@@ -140,7 +140,7 @@ class RegisterUserUseCaseTest {
         Language language = Language.JA;
 
         when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
-        when(cognitoAuthService.signUp(email, password, nickname)).thenReturn("cognito-user-id");
+        when(authService.signUp(email, password, nickname)).thenReturn("cognito-user-id");
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act
@@ -160,7 +160,7 @@ class RegisterUserUseCaseTest {
         Language language = Language.KO;
 
         when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
-        when(cognitoAuthService.signUp(email, password, nickname)).thenReturn("cognito-user-id");
+        when(authService.signUp(email, password, nickname)).thenReturn("cognito-user-id");
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act

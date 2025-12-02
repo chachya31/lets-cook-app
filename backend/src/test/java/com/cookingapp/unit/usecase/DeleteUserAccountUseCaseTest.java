@@ -3,8 +3,8 @@ package com.cookingapp.unit.usecase;
 import com.cookingapp.application.usecase.user.DeleteUserAccountUseCase;
 import com.cookingapp.domain.entity.User;
 import com.cookingapp.domain.repository.UserRepository;
+import com.cookingapp.domain.service.AuthService;
 import com.cookingapp.domain.valueobject.Language;
-import com.cookingapp.infrastructure.external.cognito.CognitoAuthService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,7 +25,7 @@ import static org.mockito.Mockito.*;
 class DeleteUserAccountUseCaseTest {
 
     @Mock
-    private CognitoAuthService cognitoAuthService;
+    private AuthService authService;
 
     @Mock
     private UserRepository userRepository;
@@ -34,7 +34,7 @@ class DeleteUserAccountUseCaseTest {
 
     @BeforeEach
     void setUp() {
-        deleteUserAccountUseCase = new DeleteUserAccountUseCase(cognitoAuthService, userRepository);
+        deleteUserAccountUseCase = new DeleteUserAccountUseCase(authService, userRepository);
     }
 
     @Test
@@ -47,7 +47,7 @@ class DeleteUserAccountUseCaseTest {
         User existingUser = new User(email, "testuser", Language.JA);
         
         when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));
-        doNothing().when(cognitoAuthService).deleteUser(email);
+        doNothing().when(authService).deleteUser(email);
         doNothing().when(userRepository).delete(userId);
 
         // Act
@@ -55,7 +55,7 @@ class DeleteUserAccountUseCaseTest {
 
         // Assert
         verify(userRepository).findById(userId);
-        verify(cognitoAuthService).deleteUser(email);
+        verify(authService).deleteUser(email);
         verify(userRepository).delete(userId);
     }
 
@@ -73,7 +73,7 @@ class DeleteUserAccountUseCaseTest {
                 .hasMessageContaining("User not found");
 
         verify(userRepository).findById(userId);
-        verify(cognitoAuthService, never()).deleteUser(anyString());
+        verify(authService, never()).deleteUser(anyString());
         verify(userRepository, never()).delete(anyString());
     }
 
@@ -87,7 +87,7 @@ class DeleteUserAccountUseCaseTest {
         User existingUser = new User(email, "testuser", Language.JA);
         
         when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));
-        doNothing().when(cognitoAuthService).deleteUser(email);
+        doNothing().when(authService).deleteUser(email);
         doNothing().when(userRepository).delete(userId);
 
         // Act
@@ -95,8 +95,8 @@ class DeleteUserAccountUseCaseTest {
 
         // Assert
         // Cognitoの削除がリポジトリの削除より先に呼ばれることを確認
-        var inOrder = inOrder(cognitoAuthService, userRepository);
-        inOrder.verify(cognitoAuthService).deleteUser(email);
+        var inOrder = inOrder(authService, userRepository);
+        inOrder.verify(authService).deleteUser(email);
         inOrder.verify(userRepository).delete(userId);
     }
 }
