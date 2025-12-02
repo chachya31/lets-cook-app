@@ -6,21 +6,45 @@ spring:
     encoding: UTF-8
 
 aws:
-  region: ap-northeast-1
+  # LocalStackはus-east-1をデフォルトで使用
+  # Cognitoは実際のAWS（ap-northeast-1）を使用
+  region: us-east-1
+  # AWS認証情報（実際のAWSサービス用 - Cognitoのみ）
+  # 環境変数から取得: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
+  accessKeyId: ${AWS_ACCESS_KEY_ID:YOUR_AWS_ACCESS_KEY_ID}
+  secretAccessKey: ${AWS_SECRET_ACCESS_KEY:YOUR_AWS_SECRET_ACCESS_KEY}
+  
+  # LocalStack用のエンドポイント（DynamoDB、S3のみ）
   dynamodb:
     endpoint: http://localhost:4566
+    table:
+      users: cooking-app-users-local
+      recipes: cooking-app-recipes-local
+      reviews: cooking-app-reviews-local
+      schedules: cooking-app-schedules-local
+      shoppingLists: cooking-app-shopping-lists-local
   s3:
     endpoint: http://localhost:4566
     bucket: cooking-app-images-local
+  
+  # 実際のAWS Cognitoを使用
   cognito:
-    endpoint: http://localhost:4566
-    user-pool-id: local-user-pool
-    client-id: local-client-id
+    region: ap-northeast-1  # Cognitoは実際のAWSリージョンを使用
+    userPoolId: ap-northeast-1_aJ4JxScOo
+    clientId: 7e5mu77epiakek5jd9g6d5fvi
+    # clientSecret: (アプリクライアントがシークレットなしで設定されている場合は不要)
 
 server:
   port: 8080
 
 logging:
   level:
-    com.cookingapp: DEBUG
+    root: INFO
+    com.cookingapp: TRACE
     software.amazon.awssdk: INFO
+    org.springframework.web: DEBUG
+    org.springframework.boot: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+  file:
+    name: logs/cooking-app-local.log
