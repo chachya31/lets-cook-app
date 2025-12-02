@@ -4,7 +4,6 @@ import com.cookingapp.domain.entity.User;
 import com.cookingapp.domain.repository.UserRepository;
 import com.cookingapp.domain.valueobject.Language;
 import org.springframework.stereotype.Repository;
-import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
 
 import java.time.LocalDate;
@@ -23,13 +22,13 @@ public class DynamoDBUserRepository implements UserRepository {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE;
     private static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
     
-    private final DynamoDbClient dynamoDbClient;
+    private final DynamoDbClientWrapper clientWrapper;
     private final String tableName;
 
     public DynamoDBUserRepository(
-            DynamoDbClient dynamoDbClient,
+            DynamoDbClientWrapper clientWrapper,
             @org.springframework.beans.factory.annotation.Value("${aws.dynamodb.table.users:Users}") String tableName) {
-        this.dynamoDbClient = dynamoDbClient;
+        this.clientWrapper = clientWrapper;
         this.tableName = tableName;
     }
 
@@ -67,7 +66,7 @@ public class DynamoDBUserRepository implements UserRepository {
                 .item(item)
                 .build();
 
-        dynamoDbClient.putItem(request);
+        clientWrapper.putItem(request);
         return user;
     }
 
@@ -81,7 +80,7 @@ public class DynamoDBUserRepository implements UserRepository {
                 .key(key)
                 .build();
 
-        GetItemResponse response = dynamoDbClient.getItem(request);
+        GetItemResponse response = clientWrapper.getItem(request);
         
         if (!response.hasItem() || response.item().isEmpty()) {
             return Optional.empty();
@@ -103,7 +102,7 @@ public class DynamoDBUserRepository implements UserRepository {
                 .expressionAttributeValues(expressionValues)
                 .build();
 
-        ScanResponse response = dynamoDbClient.scan(request);
+        ScanResponse response = clientWrapper.scan(request);
         
         if (response.items().isEmpty()) {
             return Optional.empty();
@@ -122,7 +121,7 @@ public class DynamoDBUserRepository implements UserRepository {
                 .key(key)
                 .build();
 
-        dynamoDbClient.deleteItem(request);
+        clientWrapper.deleteItem(request);
     }
 
     @Override

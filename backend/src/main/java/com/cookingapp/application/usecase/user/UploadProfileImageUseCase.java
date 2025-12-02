@@ -5,7 +5,7 @@ import com.cookingapp.application.validation.ImageValidator;
 import com.cookingapp.domain.entity.User;
 import com.cookingapp.domain.exception.UserNotFoundException;
 import com.cookingapp.domain.repository.UserRepository;
-import com.cookingapp.infrastructure.external.s3.S3ImageService;
+import com.cookingapp.domain.service.ImageStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -22,15 +22,15 @@ public class UploadProfileImageUseCase {
     private static final Logger logger = LoggerFactory.getLogger(UploadProfileImageUseCase.class);
 
     private final UserRepository userRepository;
-    private final S3ImageService s3ImageService;
+    private final ImageStorageService imageStorageService;
     private final ImageValidator imageValidator;
 
     public UploadProfileImageUseCase(
             UserRepository userRepository,
-            S3ImageService s3ImageService,
+            ImageStorageService imageStorageService,
             ImageValidator imageValidator) {
         this.userRepository = userRepository;
-        this.s3ImageService = s3ImageService;
+        this.imageStorageService = imageStorageService;
         this.imageValidator = imageValidator;
     }
 
@@ -57,7 +57,7 @@ public class UploadProfileImageUseCase {
             // 既存の画像を削除
             if (user.getProfileImageUrl() != null && !user.getProfileImageUrl().isEmpty()) {
                 try {
-                    s3ImageService.deleteImage(user.getProfileImageUrl());
+                    imageStorageService.deleteImage(user.getProfileImageUrl());
                     logger.info("Deleted old profile image for user: {}", userId);
                 } catch (Exception e) {
                     logger.warn("Failed to delete old profile image: {}", e.getMessage());
@@ -66,7 +66,7 @@ public class UploadProfileImageUseCase {
             }
 
             // 新しい画像をアップロード
-            String imageUrl = s3ImageService.uploadImage(
+            String imageUrl = imageStorageService.uploadImage(
                     file.getOriginalFilename(),
                     file.getContentType(),
                     file.getInputStream(),

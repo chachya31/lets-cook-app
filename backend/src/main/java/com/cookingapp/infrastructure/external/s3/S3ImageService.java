@@ -1,5 +1,6 @@
 package com.cookingapp.infrastructure.external.s3;
 
+import com.cookingapp.domain.service.ImageStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,7 +21,7 @@ import java.util.UUID;
  * 画像のアップロード、取得、削除を管理
  */
 @Service
-public class S3ImageService {
+public class S3ImageService implements ImageStorageService {
 
     private static final Logger logger = LoggerFactory.getLogger(S3ImageService.class);
 
@@ -112,6 +113,15 @@ public class S3ImageService {
                 .build();
 
         return s3Presigner.presignGetObject(presignRequest).url().toString();
+    }
+
+    @Override
+    public String generateDownloadUrl(String imageUrl) {
+        if (imageUrl == null || imageUrl.isEmpty()) {
+            return null;
+        }
+        String key = extractKeyFromUrl(imageUrl);
+        return getImageUrl(key);
     }
 
     /**

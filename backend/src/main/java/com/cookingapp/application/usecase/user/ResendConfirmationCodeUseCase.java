@@ -1,6 +1,6 @@
 package com.cookingapp.application.usecase.user;
 
-import com.cookingapp.infrastructure.external.cognito.CognitoAuthService;
+import com.cookingapp.domain.service.AuthService;
 import org.springframework.stereotype.Service;
 
 /**
@@ -9,10 +9,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class ResendConfirmationCodeUseCase {
     
-    private final CognitoAuthService cognitoAuthService;
+    private final AuthService authService;
 
-    public ResendConfirmationCodeUseCase(CognitoAuthService cognitoAuthService) {
-        this.cognitoAuthService = cognitoAuthService;
+    public ResendConfirmationCodeUseCase(AuthService authService) {
+        this.authService = authService;
     }
 
     /**
@@ -21,6 +21,6 @@ public class ResendConfirmationCodeUseCase {
      * @param email メールアドレス
      */
     public void execute(String email) {
-        cognitoAuthService.resendConfirmationCode(email);
+        authService.resendConfirmationCode(email);
     }
 }

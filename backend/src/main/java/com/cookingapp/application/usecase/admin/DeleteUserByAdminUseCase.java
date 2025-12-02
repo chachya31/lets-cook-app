@@ -3,8 +3,8 @@ package com.cookingapp.application.usecase.admin;
 import com.cookingapp.domain.entity.User;
 import com.cookingapp.domain.exception.UserNotFoundException;
 import com.cookingapp.domain.repository.UserRepository;
-import com.cookingapp.infrastructure.external.cognito.CognitoAuthService;
-import com.cookingapp.infrastructure.external.s3.S3ImageService;
+import com.cookingapp.domain.service.AuthService;
+import com.cookingapp.domain.service.ImageStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -18,15 +18,15 @@ public class DeleteUserByAdminUseCase {
     private static final Logger log = LoggerFactory.getLogger(DeleteUserByAdminUseCase.class);
     
     private final UserRepository userRepository;
-    private final CognitoAuthService cognitoAuthService;
-    private final S3ImageService s3ImageService;
+    private final AuthService authService;
+    private final ImageStorageService imageStorageService;
     
     public DeleteUserByAdminUseCase(UserRepository userRepository, 
-                                    CognitoAuthService cognitoAuthService,
-                                    S3ImageService s3ImageService) {
+                                    AuthService authService,
+                                    ImageStorageService imageStorageService) {
         this.userRepository = userRepository;
-        this.cognitoAuthService = cognitoAuthService;
-        this.s3ImageService = s3ImageService;
+        this.authService = authService;
+        this.imageStorageService = imageStorageService;
     }
     
     /**
@@ -44,7 +44,7 @@ public class DeleteUserByAdminUseCase {
         // プロフィール画像を削除
         if (user.getProfileImageUrl() != null && !user.getProfileImageUrl().isEmpty()) {
             try {
-                s3ImageService.deleteImage(user.getProfileImageUrl());
+                imageStorageService.deleteImage(user.getProfileImageUrl());
                 log.info("プロフィール画像を削除しました: userId={}", userId);
             } catch (Exception e) {
                 log.warn("プロフィール画像の削除に失敗しました: userId={}, error={}", userId, e.getMessage());
@@ -53,7 +53,7 @@ public class DeleteUserByAdminUseCase {
         
         // Cognitoからユーザーを削除
         try {
-            cognitoAuthService.deleteUser(user.getEmail());
+            authService.deleteUser(user.getEmail());
             log.info("Cognitoからユーザーを削除しました: userId={}", userId);
         } catch (Exception e) {
             log.warn("Cognitoからのユーザー削除に失敗しました: userId={}, error={}", userId, e.getMessage());

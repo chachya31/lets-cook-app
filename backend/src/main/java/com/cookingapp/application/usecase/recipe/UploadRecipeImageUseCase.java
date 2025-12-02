@@ -5,7 +5,7 @@ import com.cookingapp.domain.entity.Recipe;
 import com.cookingapp.domain.exception.RecipeNotFoundException;
 import com.cookingapp.domain.exception.UnauthorizedException;
 import com.cookingapp.domain.repository.RecipeRepository;
-import com.cookingapp.infrastructure.external.s3.S3ImageService;
+import com.cookingapp.domain.service.ImageStorageService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,14 +18,14 @@ import java.io.IOException;
 public class UploadRecipeImageUseCase {
 
     private final RecipeRepository recipeRepository;
-    private final S3ImageService s3ImageService;
+    private final ImageStorageService imageStorageService;
     private final ImageValidator imageValidator;
 
     public UploadRecipeImageUseCase(RecipeRepository recipeRepository,
-                                    S3ImageService s3ImageService,
+                                    ImageStorageService imageStorageService,
                                     ImageValidator imageValidator) {
         this.recipeRepository = recipeRepository;
-        this.s3ImageService = s3ImageService;
+        this.imageStorageService = imageStorageService;
         this.imageValidator = imageValidator;
     }
 
@@ -55,7 +55,7 @@ public class UploadRecipeImageUseCase {
 
         // S3にアップロード
         String fileName = "recipes/" + recipeId + "/" + file.getOriginalFilename();
-        String imageUrl = s3ImageService.uploadImage(
+        String imageUrl = imageStorageService.uploadImage(
                 fileName,
                 file.getContentType(),
                 file.getInputStream(),
