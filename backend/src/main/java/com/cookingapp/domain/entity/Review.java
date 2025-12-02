@@ -1,5 +1,6 @@
 package com.cookingapp.domain.entity;
 
+import com.cookingapp.domain.constants.ValidationConstants;
 import com.cookingapp.domain.valueobject.ReviewStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -71,7 +72,7 @@ public class Review {
      * 自動非表示判定
      */
     public boolean shouldHide() {
-        return this.reportedCount >= 3;
+        return this.reportedCount >= ValidationConstants.REVIEW_AUTO_HIDE_THRESHOLD;
     }
 
     /**
@@ -92,8 +93,12 @@ public class Review {
      * 星評価のバリデーション
      */
     private static void validateRating(int rating) {
-        if (rating < 1 || rating > 5) {
-            throw new IllegalArgumentException("Rating must be between 1 and 5");
+        if (rating < ValidationConstants.REVIEW_RATING_MIN || rating > ValidationConstants.REVIEW_RATING_MAX) {
+            throw new IllegalArgumentException(
+                String.format("Rating must be between %d and %d", 
+                    ValidationConstants.REVIEW_RATING_MIN, 
+                    ValidationConstants.REVIEW_RATING_MAX)
+            );
         }
     }
 
@@ -101,8 +106,11 @@ public class Review {
      * コメントのバリデーション
      */
     private static void validateComment(String comment) {
-        if (comment != null && comment.length() > 300) {
-            throw new IllegalArgumentException("Comment must be 300 characters or less");
+        if (comment != null && comment.length() > ValidationConstants.REVIEW_COMMENT_MAX_LENGTH) {
+            throw new IllegalArgumentException(
+                String.format("Comment must be %d characters or less", 
+                    ValidationConstants.REVIEW_COMMENT_MAX_LENGTH)
+            );
         }
     }
 }

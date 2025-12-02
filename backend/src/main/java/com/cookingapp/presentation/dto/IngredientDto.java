@@ -36,9 +36,9 @@ public class IngredientDto {
     private boolean optional;
 
     /**
-     * DTOからドメインオブジェクトに変換
+     * DTOからドメインエンティティに変換
      */
-    public Ingredient toDomain() {
+    public Ingredient toEntity() {
         Unit unitEnum = Unit.fromCode(unit);
         return new Ingredient(name, quantity, unitEnum, note, optional);
     }

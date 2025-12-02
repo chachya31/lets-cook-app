@@ -1,5 +1,6 @@
 package com.cookingapp.application.validation;
 
+import com.cookingapp.domain.constants.ValidationConstants;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -13,7 +14,6 @@ import java.util.List;
 @Component
 public class ImageValidator {
 
-    private static final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
     private static final List<String> ALLOWED_CONTENT_TYPES = Arrays.asList(
             "image/jpeg",
             "image/jpg",
@@ -48,9 +48,10 @@ public class ImageValidator {
      * @throws ImageValidationException サイズ超過
      */
     private void validateFileSize(MultipartFile file) {
-        if (file.getSize() > MAX_FILE_SIZE) {
+        if (file.getSize() > ValidationConstants.IMAGE_MAX_FILE_SIZE) {
             throw new ImageValidationException(
-                    String.format("ファイルサイズが大きすぎます。最大%dMBまでです", MAX_FILE_SIZE / (1024 * 1024))
+                    String.format("ファイルサイズが大きすぎます。最大%dMBまでです", 
+                        ValidationConstants.IMAGE_MAX_FILE_SIZE_MB)
             );
         }
     }
@@ -121,6 +122,6 @@ public class ImageValidator {
      * @return 有効な場合true
      */
     public boolean isValidFileSize(long fileSize) {
-        return fileSize > 0 && fileSize <= MAX_FILE_SIZE;
+        return fileSize > 0 && fileSize <= ValidationConstants.IMAGE_MAX_FILE_SIZE;
     }
 }

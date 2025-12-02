@@ -1,5 +1,6 @@
 package com.cookingapp.domain.entity;
 
+import com.cookingapp.domain.constants.ValidationConstants;
 import com.cookingapp.domain.valueobject.Unit;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -116,14 +117,14 @@ public class ShoppingListItem {
     }
 
     /**
-     * 自動削除すべきかどうかを判定（チェック済みから3日経過）
+     * 自動削除すべきかどうかを判定（チェック済みから指定日数経過）
      */
     public boolean shouldAutoDelete() {
         if (!isChecked || isCheckedAt == null) {
             return false;
         }
-        Instant threeDaysAgo = Instant.now().minus(3, ChronoUnit.DAYS);
-        return isCheckedAt.isBefore(threeDaysAgo);
+        Instant thresholdDate = Instant.now().minus(ValidationConstants.SHOPPING_LIST_AUTO_DELETE_DAYS, ChronoUnit.DAYS);
+        return isCheckedAt.isBefore(thresholdDate);
     }
 
     /**

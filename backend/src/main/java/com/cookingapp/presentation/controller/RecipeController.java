@@ -3,6 +3,7 @@ package com.cookingapp.presentation.controller;
 import com.cookingapp.application.usecase.recipe.*;
 import com.cookingapp.domain.entity.Recipe;
 import com.cookingapp.domain.valueobject.Ingredient;
+import com.cookingapp.presentation.dto.IngredientDto;
 import com.cookingapp.presentation.dto.RecipeRequest;
 import com.cookingapp.presentation.dto.RecipeResponse;
 import jakarta.validation.Valid;
@@ -102,7 +103,7 @@ public class RecipeController {
             @Valid @RequestBody RecipeRequest request) {
         
         List<Ingredient> ingredients = request.getIngredients().stream()
-                .map(dto -> dto.toDomain())
+                .map(IngredientDto::toEntity)
                 .collect(Collectors.toList());
 
         Recipe recipe = createRecipeUseCase.execute(
@@ -132,7 +133,7 @@ public class RecipeController {
             @Valid @RequestBody RecipeRequest request) {
         
         List<Ingredient> ingredients = request.getIngredients().stream()
-                .map(dto -> dto.toDomain())
+                .map(IngredientDto::toEntity)
                 .collect(Collectors.toList());
 
         Recipe recipe = updateRecipeUseCase.execute(

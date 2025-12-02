@@ -1,5 +1,6 @@
 package com.cookingapp.domain.valueobject;
 
+import com.cookingapp.domain.constants.ValidationConstants;
 import lombok.Getter;
 
 import java.math.BigDecimal;
@@ -19,10 +20,10 @@ public class Ingredient {
     /**
      * 食材を作成
      * 
-     * @param name 食材名（1-50文字）
+     * @param name 食材名（1-100文字）
      * @param quantity 数量（0 < qty <= 9999）
      * @param unit 単位
-     * @param note メモ（最大60文字、オプション）
+     * @param note メモ（最大200文字、オプション）
      * @param optional 任意フラグ
      */
     public Ingredient(String name, BigDecimal quantity, Unit unit, String note, boolean optional) {
@@ -58,8 +59,11 @@ public class Ingredient {
         if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("食材名は必須です");
         }
-        if (name.length() > 50) {
-            throw new IllegalArgumentException("食材名は50文字以内である必要があります");
+        if (name.length() > ValidationConstants.INGREDIENT_NAME_MAX_LENGTH) {
+            throw new IllegalArgumentException(
+                String.format("食材名は%d文字以内である必要があります", 
+                    ValidationConstants.INGREDIENT_NAME_MAX_LENGTH)
+            );
         }
     }
 
@@ -73,8 +77,11 @@ public class Ingredient {
         if (quantity.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("数量は0より大きい必要があります");
         }
-        if (quantity.compareTo(new BigDecimal("9999")) > 0) {
-            throw new IllegalArgumentException("数量は9999以下である必要があります");
+        if (quantity.compareTo(new BigDecimal(ValidationConstants.INGREDIENT_QUANTITY_MAX)) > 0) {
+            throw new IllegalArgumentException(
+                String.format("数量は%s以下である必要があります", 
+                    ValidationConstants.INGREDIENT_QUANTITY_MAX)
+            );
         }
     }
 
@@ -82,8 +89,11 @@ public class Ingredient {
      * メモをバリデーション
      */
     private void validateNote(String note) {
-        if (note != null && note.length() > 60) {
-            throw new IllegalArgumentException("メモは60文字以内である必要があります");
+        if (note != null && note.length() > ValidationConstants.INGREDIENT_NOTE_MAX_LENGTH) {
+            throw new IllegalArgumentException(
+                String.format("メモは%d文字以内である必要があります", 
+                    ValidationConstants.INGREDIENT_NOTE_MAX_LENGTH)
+            );
         }
     }
 

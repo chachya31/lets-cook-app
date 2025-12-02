@@ -1,5 +1,6 @@
 package com.cookingapp.application.usecase.alert;
 
+import com.cookingapp.domain.constants.ValidationConstants;
 import com.cookingapp.domain.entity.User;
 import com.cookingapp.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +14,7 @@ import java.util.Random;
 
 /**
  * アラート判定ユースケース
- * 最終料理日から3日経過した場合にアラートを表示する判定を行う
+ * 最終料理日から指定日数経過した場合にアラートを表示する判定を行う
  */
 @Service
 @RequiredArgsConstructor
@@ -56,8 +57,8 @@ public class CheckAlertUseCase {
         LocalDate today = LocalDate.now();
         long daysSinceLastCooking = ChronoUnit.DAYS.between(lastCookingDate, today);
 
-        // 3日経過（4日目の0時）でアラート表示
-        if (daysSinceLastCooking >= 3) {
+        // 指定日数経過でアラート表示
+        if (daysSinceLastCooking >= ValidationConstants.ALERT_DAYS_THRESHOLD) {
             return createAlertResponse(true);
         }
 

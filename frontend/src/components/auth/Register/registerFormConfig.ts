@@ -1,4 +1,5 @@
 import { ValidationRules, validationRules } from '../../../utils/validation';
+import { PASSWORD_MIN_LENGTH, NICKNAME_MAX_LENGTH } from '../../../constants/validation';
 
 /**
  * 登録フォームの初期値
@@ -21,7 +22,7 @@ export const getRegisterValidationRules = (t: (key: string) => string): Validati
   ],
   password: [
     validationRules.required(t('validation.passwordRequired')),
-    validationRules.minLength(8, t('validation.passwordMinLength')),
+    validationRules.minLength(PASSWORD_MIN_LENGTH, t('validation.passwordMinLength')),
     validationRules.pattern(
       /(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$*.[\]{}()?\-"!@#%&/\\,><':;|_~`+=])/,
       t('validation.passwordComplexity')
@@ -32,7 +33,7 @@ export const getRegisterValidationRules = (t: (key: string) => string): Validati
   ],
   nickname: [
     validationRules.required(t('validation.nicknameRequired')),
-    validationRules.maxLength(50, t('validation.nicknameMaxLength')),
+    validationRules.maxLength(NICKNAME_MAX_LENGTH, t('validation.nicknameMaxLength')),
   ],
 });
 

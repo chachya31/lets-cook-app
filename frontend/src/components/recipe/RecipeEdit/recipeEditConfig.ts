@@ -1,4 +1,12 @@
 import { Ingredient } from '../../../types/recipe';
+import {
+  RECIPE_TITLE_MAX_LENGTH,
+  COOKING_TIME_MIN,
+  RECIPE_MIN_INGREDIENTS,
+  RECIPE_MIN_STEPS,
+  INGREDIENT_NAME_MAX_LENGTH,
+  INGREDIENT_QUANTITY_MIN,
+} from '../../../constants/validation';
 
 /**
  * レシピ編集フォームの設定
@@ -44,28 +52,28 @@ export const unitOptions = [
 export const validationRules = {
   title: {
     required: true,
-    maxLength: 100,
+    maxLength: RECIPE_TITLE_MAX_LENGTH,
   },
   cookingTime: {
     required: true,
-    min: 0,
+    min: COOKING_TIME_MIN,
   },
   ingredients: {
-    minItems: 1,
+    minItems: RECIPE_MIN_INGREDIENTS,
     name: {
       required: true,
-      maxLength: 100,
+      maxLength: INGREDIENT_NAME_MAX_LENGTH,
     },
     quantity: {
       required: true,
-      min: 0,
+      min: INGREDIENT_QUANTITY_MIN,
     },
     unit: {
       required: true,
     },
   },
   steps: {
-    minItems: 1,
+    minItems: RECIPE_MIN_STEPS,
     required: true,
   },
 };
