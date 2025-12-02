@@ -21,7 +21,7 @@ if echo "$CHANGED_FILES" | grep -q "backend/.*\.java$"; then
     
     # バックエンドビルド
     echo "🔨 Building backend..."
-    cd backend && ./gradlew build -x test
+    cd backend && ./gradlew.bat build -x test
     if [ $? -ne 0 ]; then
         echo "❌ Backend build failed"
         exit 1
