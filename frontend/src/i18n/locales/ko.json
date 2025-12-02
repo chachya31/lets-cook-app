@@ -204,5 +204,61 @@
     "searchRecipes": "레시피 검색",
     "manageSchedules": "일정 관리",
     "manageShoppingList": "장보기 목록 관리"
+  },
+  "admin": {
+    "dashboard": {
+      "title": "관리자 대시보드",
+      "totalUsers": "총 사용자 수",
+      "totalRecipes": "총 레시피 수",
+      "userManagement": "사용자 관리",
+      "userManagementDesc": "사용자 계정의 정지 및 삭제를 관리합니다",
+      "goToUserManagement": "사용자 관리로 이동",
+      "recipeManagement": "레시피 관리",
+      "recipeManagementDesc": "레시피의 심사, 상태 변경 및 삭제를 관리합니다",
+      "goToRecipeManagement": "레시피 관리로 이동"
+    },
+    "users": {
+      "title": "사용자 관리",
+      "manageUser": "사용자 관리",
+      "userId": "사용자 ID",
+      "userIdPlaceholder": "사용자 ID를 입력하세요",
+      "suspend": "정지",
+      "delete": "삭제",
+      "success": {
+        "suspended": "사용자를 정지했습니다",
+        "deleted": "사용자를 삭제했습니다"
+      },
+      "error": {
+        "userIdRequired": "사용자 ID를 입력하세요",
+        "suspendFailed": "사용자 정지에 실패했습니다",
+        "deleteFailed": "사용자 삭제에 실패했습니다"
+      },
+      "confirm": {
+        "delete": "정말로 이 사용자를 삭제하시겠습니까? 이 작업은 취소할 수 없습니다."
+      },
+      "warning": {
+        "title": "주의사항",
+        "suspend": "정지: 사용자는 로그인할 수 없지만 데이터는 유지됩니다",
+        "delete": "삭제: 사용자 계정과 모든 데이터가 완전히 삭제됩니다"
+      }
+    },
+    "recipes": {
+      "title": "레시피 관리",
+      "noRecipes": "레시피가 없습니다",
+      "recipeId": "레시피 ID",
+      "authorId": "작성자 ID",
+      "cookingTime": "조리 시간",
+      "status": "상태",
+      "public": "공개",
+      "private": "비공개",
+      "deleted": "삭제됨",
+      "view": "보기",
+      "setPublic": "공개로 설정",
+      "setPrivate": "비공개로 설정",
+      "delete": "삭제",
+      "confirm": {
+        "delete": "정말로 이 레시피를 삭제하시겠습니까? 이 작업은 취소할 수 없습니다."
+      }
+    }
   }
 }

@@ -253,6 +253,26 @@ public class CognitoAuthService {
     }
 
     /**
+     * ユーザー無効化（停止）
+     * 
+     * @param username ユーザー名（メールアドレス）
+     * @throws AuthenticationException 無効化に失敗した場合
+     */
+    public void disableUser(String username) {
+        try {
+            AdminDisableUserRequest disableRequest = AdminDisableUserRequest.builder()
+                    .userPoolId(userPoolId)
+                    .username(username)
+                    .build();
+
+            cognitoClient.adminDisableUser(disableRequest);
+            
+        } catch (CognitoIdentityProviderException e) {
+            throw new AuthenticationException("Failed to disable user: " + e.getMessage(), e);
+        }
+    }
+
+    /**
      * ユーザー削除
      * 
      * @param username ユーザー名（メールアドレス）

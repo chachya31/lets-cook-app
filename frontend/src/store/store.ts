@@ -4,6 +4,7 @@ import recipeReducer from './recipeSlice';
 import reviewReducer from './slices/reviewSlice';
 import scheduleReducer from './slices/scheduleSlice';
 import shoppingListReducer from './slices/shoppingListSlice';
+import adminReducer from './slices/adminSlice';
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
     review: reviewReducer,
     schedule: scheduleReducer,
     shoppingList: shoppingListReducer,
+    admin: adminReducer,
   },
 });
 

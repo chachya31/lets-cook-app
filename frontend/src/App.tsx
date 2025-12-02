@@ -10,6 +10,9 @@ import RecipeDetailPage from './components/recipe/RecipeDetailPage';
 import RecipeEditPage from './components/recipe/RecipeEdit/RecipeEditPage';
 import SchedulePage from './components/schedule/SchedulePage';
 import ShoppingListPage from './components/shopping/ShoppingListPage';
+import AdminDashboardPage from './components/admin/AdminDashboardPage';
+import UserManagementPage from './components/admin/UserManagementPage';
+import RecipeManagementPage from './components/admin/RecipeManagementPage';
 import { AlertModal } from './components/alert/AlertModal';
 import Header from './components/common/Header';
 import Footer from './components/common/Footer';
@@ -40,6 +43,9 @@ const App: React.FC = () => {
           <Route path="/recipes/:id/edit" element={<RecipeEditPage />} />
           <Route path="/schedules" element={<SchedulePage />} />
           <Route path="/shopping-list" element={<ShoppingListPage />} />
+          <Route path="/admin" element={<AdminDashboardPage />} />
+          <Route path="/admin/users" element={<UserManagementPage />} />
+          <Route path="/admin/recipes" element={<RecipeManagementPage />} />
         </Routes>
       </main>
       {!isAuthPage && <Footer />}

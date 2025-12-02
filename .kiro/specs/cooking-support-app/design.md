@@ -213,10 +213,24 @@
 - AIAdvisorService: Gemini API呼び出し、キャッシュ管理
 - CacheService: 24時間キャッシュ
 
-**9. Admin Module（未実装）**
-- AdminController: 管理者機能
-- AdminService: ユーザー管理、レシピ審査
-- AdminRepository: DynamoDBアクセス
+**9. Admin Module（実装済み）**
+- Application Layer:
+  - GetAdminDashboardStatsUseCase: 管理者ダッシュボード統計取得（実装済み）
+  - SuspendUserUseCase: ユーザー停止（実装済み）
+  - DeleteUserByAdminUseCase: ユーザー削除（実装済み）
+  - GetAllRecipesForAdminUseCase: すべてのレシピ取得（実装済み）
+  - SetRecipeStatusUseCase: レシピステータス設定（実装済み）
+  - DeleteRecipeByAdminUseCase: レシピ削除（実装済み）
+- Presentation Layer:
+  - AdminController: 管理者機能コントローラー（実装済み）
+    - GET /api/admin/dashboard: ダッシュボード統計取得
+    - PUT /api/admin/users/{userId}/suspend: ユーザー停止
+    - DELETE /api/admin/users/{userId}: ユーザー削除
+    - GET /api/admin/recipes: すべてのレシピ取得
+    - PUT /api/admin/recipes/{recipeId}/status: レシピステータス設定
+    - DELETE /api/admin/recipes/{recipeId}: レシピ削除
+  - AdminDashboardResponse: ダッシュボードレスポンスDTO（実装済み）
+  - SetRecipeStatusRequest: レシピステータス設定リクエストDTO（実装済み）
 
 ### フロントエンドコンポーネント
 
@@ -298,20 +312,52 @@
 - shoppingListApi: API呼び出し関数（実装済み）
 - ShoppingListItem型定義: TypeScript型定義（実装済み）
 - 多言語対応（日本語・韓国語）（実装済み）
-- Schedule型定義: TypeScript型定義（実装済み）
-- 多言語対応（日本語・韓国語）（実装済み）
-
-
 
 **7. Profile Components（一部実装済み）**
 - ProfilePage: プロフィール編集画面（未実装）
 - ImageUploader: 画像アップロードコンポーネント（実装済み）
 - LanguageSelector: 言語選択（未実装）
 
-**8. Admin Components（未実装）**
-- AdminDashboard: 管理ダッシュボード
-- UserManagement: ユーザー管理
-- RecipeManagement: レシピ管理
+**8. Admin Components（実装済み）**
+- AdminDashboardPage: 管理者ダッシュボード（実装済み）
+  - 統計情報表示（総ユーザー数、総レシピ数）
+  - ユーザー管理へのナビゲーション
+  - レシピ管理へのナビゲーション
+  - LoadingSkeletonによるローディング表示
+  - 多言語対応（日本語・韓国語）
+- UserManagementPage: ユーザー管理画面（実装済み）
+  - ユーザーID入力フォーム
+  - ユーザー停止機能
+  - ユーザー削除機能（確認ダイアログ付き）
+  - 注意事項表示
+  - 多言語対応（日本語・韓国語）
+- RecipeManagementPage: レシピ管理画面（実装済み）
+  - すべてのレシピ一覧表示（審査待ち含む）
+  - レシピ詳細表示（ID、作成者ID、調理時間、ステータス）
+  - レシピステータス切り替え（公開/非公開）
+  - レシピ削除機能（確認ダイアログ付き）
+  - レシピ詳細へのナビゲーション
+  - 多言語対応（日本語・韓国語）
+- adminSlice: Redux状態管理（実装済み）
+  - fetchAdminDashboardStats: ダッシュボード統計取得
+  - suspendUser: ユーザー停止
+  - deleteUserByAdmin: ユーザー削除
+  - fetchAllRecipesForAdmin: すべてのレシピ取得
+  - setRecipeStatus: レシピステータス設定
+  - deleteRecipeByAdmin: レシピ削除
+- adminApi: API呼び出し関数（実装済み）
+  - getAdminDashboardStats: ダッシュボード統計取得
+  - suspendUser: ユーザー停止
+  - deleteUserByAdmin: ユーザー削除
+  - getAllRecipesForAdmin: すべてのレシピ取得
+  - setRecipeStatus: レシピステータス設定
+  - deleteRecipeByAdmin: レシピ削除
+- Admin型定義: TypeScript型定義（実装済み）
+  - AdminDashboardStats: ダッシュボード統計
+  - SetRecipeStatusRequest: レシピステータス設定リクエスト
+  - AdminState: 管理者状態
+- App.tsxルーティング追加（/admin、/admin/users、/admin/recipes）（実装済み）
+- Headerに管理者メニュー追加（実装済み）
 
 ### API Endpoints
 
@@ -460,14 +506,32 @@
 - POST /api/ai-advisor/advice - AIアドバイス取得
 - Status: ⏳ 未実装
 
-**Admin（未実装）**
-- GET /api/admin/dashboard - ダッシュボード統計
-- GET /api/admin/users - ユーザー一覧
-- PUT /api/admin/users/{id}/suspend - ユーザー停止
-- DELETE /api/admin/users/{id} - ユーザー削除
-- GET /api/admin/recipes - レシピ一覧
-- PUT /api/admin/recipes/{id}/status - レシピステータス更新
-- Status: ⏳ 未実装
+**Admin（実装済み）**
+- GET /api/admin/dashboard - ダッシュボード統計取得
+  - Response: AdminDashboardResponse (message, totalUsers, totalRecipes)
+  - 統計情報を返す
+  - Status: ✅ 実装済み
+- PUT /api/admin/users/{userId}/suspend - ユーザー停止
+  - Response: 204 No Content
+  - ユーザーのログインを無効化
+  - Status: ✅ 実装済み
+- DELETE /api/admin/users/{userId} - ユーザー削除
+  - Response: 204 No Content
+  - ユーザーアカウントとデータを完全削除
+  - Status: ✅ 実装済み
+- GET /api/admin/recipes - すべてのレシピ取得（管理者用）
+  - Response: List<RecipeResponse>
+  - 審査待ちを含むすべてのレシピを返す
+  - Status: ✅ 実装済み
+- PUT /api/admin/recipes/{recipeId}/status - レシピステータス設定
+  - Request: SetRecipeStatusRequest (isPublic)
+  - Response: RecipeResponse
+  - レシピの公開/非公開を設定
+  - Status: ✅ 実装済み
+- DELETE /api/admin/recipes/{recipeId} - レシピ削除（管理者用）
+  - Response: 204 No Content
+  - レシピを論理削除（参照保持）
+  - Status: ✅ 実装済み
 
 ## Data Models
 
@@ -1276,16 +1340,17 @@ frontend/
 │   │   │   ├── ProfilePage.tsx                # （未実装）
 │   │   │   ├── ImageUploader.tsx              # （実装済み）
 │   │   │   └── LanguageSelector.tsx           # （実装済み）
-│   │   └── admin/                             # 管理者機能（未実装）
-│   │       ├── AdminDashboard.tsx
-│   │       ├── UserManagement.tsx
-│   │       └── RecipeManagement.tsx
+│   │   └── admin/                             # 管理者機能（実装済み）
+│   │       ├── AdminDashboardPage.tsx         # 管理者ダッシュボード（実装済み）
+│   │       ├── UserManagementPage.tsx         # ユーザー管理（実装済み）
+│   │       └── RecipeManagementPage.tsx       # レシピ管理（実装済み）
 │   ├── store/                                 # Redux状態管理（実装済み）
 │   │   ├── slices/                            # Reduxスライス
 │   │   │   ├── authSlice.ts                   # 認証状態管理（実装済み）
 │   │   │   ├── reviewSlice.ts                 # レビュー状態管理（実装済み）
 │   │   │   ├── scheduleSlice.ts               # スケジュール状態管理（実装済み）
-│   │   │   └── shoppingListSlice.ts           # （未実装）
+│   │   │   ├── shoppingListSlice.ts           # 買い物リスト状態管理（実装済み）
+│   │   │   └── adminSlice.ts                  # 管理者状態管理（実装済み）
 │   │   ├── recipeSlice.ts                     # レシピ状態管理（実装済み）
 │   │   └── store.ts                           # Reduxストア設定（実装済み）
 │   ├── api/                                   # API呼び出し（実装済み）
@@ -1294,7 +1359,8 @@ frontend/
 │   │   ├── reviewApi.ts                       # レビューAPI（実装済み）
 │   │   ├── scheduleApi.ts                     # スケジュールAPI（実装済み）
 │   │   ├── alertApi.ts                        # アラートAPI（実装済み）
-│   │   ├── shoppingListApi.ts                 # （未実装）
+│   │   ├── shoppingListApi.ts                 # 買い物リストAPI（実装済み）
+│   │   ├── adminApi.ts                        # 管理者API（実装済み）
 │   │   └── aiAdvisorApi.ts                    # （未実装）
 │   ├── hooks/                                 # カスタムフック（実装済み）
 │   │   ├── useAuth.ts                         # 認証フック（実装済み）
@@ -1313,15 +1379,16 @@ frontend/
 │   ├── i18n/                                  # 多言語対応（実装済み）
 │   │   ├── i18n.ts                            # i18next設定（localStorage、ブラウザ言語設定対応）（実装済み）
 │   │   └── locales/
-│   │       ├── ja.json                        # 日本語翻訳（認証、バリデーション、画像アップロード、レシピ、レビュー、スケジュール、アラート、買い物リスト、プロフィール）（実装済み）
-│   │       └── ko.json                        # 韓国語翻訳（認証、バリデーション、画像アップロード、レシピ、レビュー、スケジュール、アラート、買い物リスト、プロフィール）（実装済み）
+│   │       ├── ja.json                        # 日本語翻訳（認証、バリデーション、画像アップロード、レシピ、レビュー、スケジュール、アラート、買い物リスト、プロフィール、管理者）（実装済み）
+│   │       └── ko.json                        # 韓国語翻訳（認証、バリデーション、画像アップロード、レシピ、レビュー、スケジュール、アラート、買い物リスト、プロフィール、管理者）（実装済み）
 │   ├── types/                                 # TypeScript型定義（実装済み）
 │   │   ├── user.ts                            # ユーザー型（実装済み）
 │   │   ├── auth.ts                            # 認証型（実装済み）
 │   │   ├── recipe.ts                          # レシピ型（実装済み）
 │   │   ├── review.ts                          # レビュー型（実装済み）
 │   │   ├── schedule.ts                        # スケジュール型（実装済み）
-│   │   └── shoppingList.ts                    # （未実装）
+│   │   ├── shoppingList.ts                    # 買い物リスト型（実装済み）
+│   │   └── admin.ts                           # 管理者型（実装済み）
 │   ├── App.tsx                                # ルートコンポーネント（実装済み）
 │   ├── index.tsx                              # エントリーポイント（実装済み）
 │   ├── index.css                              # グローバルスタイル（Tailwind）（実装済み）
@@ -1788,17 +1855,34 @@ npm test
   - アニメーション付きのスケルトン表示
   - カスタマイズ可能（行数、クラス名）
 
+**12. 管理者機能（✅ 完了）**
+- バックエンド：
+  - GetAdminDashboardStatsUseCase: ダッシュボード統計取得
+  - SuspendUserUseCase: ユーザー停止
+  - DeleteUserByAdminUseCase: ユーザー削除
+  - GetAllRecipesForAdminUseCase: すべてのレシピ取得
+  - SetRecipeStatusUseCase: レシピステータス設定
+  - DeleteRecipeByAdminUseCase: レシピ削除
+  - AdminController: REST APIエンドポイント（/api/admin/*）
+  - AdminDashboardResponse: ダッシュボードレスポンスDTO
+  - SetRecipeStatusRequest: レシピステータス設定リクエストDTO
+- フロントエンド：
+  - AdminDashboardPage: 管理者ダッシュボード（統計情報表示、ナビゲーション）
+  - UserManagementPage: ユーザー管理（停止、削除、確認ダイアログ）
+  - RecipeManagementPage: レシピ管理（一覧表示、ステータス切り替え、削除）
+  - adminSlice: Redux状態管理（fetchAdminDashboardStats、suspendUser、deleteUserByAdmin、fetchAllRecipesForAdmin、setRecipeStatus、deleteRecipeByAdmin）
+  - adminApi: API呼び出し関数
+  - Admin型定義: TypeScript型定義（AdminDashboardStats、SetRecipeStatusRequest、AdminState）
+  - App.tsxルーティング追加（/admin、/admin/users、/admin/recipes）
+  - Headerに管理者メニュー追加
+  - 多言語対応（日本語・韓国語）
+
 ### 未実装機能
 
 **1. AIアドバイザー機能**
 - Gemini API統合
 - キャッシュ管理
 - レート制限処理
-
-**2. 管理者機能**
-- ユーザー管理
-- レシピ審査
-- 統計情報表示
 
 ### 技術スタック
 

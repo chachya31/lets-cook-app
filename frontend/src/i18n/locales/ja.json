@@ -204,5 +204,61 @@
     "searchRecipes": "レシピを検索",
     "manageSchedules": "スケジュールを管理",
     "manageShoppingList": "買い物リストを管理"
+  },
+  "admin": {
+    "dashboard": {
+      "title": "管理者ダッシュボード",
+      "totalUsers": "総ユーザー数",
+      "totalRecipes": "総レシピ数",
+      "userManagement": "ユーザー管理",
+      "userManagementDesc": "ユーザーアカウントの停止・削除を管理します",
+      "goToUserManagement": "ユーザー管理へ",
+      "recipeManagement": "レシピ管理",
+      "recipeManagementDesc": "レシピの審査・ステータス変更・削除を管理します",
+      "goToRecipeManagement": "レシピ管理へ"
+    },
+    "users": {
+      "title": "ユーザー管理",
+      "manageUser": "ユーザーを管理",
+      "userId": "ユーザーID",
+      "userIdPlaceholder": "ユーザーIDを入力",
+      "suspend": "停止",
+      "delete": "削除",
+      "success": {
+        "suspended": "ユーザーを停止しました",
+        "deleted": "ユーザーを削除しました"
+      },
+      "error": {
+        "userIdRequired": "ユーザーIDを入力してください",
+        "suspendFailed": "ユーザーの停止に失敗しました",
+        "deleteFailed": "ユーザーの削除に失敗しました"
+      },
+      "confirm": {
+        "delete": "本当にこのユーザーを削除しますか？この操作は取り消せません。"
+      },
+      "warning": {
+        "title": "注意事項",
+        "suspend": "停止：ユーザーはログインできなくなりますが、データは保持されます",
+        "delete": "削除：ユーザーアカウントとすべてのデータが完全に削除されます"
+      }
+    },
+    "recipes": {
+      "title": "レシピ管理",
+      "noRecipes": "レシピがありません",
+      "recipeId": "レシピID",
+      "authorId": "作成者ID",
+      "cookingTime": "調理時間",
+      "status": "ステータス",
+      "public": "公開",
+      "private": "非公開",
+      "deleted": "削除済み",
+      "view": "表示",
+      "setPublic": "公開にする",
+      "setPrivate": "非公開にする",
+      "delete": "削除",
+      "confirm": {
+        "delete": "本当にこのレシピを削除しますか？この操作は取り消せません。"
+      }
+    }
   }
 }

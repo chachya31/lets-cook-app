@@ -50,6 +50,14 @@ const Header: React.FC = () => {
             >
               {t('shoppingList.title')}
             </button>
+            {isLoggedIn && (
+              <button
+                onClick={() => navigate('/admin')}
+                className="text-gray-700 hover:text-green-600 transition-colors"
+              >
+                {t('admin.dashboard.title')}
+              </button>
+            )}
           </nav>
 
           {/* ユーザーアクション */}
