@@ -64,11 +64,14 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex) {
+        logger.info("Validation error occurred: {}", ex.getMessage());
+        
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getAllErrors().forEach(error -> {
             String fieldName = ((FieldError) error).getField();
             String errorMessage = error.getDefaultMessage();
             errors.put(fieldName, errorMessage);
+            logger.debug("Field '{}' validation failed: {}", fieldName, errorMessage);
         });
 
         ErrorResponse response = new ErrorResponse(
@@ -86,6 +89,8 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException ex) {
+        logger.info("Authentication error: {}", ex.getMessage());
+        
         ErrorResponse response = new ErrorResponse(
                 "AUTHENTICATION_ERROR",
                 getMessage("error.auth.unauthorized"),
@@ -101,6 +106,8 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(UserAlreadyExistsException.class)
     public ResponseEntity<ErrorResponse> handleUserAlreadyExistsException(UserAlreadyExistsException ex) {
+        logger.info("User already exists: {}", ex.getMessage());
+        
         ErrorResponse response = new ErrorResponse(
                 "USER_ALREADY_EXISTS",
                 getMessage("error.auth.user_already_exists"),
@@ -116,6 +123,8 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(ImageValidationException.class)
     public ResponseEntity<ErrorResponse> handleImageValidationException(ImageValidationException ex) {
+        logger.info("Image validation error: {}", ex.getMessage());
+        
         String messageKey = ex.getMessage().contains("size") ? 
                 "validation.image.size.exceeded" : "validation.image.format.invalid";
         
@@ -134,6 +143,8 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleUserNotFoundException(UserNotFoundException ex) {
+        logger.info("User not found: {}", ex.getMessage());
+        
         ErrorResponse response = new ErrorResponse(
                 "USER_NOT_FOUND",
                 getMessage("error.auth.user_not_found"),
@@ -149,6 +160,8 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(RecipeNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleRecipeNotFoundException(RecipeNotFoundException ex) {
+        logger.info("Recipe not found: {}", ex.getMessage());
+        
         ErrorResponse response = new ErrorResponse(
                 "RECIPE_NOT_FOUND",
                 getMessage("error.recipe.not_found"),
@@ -164,6 +177,8 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<ErrorResponse> handleUnauthorizedException(UnauthorizedException ex) {
+        logger.info("Unauthorized access attempt: {}", ex.getMessage());
+        
         ErrorResponse response = new ErrorResponse(
                 "UNAUTHORIZED",
                 getMessage("error.forbidden"),
@@ -179,6 +194,8 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(ReviewNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleReviewNotFoundException(ReviewNotFoundException ex) {
+        logger.info("Review not found: {}", ex.getMessage());
+        
         ErrorResponse response = new ErrorResponse(
                 "REVIEW_NOT_FOUND",
                 getMessage("error.review.not_found"),
@@ -194,6 +211,8 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(ScheduleNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleScheduleNotFoundException(ScheduleNotFoundException ex) {
+        logger.info("Schedule not found: {}", ex.getMessage());
+        
         ErrorResponse response = new ErrorResponse(
                 "SCHEDULE_NOT_FOUND",
                 getMessage("error.schedule.not_found"),
@@ -209,6 +228,8 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(ShoppingListItemNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleShoppingListItemNotFoundException(ShoppingListItemNotFoundException ex) {
+        logger.info("Shopping list item not found: {}", ex.getMessage());
+        
         ErrorResponse response = new ErrorResponse(
                 "SHOPPING_LIST_ITEM_NOT_FOUND",
                 getMessage("error.shoppingList.not_found"),
@@ -224,6 +245,8 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex) {
+        logger.info("Invalid argument: {}", ex.getMessage());
+        
         ErrorResponse response = new ErrorResponse(
                 "INVALID_ARGUMENT",
                 getMessage("error.bad_request"),
@@ -239,6 +262,8 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<ErrorResponse> handleIllegalStateException(IllegalStateException ex) {
+        logger.info("Invalid state: {}", ex.getMessage());
+        
         ErrorResponse response = new ErrorResponse(
                 "INVALID_STATE",
                 getMessage("error.bad_request"),

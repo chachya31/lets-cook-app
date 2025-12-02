@@ -9,6 +9,16 @@ interface RequestOptions extends RequestInit {
 }
 
 /**
+ * エラーレスポンスの型定義
+ */
+interface ErrorResponse {
+  code: string;
+  message: string;
+  details?: Record<string, string>;
+  timestamp: string;
+}
+
+/**
  * 共通のfetchラッパー
  */
 async function fetchWithErrorHandling<T>(
@@ -19,6 +29,7 @@ async function fetchWithErrorHandling<T>(
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
+    'Accept-Language': localStorage.getItem('i18nextLng') || 'ja',
     ...(fetchOptions.headers as Record<string, string>),
   };
 
@@ -26,22 +37,63 @@ async function fetchWithErrorHandling<T>(
     headers['X-User-Id'] = userId;
   }
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    ...fetchOptions,
-    headers,
-  });
+  try {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      ...fetchOptions,
+      headers,
+    });
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Unknown error' }));
-    throw new Error(error.message || `Request failed with status ${response.status}`);
+    if (!response.ok) {
+      const errorData: ErrorResponse = await response.json().catch(() => ({
+        code: 'UNKNOWN_ERROR',
+        message: 'Unknown error occurred',
+        timestamp: new Date().toISOString(),
+      }));
+
+      // ステータスコードに応じたエラーメッセージ
+      let errorMessage = errorData.message;
+      
+      switch (response.status) {
+        case 400:
+          errorMessage = errorData.message || 'Invalid request';
+          break;
+        case 401:
+          errorMessage = errorData.message || 'Authentication required';
+          break;
+        case 403:
+          errorMessage = errorData.message || 'Access forbidden';
+          break;
+        case 404:
+          errorMessage = errorData.message || 'Resource not found';
+          break;
+        case 409:
+          errorMessage = errorData.message || 'Resource conflict';
+          break;
+        case 500:
+          errorMessage = errorData.message || 'Server error occurred';
+          break;
+        default:
+          errorMessage = errorData.message || `Request failed with status ${response.status}`;
+      }
+
+      throw new Error(errorMessage);
+    }
+
+    // 204 No Contentの場合はnullを返す
+    if (response.status === 204) {
+      return null as T;
+    }
+
+    return response.json();
+  } catch (error) {
+    // ネットワークエラーの場合
+    if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+      throw new Error('Network error: Please check your internet connection');
+    }
+    
+    // その他のエラーはそのまま投げる
+    throw error;
   }
-
-  // 204 No Contentの場合はnullを返す
-  if (response.status === 204) {
-    return null as T;
-  }
-
-  return response.json();
 }
 
 /**
@@ -102,23 +154,41 @@ export async function apiPostFile<T>(
   formData: FormData,
   userId?: string
 ): Promise<T> {
-  const headers: Record<string, string> = {};
+  const headers: Record<string, string> = {
+    'Accept-Language': localStorage.getItem('i18nextLng') || 'ja',
+  };
+  
   if (userId) {
     headers['X-User-Id'] = userId;
   }
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    method: 'POST',
-    headers,
-    body: formData,
-  });
+  try {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      method: 'POST',
+      headers,
+      body: formData,
+    });
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Unknown error' }));
-    throw new Error(error.message || `Upload failed with status ${response.status}`);
+    if (!response.ok) {
+      const errorData: ErrorResponse = await response.json().catch(() => ({
+        code: 'UPLOAD_ERROR',
+        message: 'Upload failed',
+        timestamp: new Date().toISOString(),
+      }));
+
+      throw new Error(errorData.message || `Upload failed with status ${response.status}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    // ネットワークエラーの場合
+    if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+      throw new Error('Network error: Please check your internet connection');
+    }
+    
+    // その他のエラーはそのまま投げる
+    throw error;
   }
-
-  return response.json();
 }
 
 export { API_BASE_URL };
