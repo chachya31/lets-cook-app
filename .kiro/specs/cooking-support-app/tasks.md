@@ -624,6 +624,282 @@
   - ErrorBanner
   - _Requirements: 全体_
 
-- [ ] 15. 最終チェックポイント - すべてのテストが合格することを確認
+- [ ] 15. ユニットテストと統合テストの実装
+- [ ] 15.1 バックエンド：ユーザー管理ユースケースのユニットテスト
+  - RegisterUserUseCaseTest: ユーザー登録の正常系・異常系テスト
+    - 有効な入力でユーザー登録が成功する
+    - 無効なパスワードで登録が失敗する
+    - 重複メールアドレスで登録が失敗する（UserAlreadyExistsException）
+    - Cognitoへの登録が成功する
+    - DynamoDBへの保存が成功する
+  - LoginUserUseCaseTest: ログインの正常系・異常系テスト
+    - 有効な認証情報でログインが成功する
+    - 無効な認証情報でログインが失敗する（AuthenticationException）
+    - 最終ログイン日時が更新される
+  - UpdateUserProfileUseCaseTest: プロフィール更新のテスト
+    - プロフィール情報が正しく更新される
+    - 存在しないユーザーで更新が失敗する（UserNotFoundException）
+  - DeleteUserAccountUseCaseTest: アカウント削除のテスト
+    - Cognitoとリポジトリから削除される
+    - 存在しないユーザーで削除が失敗する
+  - GetUserProfileUseCaseTest: プロフィール取得のテスト
+    - ユーザー情報が正しく取得される
+    - 存在しないユーザーで取得が失敗する
+  - _Requirements: 1.1, 1.2, 1.5_
+
+- [ ] 15.2 バックエンド：レシピ管理ユースケースのユニットテスト
+  - CreateRecipeUseCaseTest: レシピ作成のテスト
+    - 有効な入力でレシピ作成が成功する
+    - 食材バリデーションが正しく動作する
+    - リポジトリへの保存が成功する
+  - UpdateRecipeUseCaseTest: レシピ更新のテスト
+    - 作成者がレシピを更新できる
+    - 作成者以外が更新できない（UnauthorizedException）
+    - 存在しないレシピで更新が失敗する（RecipeNotFoundException）
+  - DeleteRecipeUseCaseTest: レシピ削除のテスト
+    - 論理削除が正しく動作する
+    - 作成者のみが削除できる
+    - 削除後もスケジュールと買い物リストの参照が保持される
+  - GetRecipeUseCaseTest: レシピ取得のテスト
+    - レシピ詳細が正しく取得される
+    - 削除済みレシピは取得できない
+  - SearchRecipesUseCaseTest: レシピ検索のテスト
+    - キーワード検索が正しく動作する
+    - 作成者別検索が正しく動作する
+    - 公開レシピのみが返される
+  - _Requirements: 2.1, 2.2, 3.1, 3.3, 3.4_
+
+- [ ] 15.3 バックエンド：レビュー管理ユースケースのユニットテスト
+  - CreateReviewUseCaseTest: レビュー作成のテスト
+    - 有効な星評価とコメントでレビュー作成が成功する
+    - バリデーションが正しく動作する（星評価1-5、コメント300文字以内）
+  - UpdateReviewUseCaseTest: レビュー更新のテスト
+    - 自分のレビューを更新できる
+    - 他人のレビューを更新できない（UnauthorizedException）
+  - DeleteReviewUseCaseTest: レビュー削除のテスト
+    - 自分のレビューを削除できる
+    - 他人のレビューを削除できない
+  - GetReviewsByRecipeUseCaseTest: レビュー一覧取得のテスト
+    - 表示可能なレビュー（VISIBLE）のみが返される
+    - 非表示レビュー（HIDDEN）は返されない
+  - ReportReviewUseCaseTest: レビュー通報のテスト
+    - 通報カウントが増加する
+    - 3回以上の通報で自動的に非表示になる
+  - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
+
+- [ ] 15.4 バックエンド：スケジュール管理ユースケースのユニットテスト
+  - CreateScheduleUseCaseTest: スケジュール作成のテスト
+    - PLANNEDスケジュールが作成される
+    - COOKEDスケジュールが作成される
+  - UpdateScheduleUseCaseTest: スケジュール更新のテスト
+    - メモが更新される
+    - 自分のスケジュールのみ更新できる
+  - DeleteScheduleUseCaseTest: スケジュール削除のテスト
+    - スケジュールが削除される
+    - 自分のスケジュールのみ削除できる
+  - GetSchedulesUseCaseTest: スケジュール取得のテスト
+    - 日付範囲でスケジュールが取得される
+    - 自分のスケジュールのみが返される
+  - ConvertScheduleToCookedUseCaseTest: 予定→実績変換のテスト
+    - PLANNEDがCOOKEDに変換される
+    - LastCookingDateが更新される
+  - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
+
+- [ ] 15.5 バックエンド：買い物リスト管理ユースケースのユニットテスト
+  - AddShoppingListItemUseCaseTest: アイテム追加のテスト
+    - 新しいアイテムが追加される
+    - 同じ正規化キー（名前+単位）のアイテムがある場合、数量が合算される
+    - 単位が異なる場合、別のアイテムが作成される
+  - UpdateShoppingListItemUseCaseTest: アイテム更新のテスト
+    - チェック状態が更新される
+    - IsCheckedAtタイムスタンプが記録される
+  - DeleteShoppingListItemUseCaseTest: アイテム削除のテスト
+    - アイテムが削除される
+    - 自分のアイテムのみ削除できる
+  - GetShoppingListUseCaseTest: 買い物リスト取得のテスト
+    - 自分のアイテムのみが返される
+  - CleanupExpiredItemsUseCaseTest: 期限切れアイテムクリーンアップのテスト
+    - チェック済みから3日経過したアイテムが削除される
+    - 3日未満のアイテムは削除されない
+  - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5_
+
+- [ ] 15.6 バックエンド：リポジトリのユニットテスト
+  - DynamoDBUserRepositoryTest: ユーザーリポジトリのテスト
+    - save: ユーザーが保存される
+    - findById: IDでユーザーが取得される
+    - findByEmail: メールアドレスでユーザーが取得される
+    - delete: ユーザーが削除される
+    - existsById: ユーザーの存在確認
+  - DynamoDBRecipeRepositoryTest: レシピリポジトリのテスト
+    - save: レシピが保存される
+    - findById: IDでレシピが取得される
+    - findByAuthorId: 作成者IDでレシピが取得される（GSI検索）
+    - findAllPublic: 公開レシピが取得される
+    - delete: レシピが削除される
+    - 食材・手順のシリアライズ/デシリアライズが正しく動作する
+  - DynamoDBReviewRepositoryTest: レビューリポジトリのテスト
+    - save: レビューが保存される
+    - findById: IDでレビューが取得される
+    - findByRecipeId: レシピIDでレビューが取得される
+    - findByUserId: ユーザーIDでレビューが取得される（GSI検索）
+    - delete: レビューが削除される
+  - DynamoDBScheduleRepositoryTest: スケジュールリポジトリのテスト
+    - save: スケジュールが保存される
+    - findById: IDでスケジュールが取得される
+    - findByUserIdAndDateRange: 日付範囲でスケジュールが取得される
+    - delete: スケジュールが削除される
+    - SortKey構築（Date#Type#RecipeId形式）が正しく動作する
+  - DynamoDBShoppingListRepositoryTest: 買い物リストリポジトリのテスト
+    - save: アイテムが保存される
+    - findById: IDでアイテムが取得される
+    - findByUserId: ユーザーIDでアイテムが取得される
+    - findByNormalizedKey: 正規化キーでアイテムが取得される（GSI検索）
+    - delete: アイテムが削除される
+    - deleteExpiredCheckedItems: 期限切れアイテムが削除される
+  - _Requirements: 全体_
+
+- [ ] 15.7 バックエンド：コントローラーのユニットテスト
+  - UserControllerTest: ユーザーコントローラーのテスト
+    - POST /api/users/register: ユーザー登録エンドポイント
+    - POST /api/users/login: ログインエンドポイント
+    - GET /api/users/profile/{userId}: プロフィール取得エンドポイント
+    - PUT /api/users/profile/{userId}: プロフィール更新エンドポイント
+    - DELETE /api/users/account/{userId}: アカウント削除エンドポイント
+    - バリデーションエラーのテスト（400 Bad Request）
+    - 認証エラーのテスト（401 Unauthorized）
+  - RecipeControllerTest: レシピコントローラーのテスト
+    - GET /api/recipes: レシピ検索エンドポイント
+    - GET /api/recipes/{id}: レシピ詳細取得エンドポイント
+    - POST /api/recipes: レシピ作成エンドポイント
+    - PUT /api/recipes/{id}: レシピ更新エンドポイント
+    - DELETE /api/recipes/{id}: レシピ削除エンドポイント
+    - X-User-Idヘッダーのテスト
+    - 権限エラーのテスト（403 Forbidden）
+  - ReviewControllerTest: レビューコントローラーのテスト
+    - GET /api/recipes/{recipeId}/reviews: レビュー一覧取得エンドポイント
+    - POST /api/recipes/{recipeId}/reviews: レビュー作成エンドポイント
+    - PUT /api/reviews/{reviewId}: レビュー更新エンドポイント
+    - DELETE /api/reviews/{reviewId}: レビュー削除エンドポイント
+    - POST /api/reviews/{reviewId}/report: レビュー通報エンドポイント
+  - ScheduleControllerTest: スケジュールコントローラーのテスト
+    - GET /api/schedules: スケジュール一覧取得エンドポイント
+    - POST /api/schedules: スケジュール作成エンドポイント
+    - PUT /api/schedules/{id}: スケジュール更新エンドポイント
+    - DELETE /api/schedules/{id}: スケジュール削除エンドポイント
+    - POST /api/schedules/{id}/convert-to-cooked: 予定→実績変換エンドポイント
+  - ShoppingListControllerTest: 買い物リストコントローラーのテスト
+    - GET /api/shopping-lists: 買い物リスト取得エンドポイント
+    - POST /api/shopping-lists: アイテム追加エンドポイント
+    - PUT /api/shopping-lists/{id}: アイテム更新エンドポイント
+    - DELETE /api/shopping-lists/{id}: アイテム削除エンドポイント
+  - _Requirements: 全体_
+
+- [ ] 15.8 フロントエンド：認証コンポーネントのユニットテスト
+  - LoginPage.test.tsx: ログイン画面のテスト
+    - フォームのレンダリング
+    - バリデーションエラーの表示
+    - ログインボタンのクリック
+    - API呼び出しの成功/失敗
+  - RegisterPage.test.tsx: ユーザー登録画面のテスト
+    - フォームのレンダリング
+    - パスワード確認のバリデーション
+    - 言語選択
+    - 登録ボタンのクリック
+  - ConfirmEmailPage.test.tsx: メール確認画面のテスト
+    - 確認コード入力
+    - 確認ボタンのクリック
+    - 再送信ボタンのクリック
+  - _Requirements: 1.1, 1.2_
+
+- [ ] 15.9 フロントエンド：レシピコンポーネントのユニットテスト
+  - RecipeSearchPage.test.tsx: レシピ検索画面のテスト
+    - 検索フォームのレンダリング
+    - キーワード検索
+    - レシピカードの表示
+  - RecipeDetailPage.test.tsx: レシピ詳細画面のテスト
+    - レシピ情報の表示
+    - 食材リストの表示
+    - 手順の表示
+    - レビューセクションの表示
+    - 編集・削除ボタンの表示（作成者のみ）
+  - RecipeEditPage.test.tsx: レシピ編集画面のテスト
+    - フォームのレンダリング
+    - 食材の動的追加/削除
+    - 手順の動的追加/削除
+    - 保存ボタンのクリック
+  - ReviewList.test.tsx: レビュー一覧のテスト
+    - レビューの表示
+    - 星評価の表示
+    - 編集・削除・通報ボタンの表示
+  - ReviewForm.test.tsx: レビュー投稿フォームのテスト
+    - 星評価の選択
+    - コメント入力
+    - バリデーション
+    - 投稿ボタンのクリック
+  - _Requirements: 2.1, 2.2, 3.1, 5.1_
+
+- [ ] 15.10 フロントエンド：Redux Sliceのユニットテスト
+  - authSlice.test.ts: 認証状態管理のテスト
+    - login アクションのディスパッチ
+    - register アクションのディスパッチ
+    - logout アクションのディスパッチ
+    - 状態の更新
+    - エラーハンドリング
+  - recipeSlice.test.ts: レシピ状態管理のテスト
+    - searchRecipes アクションのディスパッチ
+    - fetchRecipe アクションのディスパッチ
+    - createRecipe アクションのディスパッチ
+    - updateRecipe アクションのディスパッチ
+    - deleteRecipe アクションのディスパッチ
+    - 状態の更新
+  - reviewSlice.test.ts: レビュー状態管理のテスト
+    - fetchReviewsByRecipe アクションのディスパッチ
+    - createReview アクションのディスパッチ
+    - updateReview アクションのディスパッチ
+    - deleteReview アクションのディスパッチ
+    - reportReview アクションのディスパッチ
+    - 状態の更新
+  - scheduleSlice.test.ts: スケジュール状態管理のテスト
+    - fetchSchedules アクションのディスパッチ
+    - createSchedule アクションのディスパッチ
+    - updateSchedule アクションのディスパッチ
+    - deleteSchedule アクションのディスパッチ
+    - convertToCooked アクションのディスパッチ
+    - 状態の更新
+  - shoppingListSlice.test.ts: 買い物リスト状態管理のテスト
+    - fetchShoppingList アクションのディスパッチ
+    - addShoppingListItem アクションのディスパッチ
+    - updateShoppingListItem アクションのディスパッチ
+    - deleteShoppingListItem アクションのディスパッチ
+    - 状態の更新
+  - _Requirements: 全体_
+
+- [ ] 15.11 フロントエンド：カスタムフックのユニットテスト
+  - useAuth.test.ts: 認証フックのテスト
+    - 認証状態の取得
+    - ログイン/ログアウト機能
+    - トークンの管理
+  - useForm.test.ts: フォームフックのテスト
+    - フォーム状態の管理
+    - バリデーション
+    - エラーメッセージの表示
+  - useReview.test.ts: レビューフックのテスト
+    - レビューの取得
+    - レビューの作成/更新/削除
+    - 通報機能
+  - useError.test.ts: エラーハンドリングフックのテスト
+    - エラーの設定
+    - エラーのクリア
+    - エラーメッセージの取得
+  - _Requirements: 全体_
+
+- [ ] 15.12 統合テスト：エンドツーエンドシナリオのテスト
+  - ユーザー登録→ログイン→レシピ作成→レシピ検索の一連の流れ
+  - レシピ作成→レビュー投稿→レビュー通報→自動非表示の流れ
+  - スケジュール作成→予定→実績変換→LastCookingDate更新の流れ
+  - 買い物リスト追加→数量合算→チェック→自動削除の流れ
+  - _Requirements: 全体_
+
+- [ ] 16. 最終チェックポイント - すべてのテストが合格することを確認
   - すべてのテストが合格することを確認し、質問があればユーザーに尋ねる
   - _Requirements: 全体_
