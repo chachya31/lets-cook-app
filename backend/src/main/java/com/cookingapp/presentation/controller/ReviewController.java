@@ -5,25 +5,26 @@ import com.cookingapp.domain.entity.Review;
 import com.cookingapp.presentation.dto.request.CreateReviewRequest;
 import com.cookingapp.presentation.dto.request.UpdateReviewRequest;
 import com.cookingapp.presentation.dto.response.ReviewResponse;
+import com.cookingapp.presentation.mapper.ReviewMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * ReviewController
  * レビュー管理REST APIコントローラー
  */
-@Slf4j
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class ReviewController {
+    private static final Logger log = LoggerFactory.getLogger(ReviewController.class);
     private final CreateReviewUseCase createReviewUseCase;
     private final UpdateReviewUseCase updateReviewUseCase;
     private final DeleteReviewUseCase deleteReviewUseCase;
@@ -38,11 +39,8 @@ public class ReviewController {
         log.info("GET /api/recipes/{}/reviews", recipeId);
         
         List<Review> reviews = getReviewsByRecipeUseCase.execute(recipeId);
-        List<ReviewResponse> response = reviews.stream()
-                .map(ReviewResponse::from)
-                .collect(Collectors.toList());
         
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(ReviewMapper.toResponseList(reviews));
     }
 
     /**
@@ -62,7 +60,7 @@ public class ReviewController {
                 request.getComment()
         );
         
-        return ResponseEntity.status(HttpStatus.CREATED).body(ReviewResponse.from(review));
+        return ResponseEntity.status(HttpStatus.CREATED).body(ReviewMapper.toResponse(review));
     }
 
     /**
@@ -82,7 +80,7 @@ public class ReviewController {
                 request.getComment()
         );
         
-        return ResponseEntity.ok(ReviewResponse.from(review));
+        return ResponseEntity.ok(ReviewMapper.toResponse(review));
     }
 
     /**
@@ -108,6 +106,6 @@ public class ReviewController {
         
         Review review = reportReviewUseCase.execute(reviewId);
         
-        return ResponseEntity.ok(ReviewResponse.from(review));
+        return ResponseEntity.ok(ReviewMapper.toResponse(review));
     }
 }

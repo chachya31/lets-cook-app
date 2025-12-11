@@ -1,5 +1,5 @@
 import { RegisterRequest, LoginRequest, LoginResponse, User } from '../types/user';
-import { apiPost, API_BASE_URL } from '../utils/apiClient';
+import { apiPost, apiGet } from '../utils/apiClient';
 
 /**
  * ユーザー登録
@@ -32,19 +32,6 @@ export const resendConfirmationCode = async (email: string): Promise<void> => {
 /**
  * プロフィール取得
  */
-export const getUserProfile = async (userId: string, token: string): Promise<User> => {
-  const response = await fetch(`${API_BASE_URL}/api/users/profile/${userId}`, {
-    method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Unknown error' }));
-    throw new Error(error.message || 'Failed to fetch profile');
-  }
-
-  return response.json();
+export const getUserProfile = async (userId: string): Promise<User> => {
+  return apiGet<User>(`/api/users/profile/${userId}`, userId);
 };

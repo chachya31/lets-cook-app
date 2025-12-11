@@ -70,6 +70,7 @@
 **1. Presentation Layer（プレゼンテーション層）**
 - REST APIコントローラー
 - リクエスト/レスポンスDTO
+- Mapperクラス（Entity ⇔ DTO変換）
 - 入力バリデーション
 - 多言語対応（Accept-Languageヘッダー処理）
 
@@ -139,6 +140,10 @@
   - RecipeRequest DTO: レシピ作成・更新リクエスト（実装済み）
   - RecipeResponse DTO: レシピレスポンス（実装済み）
   - IngredientDto: 食材DTO（実装済み）
+  - RecipeMapper: Entity ⇔ DTO変換（実装済み）
+    - toIngredients(): RecipeRequest → List<Ingredient>変換
+    - toResponse(): Recipe → RecipeResponse変換
+    - toResponseList(): List<Recipe> → List<RecipeResponse>変換
 
 **4. Schedule Management Module（実装済み）**
 - Domain Layer:
@@ -157,6 +162,7 @@
   - CreateScheduleRequest DTO: スケジュール作成リクエスト（実装済み）
   - UpdateScheduleRequest DTO: スケジュール更新リクエスト（実装済み）
   - ScheduleResponse DTO: スケジュールレスポンス（実装済み）
+  - ScheduleMapper: Entity ⇔ DTO変換（実装済み）
 
 **5. Shopping List Module（実装済み）**
 - Domain Layer:
@@ -226,11 +232,12 @@
     - GET /api/admin/dashboard: ダッシュボード統計取得
     - PUT /api/admin/users/{userId}/suspend: ユーザー停止
     - DELETE /api/admin/users/{userId}: ユーザー削除
-    - GET /api/admin/recipes: すべてのレシピ取得
-    - PUT /api/admin/recipes/{recipeId}/status: レシピステータス設定
+    - GET /api/admin/recipes: すべてのレシピ取得（RecipeMapper使用）
+    - PUT /api/admin/recipes/{recipeId}/status: レシピステータス設定（RecipeMapper使用）
     - DELETE /api/admin/recipes/{recipeId}: レシピ削除
   - AdminDashboardResponse: ダッシュボードレスポンスDTO（実装済み）
   - SetRecipeStatusRequest: レシピステータス設定リクエストDTO（実装済み）
+  - RecipeMapperを使用してEntity ⇔ DTO変換を統一（リファクタリング済み）
 
 ### フロントエンドコンポーネント
 

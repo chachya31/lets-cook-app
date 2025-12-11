@@ -5,6 +5,7 @@ import com.cookingapp.domain.entity.Recipe;
 import com.cookingapp.presentation.dto.RecipeResponse;
 import com.cookingapp.presentation.dto.request.SetRecipeStatusRequest;
 import com.cookingapp.presentation.dto.response.AdminDashboardResponse;
+import com.cookingapp.presentation.mapper.RecipeMapper;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 管理者機能コントローラー
@@ -109,11 +109,7 @@ public class AdminController {
         
         List<Recipe> recipes = getAllRecipesForAdminUseCase.execute();
         
-        List<RecipeResponse> response = recipes.stream()
-            .map(this::toRecipeResponse)
-            .collect(Collectors.toList());
-        
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(RecipeMapper.toResponseList(recipes));
     }
     
     /**
@@ -132,7 +128,7 @@ public class AdminController {
         
         Recipe recipe = setRecipeStatusUseCase.execute(recipeId, request.isPublic());
         
-        return ResponseEntity.ok(toRecipeResponse(recipe));
+        return ResponseEntity.ok(RecipeMapper.toResponse(recipe));
     }
     
     /**
@@ -148,12 +144,5 @@ public class AdminController {
         deleteRecipeByAdminUseCase.execute(recipeId);
         
         return ResponseEntity.noContent().build();
-    }
-    
-    /**
-     * RecipeエンティティをRecipeResponseに変換
-     */
-    private RecipeResponse toRecipeResponse(Recipe recipe) {
-        return RecipeResponse.from(recipe);
     }
 }

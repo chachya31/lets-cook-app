@@ -5,17 +5,18 @@ import com.cookingapp.domain.exception.ReviewNotFoundException;
 import com.cookingapp.domain.exception.UnauthorizedException;
 import com.cookingapp.domain.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 /**
  * DeleteReviewUseCase
  * レビュー削除ユースケース
  */
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class DeleteReviewUseCase {
+    private static final Logger log = LoggerFactory.getLogger(DeleteReviewUseCase.class);
     private final ReviewRepository reviewRepository;
 
     public void execute(String reviewId, String userId) {

@@ -6,6 +6,7 @@ import com.cookingapp.domain.valueobject.ScheduleType;
 import com.cookingapp.presentation.dto.request.CreateScheduleRequest;
 import com.cookingapp.presentation.dto.request.UpdateScheduleRequest;
 import com.cookingapp.presentation.dto.response.ScheduleResponse;
+import com.cookingapp.presentation.mapper.ScheduleMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * スケジュール管理コントローラー
@@ -40,10 +40,7 @@ public class ScheduleController {
             @RequestParam(name="endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
     ) {
         List<Schedule> schedules = getSchedulesUseCase.execute(userId, startDate, endDate);
-        List<ScheduleResponse> response = schedules.stream()
-                .map(ScheduleResponse::from)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(ScheduleMapper.toResponseList(schedules));
     }
 
     /**
@@ -62,7 +59,7 @@ public class ScheduleController {
                 request.getRecipeTitle(),
                 request.getMemo()
         );
-        return ResponseEntity.status(HttpStatus.CREATED).body(ScheduleResponse.from(schedule));
+        return ResponseEntity.status(HttpStatus.CREATED).body(ScheduleMapper.toResponse(schedule));
     }
 
     /**
@@ -75,7 +72,7 @@ public class ScheduleController {
             @Valid @RequestBody UpdateScheduleRequest request
     ) {
         Schedule schedule = updateScheduleUseCase.execute(scheduleId, userId, request.getMemo());
-        return ResponseEntity.ok(ScheduleResponse.from(schedule));
+        return ResponseEntity.ok(ScheduleMapper.toResponse(schedule));
     }
 
     /**
@@ -99,6 +96,6 @@ public class ScheduleController {
             @RequestHeader("X-User-Id") String userId
     ) {
         Schedule schedule = convertScheduleToCookedUseCase.execute(scheduleId, userId);
-        return ResponseEntity.ok(ScheduleResponse.from(schedule));
+        return ResponseEntity.ok(ScheduleMapper.toResponse(schedule));
     }
 }

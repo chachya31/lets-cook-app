@@ -2,16 +2,17 @@ package com.cookingapp.application.usecase.shoppinglist;
 
 import com.cookingapp.domain.repository.ShoppingListRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 /**
  * 期限切れアイテムクリーンアップユースケース
  */
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CleanupExpiredItemsUseCase {
+    private static final Logger log = LoggerFactory.getLogger(CleanupExpiredItemsUseCase.class);
     private final ShoppingListRepository shoppingListRepository;
 
     /**

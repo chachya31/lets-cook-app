@@ -4,17 +4,18 @@ import com.cookingapp.domain.entity.Review;
 import com.cookingapp.domain.exception.ReviewNotFoundException;
 import com.cookingapp.domain.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 /**
  * ReportReviewUseCase
  * レビュー通報ユースケース
  */
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ReportReviewUseCase {
+    private static final Logger log = LoggerFactory.getLogger(ReportReviewUseCase.class);
     private final ReviewRepository reviewRepository;
 
     public Review execute(String reviewId) {

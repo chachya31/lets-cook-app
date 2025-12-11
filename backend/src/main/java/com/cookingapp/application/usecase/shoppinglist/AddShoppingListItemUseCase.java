@@ -4,7 +4,8 @@ import com.cookingapp.domain.entity.ShoppingListItem;
 import com.cookingapp.domain.repository.ShoppingListRepository;
 import com.cookingapp.domain.valueobject.Unit;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -13,10 +14,10 @@ import java.util.Optional;
 /**
  * 買い物リストアイテム追加ユースケース
  */
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AddShoppingListItemUseCase {
+    private static final Logger log = LoggerFactory.getLogger(AddShoppingListItemUseCase.class);
     private final ShoppingListRepository shoppingListRepository;
 
     /**

@@ -3,7 +3,8 @@ package com.cookingapp.application.usecase.shoppinglist;
 import com.cookingapp.domain.entity.ShoppingListItem;
 import com.cookingapp.domain.repository.ShoppingListRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,10 +12,10 @@ import java.util.List;
 /**
  * 買い物リスト取得ユースケース
  */
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class GetShoppingListUseCase {
+    private static final Logger log = LoggerFactory.getLogger(GetShoppingListUseCase.class);
     private final ShoppingListRepository shoppingListRepository;
 
     /**

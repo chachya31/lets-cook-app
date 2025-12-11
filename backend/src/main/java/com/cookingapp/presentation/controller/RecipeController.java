@@ -3,9 +3,9 @@ package com.cookingapp.presentation.controller;
 import com.cookingapp.application.usecase.recipe.*;
 import com.cookingapp.domain.entity.Recipe;
 import com.cookingapp.domain.valueobject.Ingredient;
-import com.cookingapp.presentation.dto.IngredientDto;
 import com.cookingapp.presentation.dto.RecipeRequest;
 import com.cookingapp.presentation.dto.RecipeResponse;
+import com.cookingapp.presentation.mapper.RecipeMapper;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -15,7 +15,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * レシピ管理コントローラー
@@ -69,11 +68,7 @@ public class RecipeController {
             recipes = searchRecipesUseCase.executePublic();
         }
 
-        List<RecipeResponse> response = recipes.stream()
-                .map(RecipeResponse::from)
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(RecipeMapper.toResponseList(recipes));
     }
 
     /**
@@ -86,7 +81,7 @@ public class RecipeController {
     @GetMapping("/{id}")
     public ResponseEntity<RecipeResponse> getRecipe(@PathVariable("id") String id) {
         Recipe recipe = getRecipeUseCase.execute(id);
-        return ResponseEntity.ok(RecipeResponse.from(recipe));
+        return ResponseEntity.ok(RecipeMapper.toResponse(recipe));
     }
 
     /**
@@ -102,9 +97,7 @@ public class RecipeController {
             @RequestHeader("X-User-Id") String authorId,
             @Valid @RequestBody RecipeRequest request) {
         
-        List<Ingredient> ingredients = request.getIngredients().stream()
-                .map(IngredientDto::toEntity)
-                .collect(Collectors.toList());
+        List<Ingredient> ingredients = RecipeMapper.toIngredients(request);
 
         Recipe recipe = createRecipeUseCase.execute(
                 authorId,
@@ -114,7 +107,7 @@ public class RecipeController {
                 request.getCookingTime()
         );
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(RecipeResponse.from(recipe));
+        return ResponseEntity.status(HttpStatus.CREATED).body(RecipeMapper.toResponse(recipe));
     }
 
     /**
@@ -132,9 +125,7 @@ public class RecipeController {
             @RequestHeader("X-User-Id") String userId,
             @Valid @RequestBody RecipeRequest request) {
         
-        List<Ingredient> ingredients = request.getIngredients().stream()
-                .map(IngredientDto::toEntity)
-                .collect(Collectors.toList());
+        List<Ingredient> ingredients = RecipeMapper.toIngredients(request);
 
         Recipe recipe = updateRecipeUseCase.execute(
                 id,
@@ -145,7 +136,7 @@ public class RecipeController {
                 request.getCookingTime()
         );
 
-        return ResponseEntity.ok(RecipeResponse.from(recipe));
+        return ResponseEntity.ok(RecipeMapper.toResponse(recipe));
     }
 
     /**
@@ -181,6 +172,6 @@ public class RecipeController {
             @RequestParam("file") MultipartFile file) throws IOException {
         
         Recipe recipe = uploadRecipeImageUseCase.execute(id, userId, file);
-        return ResponseEntity.ok(RecipeResponse.from(recipe));
+        return ResponseEntity.ok(RecipeMapper.toResponse(recipe));
     }
 }

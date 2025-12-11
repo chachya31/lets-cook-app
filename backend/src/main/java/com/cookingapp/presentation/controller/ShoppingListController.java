@@ -6,24 +6,25 @@ import com.cookingapp.domain.valueobject.Unit;
 import com.cookingapp.presentation.dto.request.AddShoppingListItemRequest;
 import com.cookingapp.presentation.dto.request.UpdateShoppingListItemRequest;
 import com.cookingapp.presentation.dto.response.ShoppingListItemResponse;
+import com.cookingapp.presentation.mapper.ShoppingListMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 買い物リストコントローラー
  */
-@Slf4j
 @RestController
 @RequestMapping("/api/shopping-lists")
 @RequiredArgsConstructor
 public class ShoppingListController {
+    private static final Logger log = LoggerFactory.getLogger(ShoppingListController.class);
     private final AddShoppingListItemUseCase addShoppingListItemUseCase;
     private final UpdateShoppingListItemUseCase updateShoppingListItemUseCase;
     private final DeleteShoppingListItemUseCase deleteShoppingListItemUseCase;
@@ -43,11 +44,8 @@ public class ShoppingListController {
         cleanupExpiredItemsUseCase.execute(userId);
         
         List<ShoppingListItem> items = getShoppingListUseCase.execute(userId);
-        List<ShoppingListItemResponse> response = items.stream()
-                .map(ShoppingListItemResponse::from)
-                .collect(Collectors.toList());
         
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(ShoppingListMapper.toResponseList(items));
     }
 
     /**
@@ -70,7 +68,7 @@ public class ShoppingListController {
         );
         
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ShoppingListItemResponse.from(item));
+                .body(ShoppingListMapper.toResponse(item));
     }
 
     /**
@@ -91,7 +89,7 @@ public class ShoppingListController {
                 request.getIsChecked()
         );
         
-        return ResponseEntity.ok(ShoppingListItemResponse.from(item));
+        return ResponseEntity.ok(ShoppingListMapper.toResponse(item));
     }
 
     /**

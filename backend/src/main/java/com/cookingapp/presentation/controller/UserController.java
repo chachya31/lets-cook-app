@@ -4,6 +4,7 @@ import com.cookingapp.application.usecase.user.*;
 import com.cookingapp.domain.entity.User;
 import com.cookingapp.domain.valueobject.Language;
 import com.cookingapp.presentation.dto.*;
+import com.cookingapp.presentation.mapper.UserMapper;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -52,9 +53,7 @@ public class UserController {
      */
     @PostMapping("/register")
     public ResponseEntity<UserResponse> register(@Valid @RequestBody RegisterUserRequest request) {
-        Language language = request.getPreferredLanguage() != null
-                ? Language.fromCode(request.getPreferredLanguage())
-                : Language.JA;
+        Language language = UserMapper.toLanguage(request);
 
         User user = registerUserUseCase.execute(
                 request.getEmail(),
@@ -63,7 +62,7 @@ public class UserController {
                 language
         );
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(UserResponse.from(user));
+        return ResponseEntity.status(HttpStatus.CREATED).body(UserMapper.toResponse(user));
     }
 
     /**
@@ -102,7 +101,7 @@ public class UserController {
                 result.getTokens().getRefreshToken(),
                 result.getTokens().getIdToken(),
                 result.getTokens().getExpiresIn(),
-                UserResponse.from(result.getUser())
+                UserMapper.toResponse(result.getUser())
         );
 
         return ResponseEntity.ok(response);
@@ -115,7 +114,7 @@ public class UserController {
     @GetMapping("/profile/{userId}")
     public ResponseEntity<UserResponse> getProfile(@PathVariable("userId") String userId) {
         User user = getUserProfileUseCase.execute(userId);
-        return ResponseEntity.ok(UserResponse.from(user));
+        return ResponseEntity.ok(UserMapper.toResponse(user));
     }
 
     /**
@@ -127,9 +126,7 @@ public class UserController {
             @PathVariable("userId") String userId,
             @Valid @RequestBody UpdateProfileRequest request) {
 
-        Language language = request.getPreferredLanguage() != null
-                ? Language.fromCode(request.getPreferredLanguage())
-                : null;
+        Language language = UserMapper.toLanguageOrNull(request);
 
         User user = updateUserProfileUseCase.execute(
                 userId,
@@ -140,7 +137,7 @@ public class UserController {
                 request.getMarketingOptOut() != null ? request.getMarketingOptOut() : false
         );
 
-        return ResponseEntity.ok(UserResponse.from(user));
+        return ResponseEntity.ok(UserMapper.toResponse(user));
     }
 
     /**
@@ -162,6 +159,6 @@ public class UserController {
             @RequestParam("userId") String userId,
             @RequestParam("file") MultipartFile file) {
         User user = uploadProfileImageUseCase.execute(userId, file);
-        return ResponseEntity.ok(UserResponse.from(user));
+        return ResponseEntity.ok(UserMapper.toResponse(user));
     }
 }
