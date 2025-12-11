@@ -94,6 +94,14 @@ export class CookingAppStack extends cdk.Stack {
       removalPolicy: stage === 'prod' ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY,
     });
 
+    // GSI for NormalizedKey lookup (same name + unit)
+    this.tables.shoppingLists.addGlobalSecondaryIndex({
+      indexName: 'GSI_NormalizedKey',
+      partitionKey: { name: 'UserId', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'NormalizedKey', type: dynamodb.AttributeType.STRING },
+      projectionType: dynamodb.ProjectionType.ALL,
+    });
+
     // Reviews Table
     this.tables.reviews = new dynamodb.Table(this, 'ReviewsTable', {
       tableName: `cooking-app-reviews-${stage}`,

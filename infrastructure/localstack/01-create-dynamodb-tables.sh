@@ -50,9 +50,21 @@ awslocal dynamodb create-table \
   --attribute-definitions \
     AttributeName=UserId,AttributeType=S \
     AttributeName=ItemId,AttributeType=S \
+    AttributeName=NormalizedKey,AttributeType=S \
   --key-schema \
     AttributeName=UserId,KeyType=HASH \
     AttributeName=ItemId,KeyType=RANGE \
+  --global-secondary-indexes \
+    "[
+      {
+        \"IndexName\": \"GSI_NormalizedKey\",
+        \"KeySchema\": [
+          {\"AttributeName\":\"UserId\",\"KeyType\":\"HASH\"},
+          {\"AttributeName\":\"NormalizedKey\",\"KeyType\":\"RANGE\"}
+        ],
+        \"Projection\": {\"ProjectionType\":\"ALL\"}
+      }
+    ]" \
   --billing-mode PAY_PER_REQUEST
 
 # Reviews Table

@@ -27,6 +27,7 @@
 #### ShoppingLists テーブル
 - **Partition Key**: UserId (String)
 - **Sort Key**: ItemId (String)
+- **GSI**: GSI_NormalizedKey (PK: UserId, SK: NormalizedKey)
 - **読み取り/書き込みキャパシティ**: オンデマンド
 
 #### Reviews テーブル

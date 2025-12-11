@@ -601,6 +601,7 @@ Attributes:
 ```
 Partition Key: UserId (String)
 Sort Key: ItemId (String, UUID)
+GSI_NormalizedKey: UserId (PK), NormalizedKey (SK)
 Attributes:
   - Name (String)
   - Quantity (Number)
