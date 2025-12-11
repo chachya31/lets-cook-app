@@ -1,0 +1,21 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Spring Boot (Local)",
+      "request": "launch",
+      "mainClass": "com.cookingapp.CookingAppApplication",
+      "args": "--spring.profiles.active=local",
+      "cwd": "${workspaceFolder}/backend",
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "java",
+      "name": "Attach to Port 5006",
+      "request": "attach",
+      "hostName": "localhost",
+      "port": 5006
+    }
+  ]
+}

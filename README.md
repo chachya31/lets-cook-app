@@ -57,12 +57,29 @@
 
 ## ドキュメント
 
+- **[セットアップガイド](SETUP_GUIDE.md)** - macOS/Windows環境別セットアップ手順
 - **[コーディング規約](CODING_STANDARDS.md)** - プロジェクトのコーディング規約
 - **[設計書](.kiro/specs/cooking-support-app/design.md)** - システム設計書
 - **[タスク管理](.kiro/specs/cooking-support-app/tasks.md)** - 実装タスク一覧
 - **[Kiro Hooks](.kiro/hooks/README.md)** - コード品質チェックの自動化設定
 
 ## セットアップ
+
+### 推奨IDE拡張機能
+
+プロジェクトを開くと、推奨される拡張機能のインストールを促すメッセージが表示されます。
+`.vscode/extensions.json`に定義された拡張機能をインストールしてください。
+
+**必須拡張機能**:
+- Extension Pack for Java (Microsoft)
+- Spring Boot Extension Pack (VMware)
+- Gradle for Java (Microsoft)
+- Lombok Annotations Support
+
+**推奨拡張機能**:
+- ESLint, Prettier (フロントエンド)
+- Tailwind CSS IntelliSense
+- GitLens, SonarLint
 
 ### ローカル開発環境
 
@@ -77,10 +94,22 @@ docker-compose up -d
 
 #### 2. バックエンド
 
+**Windows**:
 ```bash
 cd backend
-./gradlew.bat bootRun --args='--spring.profiles.active=local'
+gradlew.bat bootRun --args='--spring.profiles.active=local'
 ```
+
+**macOS/Linux**:
+```bash
+cd backend
+./gradlew bootRun --args='--spring.profiles.active=local'
+```
+
+**IDE (Kiro/VS Code)**:
+- Run and Debug パネル (`⇧⌘D`) を開く
+- "Spring Boot (Local)" を選択
+- F5 または緑の再生ボタンをクリック
 
 #### 3. フロントエンド
 

@@ -9,7 +9,11 @@ plugins {
 
 group = 'com.cookingapp'
 version = '1.0.0'
-sourceCompatibility = '21'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
 
 // エンコーディング設定（日本語文字化け防止）
 tasks.withType(JavaCompile) {
