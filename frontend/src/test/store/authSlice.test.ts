@@ -29,7 +29,16 @@ describe('authSlice', () => {
     it('should handle logout', () => {
       // Arrange
       const stateWithUser: AuthState = {
-        user: { userId: '123', email: 'test@example.com', nickname: 'testuser', preferredLanguage: 'ja' },
+        user: { 
+          userId: '123', 
+          email: 'test@example.com', 
+          nickname: 'testuser', 
+          displayName: 'Test User',
+          preferredLanguage: 'ja',
+          createdAt: '2024-01-01T00:00:00Z',
+          timezone: 'Asia/Tokyo',
+          marketingOptOut: false
+        },
         accessToken: 'access-token',
         refreshToken: 'refresh-token',
         isAuthenticated: true,
@@ -85,7 +94,11 @@ describe('authSlice', () => {
         userId: '123',
         email: 'test@example.com',
         nickname: 'testuser',
+        displayName: 'Test User',
         preferredLanguage: 'ja' as const,
+        createdAt: '2024-01-01T00:00:00Z',
+        timezone: 'Asia/Tokyo',
+        marketingOptOut: false
       };
 
       // Act
@@ -137,7 +150,11 @@ describe('authSlice', () => {
           userId: '123',
           email: 'test@example.com',
           nickname: 'testuser',
+          displayName: 'Test User',
           preferredLanguage: 'ja' as const,
+          createdAt: '2024-01-01T00:00:00Z',
+          timezone: 'Asia/Tokyo',
+          marketingOptOut: false
         },
       };
 
@@ -182,7 +199,11 @@ describe('authSlice', () => {
           userId: '123',
           email: 'test@example.com',
           nickname: 'testuser',
+          displayName: 'Test User',
           preferredLanguage: 'ja' as const,
+          createdAt: '2024-01-01T00:00:00Z',
+          timezone: 'Asia/Tokyo',
+          marketingOptOut: false
         },
       };
 

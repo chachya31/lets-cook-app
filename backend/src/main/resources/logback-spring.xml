@@ -1,24 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <!-- コンソール出力 -->
-    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <!-- コンソール出力（ローカル） -->
+    <appender name="LOCAL" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
             <charset>UTF-8</charset>
         </encoder>
     </appender>
 
-    <!-- ファイル出力 -->
-    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>logs/cooking-app.log</file>
+    <!-- コンソール出力（CloudWatch） -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <pattern>[%thread] %-5level %logger{36} - %msg%n</pattern>
             <charset>UTF-8</charset>
         </encoder>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>logs/cooking-app.%d{yyyy-MM-dd}.log</fileNamePattern>
-            <maxHistory>30</maxHistory>
-        </rollingPolicy>
     </appender>
 
     <!-- ローカル開発環境用の設定 -->
@@ -28,19 +23,37 @@
         <logger name="software.amazon.awssdk" level="INFO"/>
         
         <root level="INFO">
-            <appender-ref ref="CONSOLE"/>
-            <appender-ref ref="FILE"/>
+            <appender-ref ref="LOCAL"/>
         </root>
     </springProfile>
 
-    <!-- デフォルト設定 -->
+    <!-- Dev/Prod環境用の設定 -->
     <springProfile name="!local">
+        <!-- アプリケーションログ -->
         <logger name="com.cookingapp" level="INFO"/>
-        <logger name="org.springframework.web" level="INFO"/>
         
-        <root level="INFO">
+        <!-- Spring Framework -->
+        <logger name="org.springframework.web" level="INFO"/>
+        <logger name="org.springframework.boot" level="INFO"/>
+        
+        <!-- AWS SDK -->
+        <logger name="software.amazon.awssdk" level="WARN"/>
+        <logger name="software.amazon.awssdk.request" level="INFO"/>
+        
+        <!-- AWS Serverless Container -->
+        <logger name="com.amazonaws.serverless" level="INFO"/>
+        
+        <!-- DynamoDB -->
+        <logger name="software.amazon.awssdk.services.dynamodb" level="INFO"/>
+        
+        <!-- S3 -->
+        <logger name="software.amazon.awssdk.services.s3" level="INFO"/>
+        
+        <!-- Cognito -->
+        <logger name="software.amazon.awssdk.services.cognitoidentityprovider" level="INFO"/>
+        
+        <root level="WARN">
             <appender-ref ref="CONSOLE"/>
-            <appender-ref ref="FILE"/>
         </root>
     </springProfile>
 </configuration>

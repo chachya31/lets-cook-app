@@ -49,11 +49,6 @@ public class S3Config {
                             AwsBasicCredentials.create("test", "test")
                     ))
                     .forcePathStyle(true); // LocalStackではパススタイルが必要
-        } else {
-            // 実際のAWSを使用する場合は、設定された認証情報を使用
-            builder.credentialsProvider(StaticCredentialsProvider.create(
-                    AwsBasicCredentials.create(accessKeyId, secretAccessKey)
-            ));
         }
 
         return builder.build();

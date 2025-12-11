@@ -36,15 +36,3 @@ aws:
 
 server:
   port: 8080
-
-logging:
-  level:
-    root: INFO
-    com.cookingapp: TRACE
-    software.amazon.awssdk: INFO
-    org.springframework.web: DEBUG
-    org.springframework.boot: INFO
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
-  file:
-    name: logs/cooking-app-local.log

@@ -47,12 +47,13 @@ public class DynamoDBConfig {
                     .credentialsProvider(StaticCredentialsProvider.create(
                             AwsBasicCredentials.create("test", "test")
                     ));
-        } else {
-            // 実際のAWSを使用する場合は、設定された認証情報を使用
-            builder.credentialsProvider(StaticCredentialsProvider.create(
-                    AwsBasicCredentials.create(accessKeyId, secretAccessKey)
-            ));
         }
+        //  else {
+        //     // 実際のAWSを使用する場合は、設定された認証情報を使用
+        //     builder.credentialsProvider(StaticCredentialsProvider.create(
+        //             AwsBasicCredentials.create(accessKeyId, secretAccessKey)
+        //     ));
+        // }
 
         return builder.build();
     }

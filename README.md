@@ -92,12 +92,34 @@ npm run dev
 
 ### 本番環境へのデプロイ
 
+#### クイックデプロイ（推奨）
+
 ```bash
-cd infrastructure/cdk
-cdk deploy CookingAppStack-Prod
+# 1. バックエンドのビルド
+cd backend
+gradlew.bat clean build shadowJar
+
+# 2. インフラのデプロイ（自動チェック付き）
+cd ../infrastructure/cdk
+pre-deploy.bat
+
+# 3. フロントエンドのデプロイ
+cd ../../frontend
+npm install -g @aws-amplify/cli
+amplify init
+amplify add hosting
+amplify publish
 ```
 
-詳細は各ディレクトリのREADMEを参照してください。
+詳細は以下を参照：
+- **クイックガイド**: `infrastructure/QUICK_DEPLOY.md`
+- **完全ガイド**: `infrastructure/DEPLOY_GUIDE.md`
+
+#### 月額コスト
+
+個人利用なら **約$5（約750円）/月**
+- Lambda、DynamoDB、Cognitoは無料枠内
+- API Gateway: $3.50、S3: $0.50、Amplify: $1
 
 ## テスト
 

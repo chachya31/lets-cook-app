@@ -97,7 +97,7 @@ npm run lint
 `.env`ファイルを作成し、以下の環境変数を設定してください：
 
 ```
-VITE_API_BASE_URL=http://localhost:8080
+VITE_API_URL=http://localhost:8080
 ```
 
 ## 多言語対応

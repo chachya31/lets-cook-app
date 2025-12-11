@@ -54,8 +54,8 @@ aws:
     bucket: cooking-app-images-local
   cognito:
     endpoint: http://localhost:4566
-    user-pool-id: local-user-pool
-    client-id: local-client-id
+    userPoolId: local-user-pool
+    clientId: local-client-id
 
 spring:
   profiles:
@@ -198,8 +198,8 @@ aws:
   s3:
     bucket: cooking-app-images-prod
   cognito:
-    user-pool-id: <YOUR_USER_POOL_ID>
-    client-id: <YOUR_CLIENT_ID>
+    userPoolId: <YOUR_USER_POOL_ID>
+    clientId: <YOUR_CLIENT_ID>
 ```
 
 ## トラブルシューティング

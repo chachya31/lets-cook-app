@@ -126,6 +126,8 @@ backend/
 
 ## 環境変数
 
+- `AWS_ACCESS_KEY_ID`: AWS Access Key（必須）
+- `AWS_SECRET_ACCESS_KEY`: AWS Secret Access Key（必須）
 - `AWS_DYNAMODB_ENDPOINT`: DynamoDBエンドポイント（ローカル開発用）
 - `AWS_S3_BUCKET`: S3バケット名
 - `AWS_COGNITO_USER_POOL_ID`: Cognitoユーザープール ID

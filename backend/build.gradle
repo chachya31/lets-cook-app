@@ -1,7 +1,10 @@
+import com.github.jengelman.gradle.plugins.shadow.transformers.*
+
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.2.0'
+    id 'org.springframework.boot' version '3.1.10'
     id 'io.spring.dependency-management' version '1.1.4'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
 group = 'com.cookingapp'
@@ -29,7 +32,6 @@ repositories {
 }
 
 dependencies {
-    // Spring Boot
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     
@@ -38,6 +40,11 @@ dependencies {
     implementation 'software.amazon.awssdk:dynamodb'
     implementation 'software.amazon.awssdk:s3'
     implementation 'software.amazon.awssdk:cognitoidentityprovider'
+    
+    // AWS Lambda
+    implementation 'com.amazonaws:aws-lambda-java-core:1.2.3'
+    implementation 'com.amazonaws:aws-lambda-java-events:3.11.3'
+    implementation 'com.amazonaws.serverless:aws-serverless-java-container-springboot3:2.0.3'
     
     // Lombok
     compileOnly 'org.projectlombok:lombok'
@@ -74,4 +81,36 @@ bootRun {
     systemProperty 'console.encoding', 'UTF-8'
     systemProperty 'spring.profiles.active', 'local'
     jvmArgs = ['-Dfile.encoding=UTF-8', '-Dconsole.encoding=UTF-8']
+    
+    // 標準出力をリアルタイムで表示
+    standardOutput = System.out
+    errorOutput = System.err
 }
+
+// Lambda用のFat JARビルド設定
+shadowJar {
+    archiveClassifier.set('')
+    mergeServiceFiles()
+    
+    append 'META-INF/spring.handlers'
+    append 'META-INF/spring.schemas'
+    append 'META-INF/spring.tooling'
+    append 'META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports'
+
+    // Spring Boot 3の自動設定ファイルを正しくマージする設定
+    transform(PropertiesFileTransformer) {
+        paths = ['META-INF/spring.factories']
+        mergeStrategy = "append"
+    }
+    
+    // Spring Bootのメタデータを保持
+    manifest {
+        attributes(
+            'Main-Class': 'com.cookingapp.StreamLambdaHandler',
+            'Start-Class': 'com.cookingapp.CookingAppApplication'
+        )
+    }
+}
+
+// buildタスクでshadowJarも実行
+build.dependsOn shadowJar
