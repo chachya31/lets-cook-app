@@ -4,7 +4,13 @@
 
 自炊支援・食費節約アプリケーションのREST API仕様書です。
 
-詳細なエンドポイント定義は [openapi.yaml](./openapi.yaml) を参照してください。
+### 📖 API仕様の閲覧方法
+
+詳細なエンドポイント定義は以下の方法で確認できます：
+
+- **[openapi.yaml](./openapi.yaml)** - OpenAPI 3.0.3仕様ファイル
+- **[Swagger Editor](https://editor.swagger.io/?url=https://raw.githubusercontent.com/chachya31/lets-cook-app/kiro-docs/docs/openapi.yaml)** - オンラインプレビュー（要URL更新）
+- **[Swagger UI](./index.html)** - ローカルプレビュー（GitHub Pages対応）
 
 ### ベースURL
 | 環境         | URL                           |
