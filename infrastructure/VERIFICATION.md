@@ -61,8 +61,16 @@ docker logs cooking-app-localstack
 Ready.
 ```
 
+**注意**: Windows環境では初期化スクリプトがCRLF改行コードの問題でエラーになる場合がありますが、LocalStack自体は正常に動作します。
+
 ### 4. LocalStackのヘルスチェック
 
+**Windows (PowerShell):**
+```powershell
+Invoke-RestMethod -Uri "http://localhost:4566/_localstack/health"
+```
+
+**curl使用:**
 ```bash
 curl http://localhost:4566/_localstack/health
 ```
@@ -131,15 +139,28 @@ aws dynamodb describe-table \
 
 ### 1. ローカルプロファイルでバックエンドを起動
 
-```bash
+**Windows (cmd):**
+```cmd
 cd backend
-./gradlew bootRun --args='--spring.profiles.active=local'
+gradlew bootRun --args='--spring.profiles.active=local'
 ```
 
-または、PowerShellの場合:
+**Windows (PowerShell):**
 ```powershell
 cd backend
-powershell -Command "& .\gradlew.bat bootRun --args='--spring.profiles.active=local'"
+.\gradlew.bat bootRun --args='--spring.profiles.active=local'
+```
+
+**注意**: 初回起動時に以下のエラーが発生する場合があります：
+```
+Value 'C:\Program Files\Java\jdk-XX' given for org.gradle.java.home Gradle property is invalid
+```
+
+この場合、`backend/gradle.properties`のJavaホームパスを実際にインストールされているJDKバージョンに合わせて修正してください。
+
+例：
+```properties
+org.gradle.java.home=C:\\Program Files\\Java\\jdk-22
 ```
 
 ### 2. 起動ログの確認
@@ -192,11 +213,19 @@ docker-compose up -d
 
 ### DynamoDBテーブルが作成されない
 
-**手動で初期化スクリプトを実行**:
+Windows環境では初期化スクリプトが改行コード（CRLF）の問題で正常に動作しません。
+
+**手動でAWS CLIを使用してテーブルを作成**:
+
+詳細な手順は`SETUP.md`の「手順3: DynamoDBテーブルの作成」を参照してください。
+
+簡易版：
 ```bash
-docker exec cooking-app-localstack /etc/localstack/init/ready.d/01-create-dynamodb-tables.sh
-docker exec cooking-app-localstack /etc/localstack/init/ready.d/02-create-s3-bucket.sh
+# 各テーブルを作成（例：Usersテーブル）
+aws dynamodb create-table --table-name cooking-app-users-local --attribute-definitions AttributeName=UserId,AttributeType=S --key-schema AttributeName=UserId,KeyType=HASH --billing-mode PAY_PER_REQUEST --endpoint-url http://localhost:4566
 ```
+
+全テーブルの作成コマンドは`SETUP.md`を参照してください。
 
 ### AWS CLIが見つからない
 
