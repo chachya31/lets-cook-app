@@ -1,6 +1,6 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '../ui/button';
 
 /**
@@ -70,6 +70,13 @@ const Header: React.FC = () => {
                   onClick={() => navigate('/recipes/new')}
                 >
                   {t('recipe.create.button')}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigate('/profile/edit')}
+                >
+                  {t('profile.title')}
                 </Button>
                 <Button variant="ghost" size="sm" onClick={handleLogout}>
                   {t('auth.logout')}

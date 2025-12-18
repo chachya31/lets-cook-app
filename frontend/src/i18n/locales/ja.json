@@ -184,10 +184,27 @@
   },
   "profile": {
     "title": "プロフィール",
+    "edit": {
+      "title": "プロフィール編集",
+      "success": "プロフィールを更新しました"
+    },
+    "profileImage": "プロフィール画像",
+    "basicInfo": "基本情報",
+    "email": "メールアドレス",
+    "emailNotEditable": "メールアドレスは変更できません",
+    "nickname": "ニックネーム",
+    "displayName": "表示名",
     "language": "言語",
     "selectLanguage": "言語を選択",
     "changeLanguage": "言語を変更",
-    "languageChanged": "言語を変更しました"
+    "languageChanged": "言語を変更しました",
+    "timezone": "タイムゾーン",
+    "marketingOptOut": "マーケティングメールを受け取らない",
+    "errors": {
+      "loadFailed": "プロフィールの読み込みに失敗しました",
+      "updateFailed": "プロフィールの更新に失敗しました",
+      "notLoggedIn": "ログインしてください"
+    }
   },
   "dashboard": {
     "title": "ダッシュボード",

@@ -184,10 +184,27 @@
   },
   "profile": {
     "title": "프로필",
+    "edit": {
+      "title": "프로필 수정",
+      "success": "프로필을 업데이트했습니다"
+    },
+    "profileImage": "프로필 이미지",
+    "basicInfo": "기본 정보",
+    "email": "이메일",
+    "emailNotEditable": "이메일은 변경할 수 없습니다",
+    "nickname": "닉네임",
+    "displayName": "표시 이름",
     "language": "언어",
     "selectLanguage": "언어 선택",
     "changeLanguage": "언어 변경",
-    "languageChanged": "언어를 변경했습니다"
+    "languageChanged": "언어를 변경했습니다",
+    "timezone": "시간대",
+    "marketingOptOut": "마케팅 이메일 수신 거부",
+    "errors": {
+      "loadFailed": "프로필 로드에 실패했습니다",
+      "updateFailed": "프로필 업데이트에 실패했습니다",
+      "notLoggedIn": "로그인하세요"
+    }
   },
   "dashboard": {
     "title": "대시보드",
