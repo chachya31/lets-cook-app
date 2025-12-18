@@ -222,6 +222,32 @@ docker-compose up -d
 docker exec cooking-app-localstack /etc/localstack/init/ready.d/01-create-dynamodb-tables.sh
 ```
 
+### DynamoDBテーブルの手動再作成（Windows）
+
+LocalStackを再起動してテーブルが消えた場合、以下のコマンドで再作成できます：
+
+```cmd
+@REM Users テーブル
+aws --endpoint-url=http://localhost:4566 dynamodb create-table --table-name cooking-app-users-local --attribute-definitions AttributeName=UserId,AttributeType=S --key-schema AttributeName=UserId,KeyType=HASH --billing-mode PAY_PER_REQUEST
+
+@REM Recipes テーブル
+aws --endpoint-url=http://localhost:4566 dynamodb create-table --table-name cooking-app-recipes-local --attribute-definitions AttributeName=RecipeId,AttributeType=S AttributeName=CreatedAt,AttributeType=S AttributeName=AuthorId,AttributeType=S --key-schema AttributeName=RecipeId,KeyType=HASH --global-secondary-indexes "[{\"IndexName\":\"GSI_Author\",\"KeySchema\":[{\"AttributeName\":\"AuthorId\",\"KeyType\":\"HASH\"},{\"AttributeName\":\"CreatedAt\",\"KeyType\":\"RANGE\"}],\"Projection\":{\"ProjectionType\":\"ALL\"}}]" --billing-mode PAY_PER_REQUEST
+
+@REM Schedules テーブル
+aws --endpoint-url=http://localhost:4566 dynamodb create-table --table-name cooking-app-schedules-local --attribute-definitions AttributeName=UserId,AttributeType=S AttributeName=DateTypeRecipeId,AttributeType=S --key-schema AttributeName=UserId,KeyType=HASH AttributeName=DateTypeRecipeId,KeyType=RANGE --billing-mode PAY_PER_REQUEST
+
+@REM ShoppingLists テーブル
+aws --endpoint-url=http://localhost:4566 dynamodb create-table --table-name cooking-app-shopping-lists-local --attribute-definitions AttributeName=UserId,AttributeType=S AttributeName=ItemId,AttributeType=S AttributeName=NormalizedKey,AttributeType=S --key-schema AttributeName=UserId,KeyType=HASH AttributeName=ItemId,KeyType=RANGE --global-secondary-indexes "[{\"IndexName\":\"GSI_NormalizedKey\",\"KeySchema\":[{\"AttributeName\":\"UserId\",\"KeyType\":\"HASH\"},{\"AttributeName\":\"NormalizedKey\",\"KeyType\":\"RANGE\"}],\"Projection\":{\"ProjectionType\":\"ALL\"}}]" --billing-mode PAY_PER_REQUEST
+
+@REM Reviews テーブル
+aws --endpoint-url=http://localhost:4566 dynamodb create-table --table-name cooking-app-reviews-local --attribute-definitions AttributeName=RecipeId,AttributeType=S AttributeName=ReviewId,AttributeType=S AttributeName=UserId,AttributeType=S AttributeName=CreatedAt,AttributeType=S --key-schema AttributeName=RecipeId,KeyType=HASH AttributeName=ReviewId,KeyType=RANGE --global-secondary-indexes "[{\"IndexName\":\"GSI_User\",\"KeySchema\":[{\"AttributeName\":\"UserId\",\"KeyType\":\"HASH\"},{\"AttributeName\":\"CreatedAt\",\"KeyType\":\"RANGE\"}],\"Projection\":{\"ProjectionType\":\"ALL\"}}]" --billing-mode PAY_PER_REQUEST
+
+@REM 作成確認
+aws --endpoint-url=http://localhost:4566 dynamodb list-tables
+```
+
+> **Note**: `PERSISTENCE=1`を設定済みのため、通常はLocalStack再起動後もデータが保持されます。ただし、Dockerボリュームを削除した場合は再作成が必要です。
+
 ### AWS CDKデプロイエラー
 
 ```bash

@@ -1,11 +1,15 @@
 package com.cookingapp.unit.usecase;
 
-import com.cookingapp.application.usecase.user.RegisterUserUseCase;
-import com.cookingapp.domain.entity.User;
-import com.cookingapp.domain.exception.UserAlreadyExistsException;
-import com.cookingapp.domain.repository.UserRepository;
-import com.cookingapp.domain.service.AuthService;
-import com.cookingapp.domain.valueobject.Language;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,13 +17,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import com.cookingapp.application.usecase.user.RegisterUserUseCase;
+import com.cookingapp.domain.entity.User;
+import com.cookingapp.domain.exception.UserAlreadyExistsException;
+import com.cookingapp.domain.repository.UserRepository;
+import com.cookingapp.domain.service.AuthService;
+import com.cookingapp.domain.service.UserGroupService;
+import com.cookingapp.domain.valueobject.Language;
 
 /**
  * RegisterUserUseCaseのユニットテスト
@@ -34,11 +38,14 @@ class RegisterUserUseCaseTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private UserGroupService userGroupService;
+
     private RegisterUserUseCase registerUserUseCase;
 
     @BeforeEach
     void setUp() {
-        registerUserUseCase = new RegisterUserUseCase(authService, userRepository);
+        registerUserUseCase = new RegisterUserUseCase(authService, userRepository, userGroupService);
     }
 
     @Test
@@ -66,6 +73,7 @@ class RegisterUserUseCaseTest {
 
         verify(userRepository).findByEmail(email);
         verify(authService).signUp(email, password, nickname);
+        verify(userGroupService).addUserToGroup(email, "Users");
         verify(userRepository).save(any(User.class));
     }
 

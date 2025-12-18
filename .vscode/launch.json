@@ -7,6 +7,7 @@
       "request": "launch",
       "mainClass": "com.cookingapp.CookingAppApplication",
       "args": "--spring.profiles.active=local",
+      "vmArgs": "-Dfile.encoding=UTF-8 -Dconsole.encoding=UTF-8 -Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8",
       "cwd": "${workspaceFolder}/backend",
       "console": "integratedTerminal"
     },

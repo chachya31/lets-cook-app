@@ -84,6 +84,12 @@ async function fetchWithErrorHandling<T>(
     ...(fetchOptions.headers as Record<string, string>),
   };
 
+  // JWTトークンをAuthorizationヘッダーに追加
+  const token = localStorage.getItem("accessToken");
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
   if (userId) {
     headers["X-User-Id"] = userId;
   }
@@ -173,6 +179,12 @@ export async function apiPostFile<T>(
   const headers: Record<string, string> = {
     "Accept-Language": localStorage.getItem("i18nextLng") || "ja",
   };
+
+  // JWTトークンをAuthorizationヘッダーに追加
+  const token = localStorage.getItem("accessToken");
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
 
   if (userId) {
     headers["X-User-Id"] = userId;

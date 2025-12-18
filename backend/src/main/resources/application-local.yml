@@ -6,7 +6,7 @@ spring:
     encoding: UTF-8
 
 aws:
-  # LocalStackはus-east-1をデフォルトで使用
+  # LocalStackはus-east-1をデフォルトで使用（DynamoDB、S3）
   # Cognitoは実際のAWS（ap-northeast-1）を使用
   region: us-east-1
   # AWS認証情報（実際のAWSサービス用 - Cognitoのみ）
