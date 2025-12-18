@@ -14,13 +14,12 @@ info:
     - 管理者機能
     
     ## 認証
-    - Cognito認証を使用
+    - AWS Cognito認証を使用
     - アクセストークンの有効期限: 1時間
     - リフレッシュトークンの有効期限: 90日
     
     ## 多言語対応
-    - 日本語（ja）
-    - 韓国語（ko）
+    - 日本語（ja）、韓国語（ko）
     - Accept-Languageヘッダーでエラーメッセージの言語を指定
     
   version: 1.0.0
@@ -60,8 +59,7 @@ paths:
   # ========================================
   /api/users/register:
     post:
-      tags:
-        - Users
+      tags: [Users]
       summary: ユーザー登録
       description: 新規ユーザーを登録します。Cognitoにユーザーを作成し、DynamoDBにプロフィール情報を保存します。
       operationId: registerUser
@@ -79,29 +77,855 @@ paths:
               schema:
                 $ref: '#/components/schemas/UserResponse'
         '400':
-          description: バリデーションエラー
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+          $ref: '#/components/responses/BadRequest'
         '409':
-          description: ユーザーが既に存在
+          $ref: '#/components/responses/Conflict'
+
+  /api/users/confirm:
+    post:
+      tags: [Users]
+      summary: メール確認
+      description: メールアドレスを確認します。
+      operationId: confirmUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfirmUserRequest'
+      responses:
+        '200':
+          description: 確認成功
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /api/users/resend-code:
+    post:
+      tags: [Users]
+      summary: 確認コード再送信
+      description: 確認コードを再送信します。
+      operationId: resendConfirmationCode
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResendCodeRequest'
+      responses:
+        '200':
+          description: 再送信成功
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /api/users/login:
+    post:
+      tags: [Users]
+      summary: ログイン
+      description: ユーザーログインを行い、認証トークンを取得します。
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: ログイン成功
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/users/profile/{userId}:
+    get:
+      tags: [Users]
+      summary: プロフィール取得
+      description: ユーザープロフィールを取得します。
+      operationId: getUserProfile
+      parameters:
+        - $ref: '#/components/parameters/UserIdPath'
+      responses:
+        '200':
+          description: プロフィール取得成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Users]
+      summary: プロフィール更新
+      description: ユーザープロフィールを更新します。
+      operationId: updateUserProfile
+      parameters:
+        - $ref: '#/components/parameters/UserIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+      responses:
+        '200':
+          description: プロフィール更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/users/account/{userId}:
+    delete:
+      tags: [Users]
+      summary: アカウント削除
+      description: ユーザーアカウントを削除します。
+      operationId: deleteUserAccount
+      parameters:
+        - $ref: '#/components/parameters/UserIdPath'
+      responses:
+        '204':
+          description: 削除成功
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/users/profile/image:
+    post:
+      tags: [Users]
+      summary: プロフィール画像アップロード
+      description: プロフィール画像をアップロードします（JPEG/PNG、最大5MB）。
+      operationId: uploadProfileImage
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [userId, file]
+              properties:
+                userId:
+                  type: string
+                  format: uuid
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: アップロード成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  # ========================================
+  # Recipes API
+  # ========================================
+  /api/recipes:
+    get:
+      tags: [Recipes]
+      summary: レシピ検索
+      description: レシピを検索します。
+      operationId: searchRecipes
+      parameters:
+        - name: keyword
+          in: query
+          description: 検索キーワード
+          schema:
+            type: string
+        - name: authorId
+          in: query
+          description: 作成者ID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: 検索成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RecipeResponse'
+    post:
+      tags: [Recipes]
+      summary: レシピ作成
+      description: 新しいレシピを作成します。
+      operationId: createRecipe
+      parameters:
+        - $ref: '#/components/parameters/XUserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRecipeRequest'
+      responses:
+        '201':
+          description: 作成成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /api/recipes/{id}:
+    get:
+      tags: [Recipes]
+      summary: レシピ詳細取得
+      description: レシピの詳細情報を取得します。
+      operationId: getRecipe
+      parameters:
+        - $ref: '#/components/parameters/RecipeIdPath'
+      responses:
+        '200':
+          description: 取得成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Recipes]
+      summary: レシピ更新
+      description: レシピを更新します。
+      operationId: updateRecipe
+      parameters:
+        - $ref: '#/components/parameters/RecipeIdPath'
+        - $ref: '#/components/parameters/XUserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRecipeRequest'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Recipes]
+      summary: レシピ削除
+      description: レシピを論理削除します。
+      operationId: deleteRecipe
+      parameters:
+        - $ref: '#/components/parameters/RecipeIdPath'
+        - $ref: '#/components/parameters/XUserId'
+      responses:
+        '204':
+          description: 削除成功
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/recipes/{id}/image:
+    post:
+      tags: [Recipes]
+      summary: レシピ画像アップロード
+      description: レシピ画像をアップロードします（JPEG/PNG、最大5MB）。
+      operationId: uploadRecipeImage
+      parameters:
+        - $ref: '#/components/parameters/RecipeIdPath'
+        - $ref: '#/components/parameters/XUserId'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: アップロード成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ========================================
+  # Reviews API
+  # ========================================
+  /api/recipes/{recipeId}/reviews:
+    get:
+      tags: [Reviews]
+      summary: レビュー一覧取得
+      description: レシピのレビュー一覧を取得します。
+      operationId: getReviews
+      parameters:
+        - $ref: '#/components/parameters/RecipeIdPathForReview'
+      responses:
+        '200':
+          description: 取得成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReviewResponse'
+    post:
+      tags: [Reviews]
+      summary: レビュー作成
+      description: レシピにレビューを投稿します。
+      operationId: createReview
+      parameters:
+        - $ref: '#/components/parameters/RecipeIdPathForReview'
+        - $ref: '#/components/parameters/XUserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateReviewRequest'
+      responses:
+        '201':
+          description: 作成成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /api/reviews/{reviewId}:
+    put:
+      tags: [Reviews]
+      summary: レビュー更新
+      description: レビューを更新します。
+      operationId: updateReview
+      parameters:
+        - $ref: '#/components/parameters/ReviewIdPath'
+        - $ref: '#/components/parameters/XUserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateReviewRequest'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Reviews]
+      summary: レビュー削除
+      description: レビューを削除します。
+      operationId: deleteReview
+      parameters:
+        - $ref: '#/components/parameters/ReviewIdPath'
+        - $ref: '#/components/parameters/XUserId'
+      responses:
+        '204':
+          description: 削除成功
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/reviews/{reviewId}/report:
+    post:
+      tags: [Reviews]
+      summary: レビュー通報
+      description: レビューを通報します。通報カウントが3以上になると自動的に非表示になります。
+      operationId: reportReview
+      parameters:
+        - $ref: '#/components/parameters/ReviewIdPath'
+      responses:
+        '200':
+          description: 通報成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ========================================
+  # Schedules API
+  # ========================================
+  /api/schedules:
+    get:
+      tags: [Schedules]
+      summary: スケジュール一覧取得
+      description: 指定期間のスケジュール一覧を取得します。
+      operationId: getSchedules
+      parameters:
+        - $ref: '#/components/parameters/XUserId'
+        - name: startDate
+          in: query
+          required: true
+          description: 開始日（YYYY-MM-DD形式）
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          required: true
+          description: 終了日（YYYY-MM-DD形式）
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: 取得成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ScheduleResponse'
+    post:
+      tags: [Schedules]
+      summary: スケジュール作成
+      description: 新しいスケジュールを作成します。
+      operationId: createSchedule
+      parameters:
+        - $ref: '#/components/parameters/XUserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateScheduleRequest'
+      responses:
+        '201':
+          description: 作成成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduleResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /api/schedules/{scheduleId}:
+    put:
+      tags: [Schedules]
+      summary: スケジュール更新
+      description: スケジュールを更新します。
+      operationId: updateSchedule
+      parameters:
+        - $ref: '#/components/parameters/ScheduleIdPath'
+        - $ref: '#/components/parameters/XUserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateScheduleRequest'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduleResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Schedules]
+      summary: スケジュール削除
+      description: スケジュールを削除します。
+      operationId: deleteSchedule
+      parameters:
+        - $ref: '#/components/parameters/ScheduleIdPath'
+        - $ref: '#/components/parameters/XUserId'
+      responses:
+        '204':
+          description: 削除成功
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/schedules/{scheduleId}/convert-to-cooked:
+    post:
+      tags: [Schedules]
+      summary: 予定を実績に変換
+      description: PLANNEDをCOOKEDに変換し、LastCookingDateを更新します。
+      operationId: convertToCooked
+      parameters:
+        - $ref: '#/components/parameters/ScheduleIdPath'
+        - $ref: '#/components/parameters/XUserId'
+      responses:
+        '200':
+          description: 変換成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduleResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ========================================
+  # Shopping Lists API
+  # ========================================
+  /api/shopping-lists:
+    get:
+      tags: [Shopping Lists]
+      summary: 買い物リスト取得
+      description: 買い物リストを取得します。期限切れアイテム（チェック済みから3日経過）を自動削除します。
+      operationId: getShoppingList
+      parameters:
+        - $ref: '#/components/parameters/XUserId'
+      responses:
+        '200':
+          description: 取得成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ShoppingListItemResponse'
+    post:
+      tags: [Shopping Lists]
+      summary: アイテム追加
+      description: 買い物リストにアイテムを追加します。同じ正規化キー（名前+単位）のアイテムがある場合、数量を合算します。
+      operationId: addShoppingListItem
+      parameters:
+        - $ref: '#/components/parameters/XUserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddShoppingListItemRequest'
+      responses:
+        '201':
+          description: 追加成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShoppingListItemResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /api/shopping-lists/{itemId}:
+    put:
+      tags: [Shopping Lists]
+      summary: アイテム更新
+      description: 買い物リストアイテムのチェック状態を更新します。
+      operationId: updateShoppingListItem
+      parameters:
+        - $ref: '#/components/parameters/ItemIdPath'
+        - $ref: '#/components/parameters/XUserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateShoppingListItemRequest'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShoppingListItemResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Shopping Lists]
+      summary: アイテム削除
+      description: 買い物リストからアイテムを削除します。
+      operationId: deleteShoppingListItem
+      parameters:
+        - $ref: '#/components/parameters/ItemIdPath'
+        - $ref: '#/components/parameters/XUserId'
+      responses:
+        '204':
+          description: 削除成功
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ========================================
+  # Alerts API
+  # ========================================
+  /api/alerts/check:
+    get:
+      tags: [Alerts]
+      summary: アラート表示判定
+      description: |
+        最終料理日から3日経過（4日目の0時）でアラートを表示します。
+        メッセージは警告（50%）または励まし（50%）からランダムに選択されます。
+      operationId: checkAlert
+      parameters:
+        - $ref: '#/components/parameters/XUserId'
+      responses:
+        '200':
+          description: 判定成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlertResponse'
+
+  # ========================================
+  # Admin API
+  # ========================================
+  /api/admin/dashboard:
+    get:
+      tags: [Admin]
+      summary: ダッシュボード統計取得
+      description: 管理者用のダッシュボード統計情報を取得します。
+      operationId: getAdminDashboard
+      responses:
+        '200':
+          description: 取得成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminDashboardResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/admin/users/{userId}/suspend:
+    put:
+      tags: [Admin]
+      summary: ユーザー停止
+      description: ユーザーのログインを無効化します。
+      operationId: suspendUser
+      parameters:
+        - $ref: '#/components/parameters/UserIdPath'
+      responses:
+        '204':
+          description: 停止成功
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/admin/users/{userId}:
+    delete:
+      tags: [Admin]
+      summary: ユーザー削除
+      description: ユーザーアカウントとデータを完全削除します。
+      operationId: deleteUserByAdmin
+      parameters:
+        - $ref: '#/components/parameters/UserIdPath'
+      responses:
+        '204':
+          description: 削除成功
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/admin/recipes:
+    get:
+      tags: [Admin]
+      summary: すべてのレシピ取得
+      description: 審査待ちを含むすべてのレシピを取得します。
+      operationId: getAllRecipesByAdmin
+      responses:
+        '200':
+          description: 取得成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RecipeResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /api/admin/recipes/{recipeId}/status:
+    put:
+      tags: [Admin]
+      summary: レシピステータス設定
+      description: レシピの公開/非公開を設定します。
+      operationId: setRecipeStatus
+      parameters:
+        - $ref: '#/components/parameters/AdminRecipeIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetRecipeStatusRequest'
+      responses:
+        '200':
+          description: 設定成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/admin/recipes/{recipeId}:
+    delete:
+      tags: [Admin]
+      summary: レシピ削除（管理者用）
+      description: レシピを論理削除します（参照は保持）。
+      operationId: deleteRecipeByAdmin
+      parameters:
+        - $ref: '#/components/parameters/AdminRecipeIdPath'
+      responses:
+        '204':
+          description: 削除成功
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
 
 components:
+  # ========================================
+  # Parameters
+  # ========================================
+  parameters:
+    XUserId:
+      name: X-User-Id
+      in: header
+      required: true
+      description: ユーザーID
+      schema:
+        type: string
+        format: uuid
+
+    UserIdPath:
+      name: userId
+      in: path
+      required: true
+      description: ユーザーID
+      schema:
+        type: string
+        format: uuid
+
+    RecipeIdPath:
+      name: id
+      in: path
+      required: true
+      description: レシピID
+      schema:
+        type: string
+        format: uuid
+
+    RecipeIdPathForReview:
+      name: recipeId
+      in: path
+      required: true
+      description: レシピID
+      schema:
+        type: string
+        format: uuid
+
+    ReviewIdPath:
+      name: reviewId
+      in: path
+      required: true
+      description: レビューID
+      schema:
+        type: string
+        format: uuid
+
+    ScheduleIdPath:
+      name: scheduleId
+      in: path
+      required: true
+      description: スケジュールID
+      schema:
+        type: string
+        format: uuid
+
+    ItemIdPath:
+      name: itemId
+      in: path
+      required: true
+      description: アイテムID
+      schema:
+        type: string
+        format: uuid
+
+    AdminRecipeIdPath:
+      name: recipeId
+      in: path
+      required: true
+      description: レシピID
+      schema:
+        type: string
+        format: uuid
+
+  # ========================================
+  # Responses
+  # ========================================
+  responses:
+    BadRequest:
+      description: バリデーションエラー
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    Unauthorized:
+      description: 認証エラー
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    Forbidden:
+      description: 権限エラー
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    NotFound:
+      description: リソースが見つからない
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+    Conflict:
+      description: リソースの重複
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  # ========================================
+  # Schemas
+  # ========================================
   schemas:
-    # ========================================
-    # Request Schemas
-    # ========================================
+    # ----------------------------------------
+    # User Schemas
+    # ----------------------------------------
     RegisterUserRequest:
       type: object
-      required:
-        - email
-        - password
-        - nickname
+      required: [email, password, nickname]
       properties:
         email:
           type: string
@@ -110,7 +934,7 @@ components:
         password:
           type: string
           minLength: 8
-          pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).*$'
+          description: 8文字以上、大文字・小文字・数字を含む
           example: Password123!
         nickname:
           type: string
@@ -120,23 +944,58 @@ components:
         preferredLanguage:
           type: string
           enum: [ja, ko]
+          default: ja
           example: ja
-    
+
+    ConfirmUserRequest:
+      type: object
+      required: [email, confirmationCode]
+      properties:
+        email:
+          type: string
+          format: email
+        confirmationCode:
+          type: string
+          example: "123456"
+
+    ResendCodeRequest:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+          format: email
+
     LoginRequest:
       type: object
-      required:
-        - email
-        - password
+      required: [email, password]
       properties:
         email:
           type: string
           format: email
         password:
           type: string
-    
-    # ========================================
-    # Response Schemas
-    # ========================================
+
+    UpdateProfileRequest:
+      type: object
+      properties:
+        nickname:
+          type: string
+          minLength: 1
+          maxLength: 50
+        displayName:
+          type: string
+          minLength: 1
+          maxLength: 50
+        preferredLanguage:
+          type: string
+          enum: [ja, ko]
+        timezone:
+          type: string
+          example: Asia/Tokyo
+        marketingOptOut:
+          type: boolean
+
     UserResponse:
       type: object
       properties:
@@ -145,14 +1004,17 @@ components:
           format: uuid
         email:
           type: string
+          format: email
         nickname:
           type: string
         displayName:
           type: string
         profileImageUrl:
           type: string
+          format: uri
         preferredLanguage:
           type: string
+          enum: [ja, ko]
         lastCookingDate:
           type: string
           format: date
@@ -161,7 +1023,325 @@ components:
         createdAt:
           type: string
           format: date-time
-    
+
+    LoginResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        idToken:
+          type: string
+        expiresIn:
+          type: integer
+          description: アクセストークン有効期限（秒）
+          example: 3600
+        user:
+          type: object
+          properties:
+            userId:
+              type: string
+              format: uuid
+            email:
+              type: string
+              format: email
+            nickname:
+              type: string
+
+    # ----------------------------------------
+    # Recipe Schemas
+    # ----------------------------------------
+    CreateRecipeRequest:
+      type: object
+      required: [title, ingredients, steps, cookingTime]
+      properties:
+        title:
+          type: string
+          maxLength: 100
+          example: 簡単カレーライス
+        ingredients:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/Ingredient'
+        steps:
+          type: array
+          minItems: 1
+          items:
+            type: string
+          example: ["野菜を切る", "炒める", "煮込む"]
+        cookingTime:
+          type: integer
+          minimum: 0
+          description: 調理時間（分）
+          example: 30
+
+    Ingredient:
+      type: object
+      required: [name, quantity, unit]
+      properties:
+        name:
+          type: string
+          maxLength: 100
+          example: 玉ねぎ
+        quantity:
+          type: number
+          minimum: 0.01
+          maximum: 9999
+          example: 2
+        unit:
+          type: string
+          description: 単位コード
+          example: piece
+        note:
+          type: string
+          maxLength: 200
+          example: 中サイズ
+        optional:
+          type: boolean
+          default: false
+
+    RecipeResponse:
+      type: object
+      properties:
+        recipeId:
+          type: string
+          format: uuid
+        title:
+          type: string
+        authorId:
+          type: string
+          format: uuid
+        ingredients:
+          type: array
+          items:
+            $ref: '#/components/schemas/Ingredient'
+        steps:
+          type: array
+          items:
+            type: string
+        cookingTime:
+          type: integer
+          description: 調理時間（分）
+        imageUrl:
+          type: string
+          format: uri
+        isPublic:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    # ----------------------------------------
+    # Review Schemas
+    # ----------------------------------------
+    CreateReviewRequest:
+      type: object
+      required: [rating]
+      properties:
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          example: 5
+        comment:
+          type: string
+          maxLength: 300
+          example: とても美味しかったです！
+
+    ReviewResponse:
+      type: object
+      properties:
+        reviewId:
+          type: string
+          format: uuid
+        recipeId:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+        status:
+          type: string
+          enum: [visible, hidden]
+        reportedCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    # ----------------------------------------
+    # Schedule Schemas
+    # ----------------------------------------
+    CreateScheduleRequest:
+      type: object
+      required: [date, type, recipeId, recipeTitle]
+      properties:
+        date:
+          type: string
+          format: date
+          example: "2024-12-01"
+        type:
+          type: string
+          enum: [PLANNED, COOKED]
+        recipeId:
+          type: string
+          format: uuid
+        recipeTitle:
+          type: string
+          example: 簡単カレーライス
+        memo:
+          type: string
+          maxLength: 120
+          example: 夕食用
+
+    UpdateScheduleRequest:
+      type: object
+      properties:
+        memo:
+          type: string
+          maxLength: 120
+
+    ScheduleResponse:
+      type: object
+      properties:
+        scheduleId:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        date:
+          type: string
+          format: date
+        type:
+          type: string
+          enum: [PLANNED, COOKED]
+        recipeId:
+          type: string
+          format: uuid
+        recipeTitle:
+          type: string
+        memo:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    # ----------------------------------------
+    # Shopping List Schemas
+    # ----------------------------------------
+    AddShoppingListItemRequest:
+      type: object
+      required: [name, quantity, unit]
+      properties:
+        name:
+          type: string
+          maxLength: 100
+          example: 玉ねぎ
+        quantity:
+          type: number
+          minimum: 0.01
+          maximum: 9999
+          example: 2
+        unit:
+          type: string
+          example: piece
+        sourceRecipeId:
+          type: string
+          format: uuid
+
+    UpdateShoppingListItemRequest:
+      type: object
+      required: [isChecked]
+      properties:
+        isChecked:
+          type: boolean
+
+    ShoppingListItemResponse:
+      type: object
+      properties:
+        itemId:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        quantity:
+          type: number
+        unit:
+          type: string
+        isChecked:
+          type: boolean
+        isCheckedAt:
+          type: string
+          format: date-time
+          nullable: true
+        addedAt:
+          type: string
+          format: date-time
+        sourceRecipeId:
+          type: string
+          format: uuid
+          nullable: true
+
+    # ----------------------------------------
+    # Alert Schemas
+    # ----------------------------------------
+    AlertResponse:
+      type: object
+      properties:
+        shouldShow:
+          type: boolean
+          description: アラートを表示すべきかどうか
+        message:
+          type: string
+          description: |
+            アラートメッセージ。警告または励ましメッセージがランダムに選択されます。
+            警告例: "もう3日も料理していませんよ！"
+            励まし例: "今日は何か作ってみませんか？"
+
+    # ----------------------------------------
+    # Admin Schemas
+    # ----------------------------------------
+    AdminDashboardResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: 管理者ダッシュボード
+        totalUsers:
+          type: integer
+          example: 150
+        totalRecipes:
+          type: integer
+          example: 320
+
+    SetRecipeStatusRequest:
+      type: object
+      required: [isPublic]
+      properties:
+        isPublic:
+          type: boolean
+
+    # ----------------------------------------
+    # Error Schema
+    # ----------------------------------------
     ErrorResponse:
       type: object
       properties:
@@ -170,9 +1350,13 @@ components:
           format: date-time
         status:
           type: integer
+          example: 400
         error:
           type: string
+          example: Bad Request
         message:
           type: string
+          example: バリデーションエラー
         path:
           type: string
+          example: /api/users/register
