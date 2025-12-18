@@ -20,5 +20,6 @@ module.exports = {
     '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
+    'quotes': ['error', 'single', { avoidEscape: true, allowTemplateLiterals: true }],
   },
 };

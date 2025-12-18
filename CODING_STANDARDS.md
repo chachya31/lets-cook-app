@@ -233,6 +233,33 @@ export async function apiGet<T>(endpoint: string): Promise<T> {
 
 ---
 
+### クォート（引用符）
+
+#### ✅ 必須：シングルクォート
+```typescript
+// シングルクォートを使用
+import { User } from '../types/user';
+const message = 'Hello, World!';
+```
+
+#### ❌ 禁止：ダブルクォート
+```typescript
+// ダブルクォートは使用しない
+import { User } from "../types/user";
+const message = "Hello, World!";
+```
+
+**例外**: 
+- テンプレートリテラル: `` `Hello, ${name}!` ``
+- 文字列内にシングルクォートが含まれる場合: `"It's a beautiful day"`
+
+**自動フォーマット**: 
+- ESLint: `quotes` ルールで強制
+- Prettier: `singleQuote: true` で自動変換
+- 保存時に自動修正
+
+---
+
 ### import文の整理
 
 #### ✅ 推奨順序

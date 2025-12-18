@@ -1,17 +1,17 @@
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { loginUser, registerUser } from "../../api/userApi";
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { loginUser, registerUser } from '../../api/userApi';
 import {
   AuthState,
   LoginRequest,
   LoginResponse,
   RegisterRequest,
-} from "../../types/user";
+} from '../../types/user';
 
 const initialState: AuthState = {
   user: null,
-  accessToken: localStorage.getItem("accessToken"),
-  refreshToken: localStorage.getItem("refreshToken"),
-  isAuthenticated: !!localStorage.getItem("accessToken"),
+  accessToken: localStorage.getItem('accessToken'),
+  refreshToken: localStorage.getItem('refreshToken'),
+  isAuthenticated: !!localStorage.getItem('accessToken'),
   isLoading: false,
   error: null,
 };
@@ -20,7 +20,7 @@ const initialState: AuthState = {
  * ユーザー登録（非同期アクション）
  */
 export const register = createAsyncThunk(
-  "auth/register",
+  'auth/register',
   async (data: RegisterRequest, { rejectWithValue }) => {
     try {
       const user = await registerUser(data);
@@ -35,15 +35,15 @@ export const register = createAsyncThunk(
  * ログイン（非同期アクション）
  */
 export const login = createAsyncThunk(
-  "auth/login",
+  'auth/login',
   async (data: LoginRequest, { rejectWithValue }) => {
     try {
       const response = await loginUser(data);
       // トークンとユーザーIDをlocalStorageに保存
-      localStorage.setItem("accessToken", response.accessToken);
-      localStorage.setItem("refreshToken", response.refreshToken);
-      localStorage.setItem("idToken", response.idToken);
-      localStorage.setItem("userId", response.user.userId);
+      localStorage.setItem('accessToken', response.accessToken);
+      localStorage.setItem('refreshToken', response.refreshToken);
+      localStorage.setItem('idToken', response.idToken);
+      localStorage.setItem('userId', response.user.userId);
       return response;
     } catch (error) {
       return rejectWithValue((error as Error).message);
@@ -52,7 +52,7 @@ export const login = createAsyncThunk(
 );
 
 const authSlice = createSlice({
-  name: "auth",
+  name: 'auth',
   initialState,
   reducers: {
     logout: (state) => {
@@ -60,10 +60,10 @@ const authSlice = createSlice({
       state.accessToken = null;
       state.refreshToken = null;
       state.isAuthenticated = false;
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-      localStorage.removeItem("idToken");
-      localStorage.removeItem("userId");
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('idToken');
+      localStorage.removeItem('userId');
     },
     clearError: (state) => {
       state.error = null;
