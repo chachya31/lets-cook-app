@@ -78,7 +78,7 @@ const ProfileEditPage: React.FC = () => {
    */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!currentUser?.userId) {
       setError(t('profile.errors.notLoggedIn'));
       return;
@@ -201,22 +201,16 @@ const ProfileEditPage: React.FC = () => {
               />
             </div>
 
-            <div>
-              <Label htmlFor="language">{t('profile.language')}</Label>
-              <LanguageSelector
-                value={language}
-                onChange={(lang) => setLanguage(lang as 'ja' | 'ko')}
-              />
-            </div>
+            <LanguageSelector
+              value={language}
+              onChange={(lang) => setLanguage(lang as 'ja' | 'ko')}
+              showLabel={true}
+            />
 
             <div>
               <Label htmlFor="timezone">{t('profile.timezone')}</Label>
-              <Input
-                id="timezone"
-                value={timezone}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTimezone(e.target.value)}
-                required
-              />
+              <Input id="timezone" value={timezone} disabled className="bg-gray-100" />
+              <p className="text-sm text-gray-500 mt-1">{t('profile.timezoneNotEditable')}</p>
             </div>
 
             <div className="flex items-center space-x-2">

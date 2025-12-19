@@ -21,7 +21,7 @@
         <logger name="com.cookingapp" level="DEBUG"/>
         <logger name="org.springframework.web" level="DEBUG"/>
         <logger name="software.amazon.awssdk" level="INFO"/>
-        
+
         <root level="INFO">
             <appender-ref ref="LOCAL"/>
         </root>
@@ -31,27 +31,27 @@
     <springProfile name="!local">
         <!-- アプリケーションログ -->
         <logger name="com.cookingapp" level="INFO"/>
-        
+
         <!-- Spring Framework -->
         <logger name="org.springframework.web" level="INFO"/>
         <logger name="org.springframework.boot" level="INFO"/>
-        
+
         <!-- AWS SDK -->
         <logger name="software.amazon.awssdk" level="WARN"/>
         <logger name="software.amazon.awssdk.request" level="INFO"/>
-        
+
         <!-- AWS Serverless Container -->
         <logger name="com.amazonaws.serverless" level="INFO"/>
-        
+
         <!-- DynamoDB -->
         <logger name="software.amazon.awssdk.services.dynamodb" level="INFO"/>
-        
+
         <!-- S3 -->
         <logger name="software.amazon.awssdk.services.s3" level="INFO"/>
-        
+
         <!-- Cognito -->
         <logger name="software.amazon.awssdk.services.cognitoidentityprovider" level="INFO"/>
-        
+
         <root level="WARN">
             <appender-ref ref="CONSOLE"/>
         </root>

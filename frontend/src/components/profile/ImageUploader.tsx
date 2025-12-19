@@ -1,4 +1,4 @@
-import React, { useState, useRef, DragEvent, ChangeEvent } from 'react';
+import React, { ChangeEvent, DragEvent, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 interface ImageUploaderProps {
@@ -25,6 +25,11 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // currentImageUrlが変更されたらpreviewUrlを更新
+  React.useEffect(() => {
+    setPreviewUrl(currentImageUrl || null);
+  }, [currentImageUrl]);
 
   const maxSizeBytes = maxSizeMB * 1024 * 1024;
 
@@ -184,9 +189,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
               d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
             />
           </svg>
-          <p className="text-gray-600 text-center mb-2">
-            {t('imageUploader.dragAndDrop')}
-          </p>
+          <p className="text-gray-600 text-center mb-2">{t('imageUploader.dragAndDrop')}</p>
           <p className="text-gray-400 text-sm">
             {t('imageUploader.formats', { formats: 'JPEG, PNG' })}
           </p>

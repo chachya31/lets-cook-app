@@ -199,6 +199,7 @@
     "changeLanguage": "言語を変更",
     "languageChanged": "言語を変更しました",
     "timezone": "タイムゾーン",
+    "timezoneNotEditable": "タイムゾーンは変更できません",
     "marketingOptOut": "マーケティングメールを受け取らない",
     "errors": {
       "loadFailed": "プロフィールの読み込みに失敗しました",
