@@ -1,15 +1,21 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
+import {
+  clearCurrentRecipe,
+  createRecipe,
+  fetchRecipe,
+  updateRecipe,
+} from '../../../store/recipeSlice';
 import { AppDispatch, RootState } from '../../../store/store';
-import { fetchRecipe, createRecipe, updateRecipe, clearCurrentRecipe } from '../../../store/recipeSlice';
 import { Ingredient } from '../../../types/recipe';
 import { initialFormState } from './recipeEditConfig';
 
 /**
  * レシピ編集のイベントハンドラーとロジックを管理するカスタムフック
+ * @param scrollToMessage エラー時にスクロールするコールバック
  */
-export const useRecipeEditHandlers = () => {
+export const useRecipeEditHandlers = (scrollToMessage?: () => void) => {
   const { id } = useParams<{ id: string }>();
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
@@ -33,6 +39,13 @@ export const useRecipeEditHandlers = () => {
     };
   }, [dispatch, id, isEditMode]);
 
+  // エラー発生時にスクロール
+  useEffect(() => {
+    if (error && scrollToMessage) {
+      scrollToMessage();
+    }
+  }, [error, scrollToMessage]);
+
   // 編集モード時のフォーム初期化
   useEffect(() => {
     if (currentRecipe && isEditMode) {
@@ -45,7 +58,10 @@ export const useRecipeEditHandlers = () => {
 
   // 食材の追加
   const handleAddIngredient = () => {
-    setIngredients([...ingredients, { name: '', quantity: 0, unit: 'g', note: '', optional: false }]);
+    setIngredients([
+      ...ingredients,
+      { name: '', quantity: 0, unit: 'g', note: '', optional: false },
+    ]);
   };
 
   // 食材の削除
@@ -54,7 +70,11 @@ export const useRecipeEditHandlers = () => {
   };
 
   // 食材の変更
-  const handleIngredientChange = (index: number, field: keyof Ingredient, value: string | number | boolean) => {
+  const handleIngredientChange = (
+    index: number,
+    field: keyof Ingredient,
+    value: string | number | boolean
+  ) => {
     const newIngredients = [...ingredients];
     newIngredients[index] = { ...newIngredients[index], [field]: value };
     setIngredients(newIngredients);

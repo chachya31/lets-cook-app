@@ -93,7 +93,7 @@ describe('profileApi', () => {
 
       // Assert
       expect(apiClient.apiPostFile).toHaveBeenCalledWith(
-        '/api/users/profile/image',
+        `/api/users/profile/${userId}/image`,
         expect.any(FormData),
         userId
       );
@@ -102,7 +102,6 @@ describe('profileApi', () => {
       const callArgs = vi.mocked(apiClient.apiPostFile).mock.calls[0];
       const formData = callArgs[1] as FormData;
       expect(formData.get('file')).toBe(file);
-      expect(formData.get('userId')).toBe(userId);
 
       expect(result).toEqual(expectedUser);
     });

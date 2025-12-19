@@ -290,6 +290,8 @@ export class CookingAppStack extends cdk.Stack {
           'X-Requested-With',
         ],
       },
+      // Lambda + API Gatewayでmultipart/form-data をバイナリとして処理するように設定を追加
+      binaryMediaTypes: ['multipart/form-data'],
     });
 
     // Lambda統合

@@ -5,7 +5,9 @@ import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { updateProfile, uploadProfileImage } from '../../api/profileApi';
 import { getUserProfile } from '../../api/userApi';
+import { useScrollToMessage } from '../../hooks/useScrollToMessage';
 import { RootState } from '../../store/store';
+import { MessageDisplay } from '../common/MessageDisplay';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Input } from '../ui/input';
@@ -20,6 +22,7 @@ const ProfileEditPage: React.FC = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const currentUser = useSelector((state: RootState) => state.auth.user);
+  const { messageRef, scrollToMessage } = useScrollToMessage();
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -119,8 +122,10 @@ const ProfileEditPage: React.FC = () => {
       localStorage.setItem('preferredLanguage', language);
 
       setSuccess(true);
+      scrollToMessage();
     } catch (err) {
       setError(t('profile.errors.updateFailed'));
+      scrollToMessage();
     } finally {
       setLoading(false);
     }
@@ -144,17 +149,11 @@ const ProfileEditPage: React.FC = () => {
         <h1 className="text-3xl font-bold">{t('profile.edit.title')}</h1>
       </div>
 
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
-        </div>
-      )}
-
-      {success && (
-        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-          {t('profile.edit.success')}
-        </div>
-      )}
+      <MessageDisplay
+        ref={messageRef}
+        error={error}
+        success={success ? t('profile.edit.success') : null}
+      />
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* プロフィール画像 */}

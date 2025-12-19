@@ -1,16 +1,18 @@
 import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { AppDispatch, RootState } from '../../store/store';
+import { useScrollToMessage } from '../../hooks/useScrollToMessage';
 import {
+  deleteRecipeByAdmin,
   fetchAllRecipesForAdmin,
   setRecipeStatus,
-  deleteRecipeByAdmin,
 } from '../../store/slices/adminSlice';
-import { Card } from '../ui/card';
-import { Button } from '../ui/button';
+import { AppDispatch, RootState } from '../../store/store';
 import LoadingSkeleton from '../common/LoadingSkeleton';
+import { MessageDisplay } from '../common/MessageDisplay';
+import { Button } from '../ui/button';
+import { Card } from '../ui/card';
 
 /**
  * レシピ管理ページ
@@ -19,11 +21,19 @@ const RecipeManagementPage: React.FC = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+  const { messageRef, scrollToMessage } = useScrollToMessage();
   const { recipes, loading, error } = useSelector((state: RootState) => state.admin);
 
   useEffect(() => {
     dispatch(fetchAllRecipesForAdmin());
   }, [dispatch]);
+
+  // エラー発生時にスクロール
+  useEffect(() => {
+    if (error) {
+      scrollToMessage();
+    }
+  }, [error, scrollToMessage]);
 
   const handleToggleStatus = async (recipeId: string, currentStatus: boolean) => {
     try {
@@ -62,12 +72,7 @@ const RecipeManagementPage: React.FC = () => {
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8">{t('admin.recipes.title')}</h1>
 
-      {/* エラー表示 */}
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
-          {error}
-        </div>
-      )}
+      <MessageDisplay ref={messageRef} error={error} />
 
       {/* レシピ一覧 */}
       {recipes.length === 0 ? (
@@ -96,7 +101,9 @@ const RecipeManagementPage: React.FC = () => {
                       <strong>{t('admin.recipes.status')}:</strong>{' '}
                       <span
                         className={
-                          recipe.isPublic ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold'
+                          recipe.isPublic
+                            ? 'text-green-600 font-semibold'
+                            : 'text-red-600 font-semibold'
                         }
                       >
                         {recipe.isPublic ? t('admin.recipes.public') : t('admin.recipes.private')}
@@ -123,9 +130,7 @@ const RecipeManagementPage: React.FC = () => {
                     variant={recipe.isPublic ? 'destructive' : 'default'}
                     size="sm"
                   >
-                    {recipe.isPublic
-                      ? t('admin.recipes.setPrivate')
-                      : t('admin.recipes.setPublic')}
+                    {recipe.isPublic ? t('admin.recipes.setPrivate') : t('admin.recipes.setPublic')}
                   </Button>
 
                   <Button

@@ -1,19 +1,15 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { useScrollToMessage } from '../../../hooks/useScrollToMessage';
+import { MessageDisplay } from '../../common/MessageDisplay';
 import { Button } from '../../ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card';
 import { Input } from '../../ui/input';
 import { Label } from '../../ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
 import { Textarea } from '../../ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '../../ui/select';
-import { useRecipeEditHandlers } from './useRecipeEditHandlers';
 import { unitOptions } from './recipeEditConfig';
+import { useRecipeEditHandlers } from './useRecipeEditHandlers';
 
 /**
  * レシピ編集ページ
@@ -21,6 +17,7 @@ import { unitOptions } from './recipeEditConfig';
  */
 const RecipeEditPage: React.FC = () => {
   const { t } = useTranslation();
+  const { messageRef, scrollToMessage } = useScrollToMessage();
   const {
     // 状態
     title,
@@ -42,7 +39,7 @@ const RecipeEditPage: React.FC = () => {
     handleStepChange,
     handleSubmit,
     handleCancel,
-  } = useRecipeEditHandlers();
+  } = useRecipeEditHandlers(scrollToMessage);
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -50,11 +47,7 @@ const RecipeEditPage: React.FC = () => {
         {isEditMode ? t('recipe.edit.title') : t('recipe.create.title')}
       </h1>
 
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
-        </div>
-      )}
+      <MessageDisplay ref={messageRef} error={error} />
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* 基本情報 */}
@@ -124,9 +117,7 @@ const RecipeEditPage: React.FC = () => {
                   <Label>{t('recipe.unit')}</Label>
                   <Select
                     value={ingredient.unit}
-                    onValueChange={(value) =>
-                      handleIngredientChange(index, 'unit', value)
-                    }
+                    onValueChange={(value) => handleIngredientChange(index, 'unit', value)}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder={t('recipe.selectUnit')} />

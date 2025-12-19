@@ -2,6 +2,7 @@ import { Calendar } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
+import { useScrollToMessage } from '../../hooks/useScrollToMessage';
 import {
   convertToCooked,
   createSchedule,
@@ -11,6 +12,7 @@ import {
 } from '../../store/slices/scheduleSlice';
 import { AppDispatch, RootState } from '../../store/store';
 import { Schedule, ScheduleType } from '../../types/schedule';
+import { MessageDisplay } from '../common/MessageDisplay';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
 import { Input } from '../ui/input';
@@ -22,8 +24,16 @@ import { Label } from '../ui/label';
 const SchedulePage: React.FC = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
+  const { messageRef, scrollToMessage } = useScrollToMessage();
   const { schedules, loading, error } = useSelector((state: RootState) => state.schedule);
   const { user } = useSelector((state: RootState) => state.auth);
+
+  // エラー発生時にスクロール
+  useEffect(() => {
+    if (error) {
+      scrollToMessage();
+    }
+  }, [error, scrollToMessage]);
 
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
@@ -114,11 +124,7 @@ const SchedulePage: React.FC = () => {
         <h1 className="text-3xl font-bold">{t('schedule.title')}</h1>
       </div>
 
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
-        </div>
-      )}
+      <MessageDisplay ref={messageRef} error={error} />
 
       {/* 検索フォーム */}
       <Card className="p-4 mb-6">

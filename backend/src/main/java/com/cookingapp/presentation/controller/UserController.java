@@ -1,16 +1,39 @@
 package com.cookingapp.presentation.controller;
 
-import com.cookingapp.application.usecase.user.*;
-import com.cookingapp.domain.entity.User;
-import com.cookingapp.domain.valueobject.Language;
-import com.cookingapp.presentation.dto.*;
-import com.cookingapp.presentation.mapper.UserMapper;
-import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.cookingapp.application.usecase.user.ConfirmSignUpUseCase;
+import com.cookingapp.application.usecase.user.DeleteUserAccountUseCase;
+import com.cookingapp.application.usecase.user.GetUserProfileUseCase;
+import com.cookingapp.application.usecase.user.LoginUserUseCase;
+import com.cookingapp.application.usecase.user.RegisterUserUseCase;
+import com.cookingapp.application.usecase.user.ResendConfirmationCodeUseCase;
+import com.cookingapp.application.usecase.user.UpdateUserProfileUseCase;
+import com.cookingapp.application.usecase.user.UploadProfileImageUseCase;
+import com.cookingapp.domain.entity.User;
+import com.cookingapp.domain.valueobject.Language;
+import com.cookingapp.presentation.dto.ConfirmSignUpRequest;
+import com.cookingapp.presentation.dto.LoginRequest;
+import com.cookingapp.presentation.dto.LoginResponse;
+import com.cookingapp.presentation.dto.RegisterUserRequest;
+import com.cookingapp.presentation.dto.ResendConfirmationCodeRequest;
+import com.cookingapp.presentation.dto.UpdateProfileRequest;
+import com.cookingapp.presentation.dto.UserResponse;
+import com.cookingapp.presentation.mapper.UserMapper;
+
+import jakarta.validation.Valid;
 
 /**
  * ユーザー管理コントローラー
@@ -59,8 +82,7 @@ public class UserController {
                 request.getEmail(),
                 request.getPassword(),
                 request.getNickname(),
-                language
-        );
+                language);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(UserMapper.toResponse(user));
     }
@@ -93,16 +115,14 @@ public class UserController {
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
         LoginUserUseCase.LoginResult result = loginUserUseCase.execute(
                 request.getEmail(),
-                request.getPassword()
-        );
+                request.getPassword());
 
         LoginResponse response = new LoginResponse(
                 result.getTokens().getAccessToken(),
                 result.getTokens().getRefreshToken(),
                 result.getTokens().getIdToken(),
                 result.getTokens().getExpiresIn(),
-                UserMapper.toResponse(result.getUser())
-        );
+                UserMapper.toResponse(result.getUser()));
 
         return ResponseEntity.ok(response);
     }
@@ -134,8 +154,7 @@ public class UserController {
                 request.getDisplayName(),
                 language,
                 request.getTimezone(),
-                request.getMarketingOptOut() != null ? request.getMarketingOptOut() : false
-        );
+                request.getMarketingOptOut() != null ? request.getMarketingOptOut() : false);
 
         return ResponseEntity.ok(UserMapper.toResponse(user));
     }
@@ -152,11 +171,11 @@ public class UserController {
 
     /**
      * プロフィール画像アップロード
-     * POST /api/users/profile/image
+     * POST /api/users/profile/{userId}/image
      */
-    @PostMapping(value = "/profile/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/profile/{userId}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UserResponse> uploadProfileImage(
-            @RequestParam("userId") String userId,
+            @PathVariable("userId") String userId,
             @RequestParam("file") MultipartFile file) {
         User user = uploadProfileImageUseCase.execute(userId, file);
         return ResponseEntity.ok(UserMapper.toResponse(user));
