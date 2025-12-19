@@ -27,11 +27,9 @@ const Header: React.FC = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* ロゴ */}
-          <div
-            className="text-xl font-bold text-green-600 cursor-pointer"
-            onClick={() => navigate('/')}
-          >
-            {t('app.title')}
+          <div className="flex items-center space-x-3 cursor-pointer" onClick={() => navigate('/')}>
+            <img src="/logo.svg" alt="Logo" className="h-20 w-20" />
+            <span className="text-xl font-bold text-orange-500">{t('app.title')}</span>
           </div>
 
           {/* ナビゲーションメニュー */}
