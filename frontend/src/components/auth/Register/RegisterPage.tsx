@@ -1,14 +1,15 @@
+import { LogIn, UserPlus } from 'lucide-react';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../hooks/useAuth';
-import { useTranslation } from 'react-i18next';
 import { useForm } from '../../../hooks/useForm';
 import { FormField } from '../../common/FormField';
 import {
-  registerFormInitialValues,
   getRegisterValidationRules,
-  registerFormFields,
   languageOptions,
+  registerFormFields,
+  registerFormInitialValues,
 } from './registerFormConfig';
 
 /**
@@ -42,6 +43,9 @@ export const RegisterPage: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
+          <div className="flex justify-center mb-4">
+            <UserPlus size={48} className="text-green-600" />
+          </div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             {t('auth.register')}
           </h2>
@@ -69,7 +73,10 @@ export const RegisterPage: React.FC = () => {
             ))}
 
             <div>
-              <label htmlFor="preferredLanguage" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="preferredLanguage"
+                className="block text-sm font-medium text-gray-700"
+              >
                 {t('auth.preferredLanguage')}
               </label>
               <select
@@ -92,9 +99,10 @@ export const RegisterPage: React.FC = () => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+              className="group relative w-full flex justify-center items-center space-x-2 py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
             >
-              {isSubmitting ? t('common.loading') : t('auth.register')}
+              <UserPlus size={18} />
+              <span>{isSubmitting ? t('common.loading') : t('auth.register')}</span>
             </button>
           </div>
 
@@ -102,9 +110,10 @@ export const RegisterPage: React.FC = () => {
             <button
               type="button"
               onClick={() => navigate('/login')}
-              className="text-sm text-green-600 hover:text-green-500"
+              className="flex items-center justify-center space-x-1 text-sm text-green-600 hover:text-green-500 mx-auto"
             >
-              {t('auth.hasAccount')}
+              <LogIn size={16} />
+              <span>{t('auth.hasAccount')}</span>
             </button>
           </div>
         </form>

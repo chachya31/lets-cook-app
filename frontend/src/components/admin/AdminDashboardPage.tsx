@@ -1,3 +1,4 @@
+import { Shield } from 'lucide-react';
 import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
@@ -46,7 +47,10 @@ const AdminDashboardPage: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">{t('admin.dashboard.title')}</h1>
+      <div className="flex items-center space-x-3 mb-8">
+        <Shield size={32} className="text-green-600" />
+        <h1 className="text-3xl font-bold">{t('admin.dashboard.title')}</h1>
+      </div>
 
       {/* 統計カード */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">

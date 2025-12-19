@@ -1,14 +1,15 @@
+import { Calendar } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { AppDispatch, RootState } from '../../store/store';
+import { useDispatch, useSelector } from 'react-redux';
 import {
-  fetchSchedules,
-  createSchedule,
-  updateSchedule,
-  deleteSchedule,
   convertToCooked,
+  createSchedule,
+  deleteSchedule,
+  fetchSchedules,
+  updateSchedule,
 } from '../../store/slices/scheduleSlice';
+import { AppDispatch, RootState } from '../../store/store';
 import { Schedule, ScheduleType } from '../../types/schedule';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
@@ -108,7 +109,10 @@ const SchedulePage: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6">{t('schedule.title')}</h1>
+      <div className="flex items-center space-x-3 mb-6">
+        <Calendar size={32} className="text-green-600" />
+        <h1 className="text-3xl font-bold">{t('schedule.title')}</h1>
+      </div>
 
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
@@ -268,11 +272,7 @@ const SchedulePage: React.FC = () => {
                     {t('schedule.convertToCooked')}
                   </Button>
                 )}
-                <Button
-                  onClick={() => setEditingSchedule(schedule)}
-                  size="sm"
-                  variant="outline"
-                >
+                <Button onClick={() => setEditingSchedule(schedule)} size="sm" variant="outline">
                   {t('common.edit')}
                 </Button>
                 <Button

@@ -1,19 +1,20 @@
+import { ShoppingCart } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { AppDispatch, RootState } from '../../store/store';
+import { useDispatch, useSelector } from 'react-redux';
 import {
-  fetchShoppingList,
   addShoppingListItem,
-  updateShoppingListItem,
   deleteShoppingListItem,
+  fetchShoppingList,
+  updateShoppingListItem,
 } from '../../store/slices/shoppingListSlice';
+import { AppDispatch, RootState } from '../../store/store';
+import { formatUnit } from '../../utils/unitHelper';
 import { Button } from '../ui/button';
+import { Card } from '../ui/card';
+import { Checkbox } from '../ui/checkbox';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
-import { Checkbox } from '../ui/checkbox';
-import { Card } from '../ui/card';
-import { formatUnit } from '../../utils/unitHelper';
 
 const ShoppingListPage: React.FC = () => {
   const { t } = useTranslation();
@@ -80,7 +81,10 @@ const ShoppingListPage: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <h1 className="text-3xl font-bold mb-6">{t('shoppingList.title')}</h1>
+      <div className="flex items-center space-x-3 mb-6">
+        <ShoppingCart size={32} className="text-green-600" />
+        <h1 className="text-3xl font-bold">{t('shoppingList.title')}</h1>
+      </div>
 
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
@@ -219,9 +223,7 @@ const ShoppingListPage: React.FC = () => {
       )}
 
       {items.length === 0 && !loading && (
-        <div className="text-center py-12 text-gray-500">
-          {t('shoppingList.empty')}
-        </div>
+        <div className="text-center py-12 text-gray-500">{t('shoppingList.empty')}</div>
       )}
     </div>
   );

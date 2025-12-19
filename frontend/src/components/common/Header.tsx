@@ -1,4 +1,5 @@
-import React from 'react';
+import { Calendar, LogOut, Search, Shield, ShoppingCart, User } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -15,6 +16,8 @@ const Header: React.FC = () => {
   const currentUser = useSelector((state: RootState) => state.auth.user);
   const isLoggedIn = !!currentUser;
   const isAdmin = currentUser?.roles?.includes('Admins') ?? false;
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
 
   const handleLogout = () => {
     localStorage.removeItem('userId');
@@ -22,13 +25,30 @@ const Header: React.FC = () => {
     navigate('/login');
   };
 
+  // メニュー外クリックで閉じる
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
+        setIsProfileMenuOpen(false);
+      }
+    };
+
+    if (isProfileMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isProfileMenuOpen]);
+
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* ロゴ */}
           <div className="flex items-center space-x-3 cursor-pointer" onClick={() => navigate('/')}>
-            <img src="/logo.svg" alt="Logo" className="h-20 w-20" />
+            <img src="/logo.svg" alt="Logo" className="h-12 w-auto" />
             <span className="text-xl font-bold text-orange-500">{t('app.title')}</span>
           </div>
 
@@ -36,28 +56,32 @@ const Header: React.FC = () => {
           <nav className="hidden md:flex items-center space-x-6">
             <button
               onClick={() => navigate('/recipes')}
-              className="text-gray-700 hover:text-green-600 transition-colors"
+              className="flex items-center space-x-1 text-gray-700 hover:text-green-600 transition-colors"
             >
-              {t('recipe.search.title')}
+              <Search size={18} />
+              <span>{t('recipe.search.title')}</span>
             </button>
             <button
               onClick={() => navigate('/schedules')}
-              className="text-gray-700 hover:text-green-600 transition-colors"
+              className="flex items-center space-x-1 text-gray-700 hover:text-green-600 transition-colors"
             >
-              {t('schedule.title')}
+              <Calendar size={18} />
+              <span>{t('schedule.title')}</span>
             </button>
             <button
               onClick={() => navigate('/shopping-list')}
-              className="text-gray-700 hover:text-green-600 transition-colors"
+              className="flex items-center space-x-1 text-gray-700 hover:text-green-600 transition-colors"
             >
-              {t('shoppingList.title')}
+              <ShoppingCart size={18} />
+              <span>{t('shoppingList.title')}</span>
             </button>
             {isAdmin && (
               <button
                 onClick={() => navigate('/admin')}
-                className="text-gray-700 hover:text-green-600 transition-colors"
+                className="flex items-center space-x-1 text-gray-700 hover:text-green-600 transition-colors"
               >
-                {t('admin.dashboard.title')}
+                <Shield size={18} />
+                <span>{t('admin.dashboard.title')}</span>
               </button>
             )}
           </nav>
@@ -69,12 +93,47 @@ const Header: React.FC = () => {
                 <Button variant="outline" size="sm" onClick={() => navigate('/recipes/new')}>
                   {t('recipe.create.button')}
                 </Button>
-                <Button variant="ghost" size="sm" onClick={() => navigate('/profile/edit')}>
-                  {t('profile.title')}
-                </Button>
-                <Button variant="ghost" size="sm" onClick={handleLogout}>
-                  {t('auth.logout')}
-                </Button>
+                {/* プロフィールメニュー */}
+                <div className="relative" ref={profileMenuRef}>
+                  <button
+                    onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                    className="flex items-center space-x-2 focus:outline-none"
+                  >
+                    <img
+                      src={currentUser.profileImageUrl || '/default-avatar.png'}
+                      alt={currentUser.nickname}
+                      className="h-10 w-10 rounded-full object-cover border-2 border-gray-200 hover:border-orange-500 transition-colors"
+                    />
+                  </button>
+                  {isProfileMenuOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
+                      <div className="px-4 py-2 border-b border-gray-200">
+                        <p className="text-sm font-medium text-gray-900">{currentUser.nickname}</p>
+                        <p className="text-xs text-gray-500">{currentUser.email}</p>
+                      </div>
+                      <button
+                        onClick={() => {
+                          setIsProfileMenuOpen(false);
+                          navigate('/profile/edit');
+                        }}
+                        className="flex items-center space-x-2 w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        <User size={16} />
+                        <span>{t('profile.title')}</span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          setIsProfileMenuOpen(false);
+                          handleLogout();
+                        }}
+                        className="flex items-center space-x-2 w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        <LogOut size={16} />
+                        <span>{t('auth.logout')}</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
               </>
             ) : (
               <>

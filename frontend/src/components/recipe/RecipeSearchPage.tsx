@@ -1,12 +1,13 @@
+import { Plus, Search } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { AppDispatch, RootState } from '../../store/store';
 import { searchRecipes } from '../../store/recipeSlice';
-import { useTranslation } from 'react-i18next';
+import { AppDispatch, RootState } from '../../store/store';
 import { Button } from '../ui/button';
-import { Input } from '../ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import { Input } from '../ui/input';
 
 /**
  * レシピ検索ページ
@@ -38,8 +39,14 @@ const RecipeSearchPage: React.FC = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">{t('recipe.search.title')}</h1>
-        <Button onClick={handleCreateRecipe}>{t('recipe.create.button')}</Button>
+        <div className="flex items-center space-x-3">
+          <Search size={32} className="text-green-600" />
+          <h1 className="text-3xl font-bold">{t('recipe.search.title')}</h1>
+        </div>
+        <Button onClick={handleCreateRecipe} className="flex items-center space-x-2">
+          <Plus size={18} />
+          <span>{t('recipe.create.button')}</span>
+        </Button>
       </div>
 
       <form onSubmit={handleSearch} className="mb-6">

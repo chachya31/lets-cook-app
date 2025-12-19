@@ -1,3 +1,4 @@
+import { Save, User, X } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
@@ -129,7 +130,10 @@ const ProfileEditPage: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-2xl">
-      <h1 className="text-3xl font-bold mb-6">{t('profile.edit.title')}</h1>
+      <div className="flex items-center space-x-3 mb-6">
+        <User size={32} className="text-green-600" />
+        <h1 className="text-3xl font-bold">{t('profile.edit.title')}</h1>
+      </div>
 
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
@@ -232,11 +236,19 @@ const ProfileEditPage: React.FC = () => {
 
         {/* アクションボタン */}
         <div className="flex gap-2 justify-end">
-          <Button type="button" variant="outline" onClick={handleCancel} disabled={loading}>
-            {t('common.cancel')}
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleCancel}
+            disabled={loading}
+            className="flex items-center space-x-2"
+          >
+            <X size={16} />
+            <span>{t('common.cancel')}</span>
           </Button>
-          <Button type="submit" disabled={loading}>
-            {loading ? t('common.saving') : t('common.save')}
+          <Button type="submit" disabled={loading} className="flex items-center space-x-2">
+            <Save size={16} />
+            <span>{loading ? t('common.saving') : t('common.save')}</span>
           </Button>
         </div>
       </form>
