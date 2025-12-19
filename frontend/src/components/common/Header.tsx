@@ -99,11 +99,19 @@ const Header: React.FC = () => {
                     onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
                     className="flex items-center space-x-2 focus:outline-none"
                   >
-                    <img
-                      src={currentUser.profileImageUrl || '/default-avatar.png'}
-                      alt={currentUser.nickname}
-                      className="h-10 w-10 rounded-full object-cover border-2 border-gray-200 hover:border-orange-500 transition-colors"
-                    />
+                    {currentUser.profileImageUrl ? (
+                      <img
+                        src={currentUser.profileImageUrl}
+                        alt={currentUser.nickname}
+                        className="h-10 w-10 rounded-full object-cover border-2 border-gray-200 hover:border-orange-500 transition-colors"
+                      />
+                    ) : (
+                      <div className="h-10 w-10 rounded-full bg-orange-500 flex items-center justify-center border-2 border-gray-200 hover:border-orange-600 transition-colors">
+                        <span className="text-white font-semibold text-lg">
+                          {currentUser.nickname.charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                    )}
                   </button>
                   {isProfileMenuOpen && (
                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
