@@ -74,6 +74,7 @@
     "formats": "지원 형식: {{formats}}",
     "maxSize": "최대 크기: {{maxSize}}MB",
     "removeImage": "이미지 삭제",
+    "changeImage": "이미지 변경",
     "errors": {
       "fileTooLarge": "파일 크기가 너무 큽니다. 최대 {{maxSize}}MB까지 가능합니다",
       "invalidFormat": "지원되지 않는 파일 형식입니다. JPEG, PNG만 지원합니다"

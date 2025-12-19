@@ -17,7 +17,7 @@ import { LanguageSelector } from './LanguageSelector';
  * プロフィール編集ページ
  */
 const ProfileEditPage: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const currentUser = useSelector((state: RootState) => state.auth.user);
 
@@ -91,7 +91,7 @@ const ProfileEditPage: React.FC = () => {
 
     try {
       // プロフィール情報を更新
-      await updateProfile(currentUser.userId, {
+      const updatedUser = await updateProfile(currentUser.userId, {
         nickname,
         displayName,
         preferredLanguage: language,
@@ -101,15 +101,24 @@ const ProfileEditPage: React.FC = () => {
 
       // 画像が選択されている場合はアップロード
       if (selectedImageFile) {
-        const updatedUser = await uploadProfileImage(currentUser.userId, selectedImageFile);
-        setProfileImageUrl(updatedUser.profileImageUrl);
+        const userWithImage = await uploadProfileImage(currentUser.userId, selectedImageFile);
+        setProfileImageUrl(userWithImage.profileImageUrl);
         setSelectedImageFile(null);
       }
 
+      // localStorageのユーザー情報を更新
+      const userJson = localStorage.getItem('user');
+      if (userJson) {
+        const user = JSON.parse(userJson);
+        const updatedUserData = { ...user, ...updatedUser, preferredLanguage: language };
+        localStorage.setItem('user', JSON.stringify(updatedUserData));
+      }
+
+      // 保存後に言語を切り替え
+      await i18n.changeLanguage(language);
+      localStorage.setItem('preferredLanguage', language);
+
       setSuccess(true);
-      setTimeout(() => {
-        navigate('/dashboard');
-      }, 2000);
     } catch (err) {
       setError(t('profile.errors.updateFailed'));
     } finally {

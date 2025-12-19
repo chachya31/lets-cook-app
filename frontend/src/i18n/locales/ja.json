@@ -74,6 +74,7 @@
     "formats": "対応形式: {{formats}}",
     "maxSize": "最大サイズ: {{maxSize}}MB",
     "removeImage": "画像を削除",
+    "changeImage": "画像を変更",
     "errors": {
       "fileTooLarge": "ファイルサイズが大きすぎます。最大{{maxSize}}MBまでです",
       "invalidFormat": "サポートされていないファイル形式です。JPEG、PNGのみ対応しています"

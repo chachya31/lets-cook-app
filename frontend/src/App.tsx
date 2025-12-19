@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useSelector } from 'react-redux';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import AdminDashboardPage from './components/admin/AdminDashboardPage';
 import RecipeManagementPage from './components/admin/RecipeManagementPage';
@@ -17,10 +19,20 @@ import RecipeEditPage from './components/recipe/RecipeEdit/RecipeEditPage';
 import RecipeSearchPage from './components/recipe/RecipeSearchPage';
 import SchedulePage from './components/schedule/SchedulePage';
 import ShoppingListPage from './components/shopping/ShoppingListPage';
+import { RootState } from './store/store';
 
 const App: React.FC = () => {
   const location = useLocation();
-  
+  const { i18n } = useTranslation();
+  const currentUser = useSelector((state: RootState) => state.auth.user);
+
+  // ログインユーザーの優先言語に切り替え
+  useEffect(() => {
+    if (currentUser?.preferredLanguage && i18n.language !== currentUser.preferredLanguage) {
+      i18n.changeLanguage(currentUser.preferredLanguage);
+    }
+  }, [currentUser, i18n]);
+
   // 認証ページではヘッダーとフッターを非表示
   const isAuthPage = ['/login', '/register', '/confirm-email', '/password-reset'].includes(
     location.pathname
