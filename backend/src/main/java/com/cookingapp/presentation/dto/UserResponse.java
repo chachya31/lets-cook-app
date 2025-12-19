@@ -1,11 +1,13 @@
 package com.cookingapp.presentation.dto;
 
-import com.cookingapp.domain.entity.User;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
+
+import com.cookingapp.domain.entity.User;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 /**
  * ユーザーレスポンス
@@ -24,9 +26,10 @@ public class UserResponse {
     private LocalDateTime createdAt;
     private String timezone;
     private boolean marketingOptOut;
+    private List<String> roles;
 
     /**
-     * UserエンティティからUserResponseを生成
+     * UserエンティティからUserResponseを生成（rolesなし）
      */
     public static UserResponse from(User user) {
         return new UserResponse(
@@ -40,7 +43,26 @@ public class UserResponse {
                 user.getLastLoginDate(),
                 user.getCreatedAt(),
                 user.getTimezone(),
-                user.isMarketingOptOut()
-        );
+                user.isMarketingOptOut(),
+                null);
+    }
+
+    /**
+     * UserエンティティとrolesからUserResponseを生成
+     */
+    public static UserResponse from(User user, List<String> roles) {
+        return new UserResponse(
+                user.getUserId(),
+                user.getEmail(),
+                user.getNickname(),
+                user.getDisplayName(),
+                user.getProfileImageUrl(),
+                user.getPreferredLanguage().getCode(),
+                user.getLastCookingDate(),
+                user.getLastLoginDate(),
+                user.getCreatedAt(),
+                user.getTimezone(),
+                user.isMarketingOptOut(),
+                roles);
     }
 }

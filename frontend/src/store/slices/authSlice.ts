@@ -1,14 +1,52 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { loginUser, registerUser } from '../../api/userApi';
-import {
-  AuthState,
-  LoginRequest,
-  LoginResponse,
-  RegisterRequest,
-} from '../../types/user';
+import { AuthState, LoginRequest, LoginResponse, RegisterRequest, User } from '../../types/user';
+
+/**
+ * JWTトークンからペイロードを抽出
+ */
+const decodeJwtPayload = (token: string): Record<string, unknown> | null => {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch {
+    return null;
+  }
+};
+
+/**
+ * JWTトークンからCognitoグループを抽出
+ */
+const extractRolesFromToken = (idToken: string): string[] => {
+  const payload = decodeJwtPayload(idToken);
+  if (payload && Array.isArray(payload['cognito:groups'])) {
+    return payload['cognito:groups'] as string[];
+  }
+  return [];
+};
+
+// localStorageからユーザー情報を復元
+const loadUserFromStorage = (): User | null => {
+  const userJson = localStorage.getItem('user');
+  if (userJson) {
+    try {
+      return JSON.parse(userJson);
+    } catch {
+      return null;
+    }
+  }
+  return null;
+};
 
 const initialState: AuthState = {
-  user: null,
+  user: loadUserFromStorage(),
   accessToken: localStorage.getItem('accessToken'),
   refreshToken: localStorage.getItem('refreshToken'),
   isAuthenticated: !!localStorage.getItem('accessToken'),
@@ -39,12 +77,18 @@ export const login = createAsyncThunk(
   async (data: LoginRequest, { rejectWithValue }) => {
     try {
       const response = await loginUser(data);
-      // トークンとユーザーIDをlocalStorageに保存
+      // JWTからロール（グループ）を抽出
+      const roles = extractRolesFromToken(response.idToken);
+      const userWithRoles = { ...response.user, roles };
+
+      // トークンとユーザー情報をlocalStorageに保存
       localStorage.setItem('accessToken', response.accessToken);
       localStorage.setItem('refreshToken', response.refreshToken);
       localStorage.setItem('idToken', response.idToken);
       localStorage.setItem('userId', response.user.userId);
-      return response;
+      localStorage.setItem('user', JSON.stringify(userWithRoles));
+
+      return { ...response, user: userWithRoles };
     } catch (error) {
       return rejectWithValue((error as Error).message);
     }
@@ -64,6 +108,7 @@ const authSlice = createSlice({
       localStorage.removeItem('refreshToken');
       localStorage.removeItem('idToken');
       localStorage.removeItem('userId');
+      localStorage.removeItem('user');
     },
     clearError: (state) => {
       state.error = null;
@@ -91,16 +136,13 @@ const authSlice = createSlice({
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(
-        login.fulfilled,
-        (state, action: PayloadAction<LoginResponse>) => {
-          state.isLoading = false;
-          state.user = action.payload.user;
-          state.accessToken = action.payload.accessToken;
-          state.refreshToken = action.payload.refreshToken;
-          state.isAuthenticated = true;
-        }
-      )
+      .addCase(login.fulfilled, (state, action: PayloadAction<LoginResponse>) => {
+        state.isLoading = false;
+        state.user = action.payload.user;
+        state.accessToken = action.payload.accessToken;
+        state.refreshToken = action.payload.refreshToken;
+        state.isAuthenticated = true;
+      })
       .addCase(login.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;

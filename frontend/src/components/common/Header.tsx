@@ -1,6 +1,8 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { RootState } from '../../store/store';
 import { Button } from '../ui/button';
 
 /**
@@ -10,7 +12,9 @@ import { Button } from '../ui/button';
 const Header: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const isLoggedIn = !!localStorage.getItem('userId');
+  const currentUser = useSelector((state: RootState) => state.auth.user);
+  const isLoggedIn = !!currentUser;
+  const isAdmin = currentUser?.roles?.includes('Admins') ?? false;
 
   const handleLogout = () => {
     localStorage.removeItem('userId');
@@ -50,7 +54,7 @@ const Header: React.FC = () => {
             >
               {t('shoppingList.title')}
             </button>
-            {isLoggedIn && (
+            {isAdmin && (
               <button
                 onClick={() => navigate('/admin')}
                 className="text-gray-700 hover:text-green-600 transition-colors"
@@ -64,18 +68,10 @@ const Header: React.FC = () => {
           <div className="flex items-center space-x-4">
             {isLoggedIn ? (
               <>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => navigate('/recipes/new')}
-                >
+                <Button variant="outline" size="sm" onClick={() => navigate('/recipes/new')}>
                   {t('recipe.create.button')}
                 </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => navigate('/profile/edit')}
-                >
+                <Button variant="ghost" size="sm" onClick={() => navigate('/profile/edit')}>
                   {t('profile.title')}
                 </Button>
                 <Button variant="ghost" size="sm" onClick={handleLogout}>
@@ -84,18 +80,10 @@ const Header: React.FC = () => {
               </>
             ) : (
               <>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => navigate('/login')}
-                >
+                <Button variant="ghost" size="sm" onClick={() => navigate('/login')}>
                   {t('auth.login')}
                 </Button>
-                <Button
-                  variant="default"
-                  size="sm"
-                  onClick={() => navigate('/register')}
-                >
+                <Button variant="default" size="sm" onClick={() => navigate('/register')}>
                   {t('auth.register')}
                 </Button>
               </>

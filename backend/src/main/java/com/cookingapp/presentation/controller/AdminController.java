@@ -18,10 +18,12 @@ import com.cookingapp.application.usecase.admin.DeleteRecipeByAdminUseCase;
 import com.cookingapp.application.usecase.admin.DeleteUserByAdminUseCase;
 import com.cookingapp.application.usecase.admin.GetAdminDashboardStatsUseCase;
 import com.cookingapp.application.usecase.admin.GetAllRecipesForAdminUseCase;
+import com.cookingapp.application.usecase.admin.GetAllUsersUseCase;
 import com.cookingapp.application.usecase.admin.SetRecipeStatusUseCase;
 import com.cookingapp.application.usecase.admin.SuspendUserUseCase;
 import com.cookingapp.domain.entity.Recipe;
 import com.cookingapp.presentation.dto.RecipeResponse;
+import com.cookingapp.presentation.dto.UserResponse;
 import com.cookingapp.presentation.dto.request.SetRecipeStatusRequest;
 import com.cookingapp.presentation.dto.response.AdminDashboardResponse;
 import com.cookingapp.presentation.mapper.RecipeMapper;
@@ -43,6 +45,7 @@ public class AdminController {
     private final SuspendUserUseCase suspendUserUseCase;
     private final DeleteUserByAdminUseCase deleteUserByAdminUseCase;
     private final GetAllRecipesForAdminUseCase getAllRecipesForAdminUseCase;
+    private final GetAllUsersUseCase getAllUsersUseCase;
     private final SetRecipeStatusUseCase setRecipeStatusUseCase;
     private final DeleteRecipeByAdminUseCase deleteRecipeByAdminUseCase;
 
@@ -51,12 +54,14 @@ public class AdminController {
             SuspendUserUseCase suspendUserUseCase,
             DeleteUserByAdminUseCase deleteUserByAdminUseCase,
             GetAllRecipesForAdminUseCase getAllRecipesForAdminUseCase,
+            GetAllUsersUseCase getAllUsersUseCase,
             SetRecipeStatusUseCase setRecipeStatusUseCase,
             DeleteRecipeByAdminUseCase deleteRecipeByAdminUseCase) {
         this.getAdminDashboardStatsUseCase = getAdminDashboardStatsUseCase;
         this.suspendUserUseCase = suspendUserUseCase;
         this.deleteUserByAdminUseCase = deleteUserByAdminUseCase;
         this.getAllRecipesForAdminUseCase = getAllRecipesForAdminUseCase;
+        this.getAllUsersUseCase = getAllUsersUseCase;
         this.setRecipeStatusUseCase = setRecipeStatusUseCase;
         this.deleteRecipeByAdminUseCase = deleteRecipeByAdminUseCase;
     }
@@ -78,6 +83,21 @@ public class AdminController {
                 stats.totalRecipes());
 
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * すべてのユーザーを取得（管理者用）
+     * グループ情報（roles）を含む
+     * 
+     * @return ユーザーリスト
+     */
+    @GetMapping("/users")
+    public ResponseEntity<List<UserResponse>> getAllUsers() {
+        log.info("管理者用ユーザー一覧取得リクエスト");
+
+        List<UserResponse> userResponses = getAllUsersUseCase.execute();
+
+        return ResponseEntity.ok(userResponses);
     }
 
     /**

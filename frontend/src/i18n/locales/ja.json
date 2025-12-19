@@ -238,11 +238,21 @@
     },
     "users": {
       "title": "ユーザー管理",
+      "userList": "ユーザー一覧",
+      "noUsers": "ユーザーがいません",
       "manageUser": "ユーザーを管理",
       "userId": "ユーザーID",
       "userIdPlaceholder": "ユーザーIDを入力",
       "suspend": "停止",
       "delete": "削除",
+      "table": {
+        "user": "ユーザー",
+        "nickname": "ニックネーム",
+        "email": "メールアドレス",
+        "role": "権限",
+        "createdAt": "登録日",
+        "actions": "操作"
+      },
       "success": {
         "suspended": "ユーザーを停止しました",
         "deleted": "ユーザーを削除しました"
@@ -253,6 +263,7 @@
         "deleteFailed": "ユーザーの削除に失敗しました"
       },
       "confirm": {
+        "suspend": "本当にこのユーザーを停止しますか？",
         "delete": "本当にこのユーザーを削除しますか？この操作は取り消せません。"
       },
       "warning": {

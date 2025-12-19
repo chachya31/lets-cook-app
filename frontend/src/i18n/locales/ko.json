@@ -238,11 +238,21 @@
     },
     "users": {
       "title": "사용자 관리",
+      "userList": "사용자 목록",
+      "noUsers": "사용자가 없습니다",
       "manageUser": "사용자 관리",
       "userId": "사용자 ID",
       "userIdPlaceholder": "사용자 ID를 입력하세요",
       "suspend": "정지",
       "delete": "삭제",
+      "table": {
+        "user": "사용자",
+        "nickname": "닉네임",
+        "email": "이메일",
+        "role": "권한",
+        "createdAt": "가입일",
+        "actions": "작업"
+      },
       "success": {
         "suspended": "사용자를 정지했습니다",
         "deleted": "사용자를 삭제했습니다"
@@ -253,6 +263,7 @@
         "deleteFailed": "사용자 삭제에 실패했습니다"
       },
       "confirm": {
+        "suspend": "정말로 이 사용자를 정지하시겠습니까?",
         "delete": "정말로 이 사용자를 삭제하시겠습니까? 이 작업은 취소할 수 없습니다."
       },
       "warning": {

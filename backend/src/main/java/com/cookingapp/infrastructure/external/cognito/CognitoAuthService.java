@@ -3,7 +3,9 @@ package com.cookingapp.infrastructure.external.cognito;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -19,6 +21,8 @@ import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityPr
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminAddUserToGroupRequest;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminDeleteUserRequest;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminDisableUserRequest;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminListGroupsForUserRequest;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminListGroupsForUserResponse;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminRemoveUserFromGroupRequest;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AttributeType;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AuthFlowType;
@@ -390,6 +394,32 @@ public class CognitoAuthService
         } catch (CognitoIdentityProviderException e) {
             throw new AuthenticationException(
                     "Failed to remove user from group: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * ユーザーが所属するグループを取得
+     * 
+     * @param username ユーザー名（メールアドレス）
+     * @return グループ名のリスト
+     * @throws AuthenticationException グループ取得に失敗した場合
+     */
+    public List<String> getUserGroups(String username) {
+        try {
+            AdminListGroupsForUserRequest request = AdminListGroupsForUserRequest.builder()
+                    .userPoolId(userPoolId)
+                    .username(username)
+                    .build();
+
+            AdminListGroupsForUserResponse response = cognitoClient.adminListGroupsForUser(request);
+
+            return response.groups().stream()
+                    .map(group -> group.groupName())
+                    .collect(Collectors.toList());
+
+        } catch (CognitoIdentityProviderException e) {
+            throw new AuthenticationException(
+                    "Failed to get user groups: " + e.getMessage(), e);
         }
     }
 

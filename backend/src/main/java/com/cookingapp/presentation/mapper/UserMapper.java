@@ -1,5 +1,8 @@
 package com.cookingapp.presentation.mapper;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.cookingapp.domain.entity.User;
 import com.cookingapp.domain.valueobject.Language;
 import com.cookingapp.presentation.dto.RegisterUserRequest;
@@ -39,5 +42,14 @@ public class UserMapper {
      */
     public static UserResponse toResponse(User user) {
         return UserResponse.from(user);
+    }
+
+    /**
+     * User エンティティリストから UserResponse リストに変換
+     */
+    public static List<UserResponse> toResponseList(List<User> users) {
+        return users.stream()
+                .map(UserResponse::from)
+                .collect(Collectors.toList());
     }
 }

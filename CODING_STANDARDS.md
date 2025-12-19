@@ -77,6 +77,47 @@ public MyRepository(
 
 ---
 
+### import文の管理
+
+#### ❌ 禁止：完全修飾名の使用
+```java
+// メソッドシグネチャやフィールドで完全修飾名を使用
+public java.util.List<User> findAll() {
+    return items.stream()
+        .map(this::mapToUser)
+        .collect(java.util.stream.Collectors.toList());
+}
+```
+
+#### ✅ 必須：import文を使用
+```java
+import java.util.List;
+import java.util.stream.Collectors;
+
+public List<User> findAll() {
+    return items.stream()
+        .map(this::mapToUser)
+        .collect(Collectors.toList());
+}
+```
+
+**理由**: 
+- コードの可読性向上
+- 一貫性の維持
+- IDEの自動補完・リファクタリング機能の活用
+
+**例外**: 
+- 同名のクラスが複数のパッケージに存在する場合のみ、片方を完全修飾名で記述
+  ```java
+  import java.util.Date;
+  
+  public void process(Date utilDate, java.sql.Date sqlDate) {
+      // java.util.Date と java.sql.Date を区別
+  }
+  ```
+
+---
+
 ### デバッグコード
 
 #### ❌ 禁止

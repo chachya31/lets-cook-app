@@ -1,12 +1,20 @@
 import { AdminDashboardStats, SetRecipeStatusRequest } from '../types/admin';
 import { Recipe } from '../types/recipe';
-import { apiGet, apiPut, apiDelete } from '../utils/apiClient';
+import { User } from '../types/user';
+import { apiDelete, apiGet, apiPut } from '../utils/apiClient';
 
 /**
  * 管理者ダッシュボード統計を取得
  */
 export const getAdminDashboardStats = async (): Promise<AdminDashboardStats> => {
   return apiGet<AdminDashboardStats>('/api/admin/dashboard');
+};
+
+/**
+ * すべてのユーザーを取得（管理者用）
+ */
+export const getAllUsers = async (): Promise<User[]> => {
+  return apiGet<User[]>('/api/admin/users');
 };
 
 /**

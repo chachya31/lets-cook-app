@@ -1,13 +1,15 @@
 package com.cookingapp.domain.repository;
 
-import com.cookingapp.domain.entity.User;
+import java.util.List;
 import java.util.Optional;
+
+import com.cookingapp.domain.entity.User;
 
 /**
  * ユーザーリポジトリインターフェース
  */
 public interface UserRepository {
-    
+
     /**
      * ユーザーを保存
      * 
@@ -15,7 +17,7 @@ public interface UserRepository {
      * @return 保存されたユーザー
      */
     User save(User user);
-    
+
     /**
      * ユーザーIDでユーザーを取得
      * 
@@ -23,7 +25,7 @@ public interface UserRepository {
      * @return ユーザー（存在しない場合はEmpty）
      */
     Optional<User> findById(String userId);
-    
+
     /**
      * メールアドレスでユーザーを取得
      * 
@@ -31,14 +33,14 @@ public interface UserRepository {
      * @return ユーザー（存在しない場合はEmpty）
      */
     Optional<User> findByEmail(String email);
-    
+
     /**
      * ユーザーを削除
      * 
      * @param userId ユーザーID
      */
     void delete(String userId);
-    
+
     /**
      * ユーザーが存在するかチェック
      * 
@@ -46,4 +48,11 @@ public interface UserRepository {
      * @return 存在する場合true
      */
     boolean existsById(String userId);
+
+    /**
+     * すべてのユーザーを取得（管理者用）
+     * 
+     * @return ユーザーリスト
+     */
+    List<User> findAll();
 }

@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { AppDispatch, RootState } from '../../store/store';
 import { fetchAdminDashboardStats } from '../../store/slices/adminSlice';
-import { Card } from '../ui/card';
-import { Button } from '../ui/button';
+import { AppDispatch, RootState } from '../../store/store';
 import LoadingSkeleton from '../common/LoadingSkeleton';
+import { Button } from '../ui/button';
+import { Card } from '../ui/card';
 
 /**
  * 管理者ダッシュボードページ
@@ -16,10 +16,17 @@ const AdminDashboardPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { stats, loading, error } = useSelector((state: RootState) => state.admin);
+  const currentUser = useSelector((state: RootState) => state.auth.user);
+  const isAdmin = currentUser?.roles?.includes('Admins') ?? false;
 
   useEffect(() => {
+    // 管理者でない場合はダッシュボードにリダイレクト
+    if (!isAdmin) {
+      navigate('/dashboard');
+      return;
+    }
     dispatch(fetchAdminDashboardStats());
-  }, [dispatch]);
+  }, [dispatch, isAdmin, navigate]);
 
   if (loading) {
     return (

@@ -14,6 +14,7 @@ export interface User {
   createdAt: string;
   timezone: string;
   marketingOptOut: boolean;
+  roles?: string[];
 }
 
 export interface RegisterRequest {
