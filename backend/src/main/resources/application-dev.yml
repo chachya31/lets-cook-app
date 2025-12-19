@@ -1,7 +1,6 @@
 aws:
   region: ${AWS_REGION_NAME:ap-northeast-1}
   dynamodb:
-    endpoint: # 空欄（デフォルトエンドポイントを使用）
     table:
       users: ${DYNAMODB_USERS_TABLE}
       recipes: ${DYNAMODB_RECIPES_TABLE}
@@ -9,7 +8,6 @@ aws:
       shoppingLists: ${DYNAMODB_SHOPPING_LISTS_TABLE}
       reviews: ${DYNAMODB_REVIEWS_TABLE}
   s3:
-    endpoint: # 空欄（デフォルトエンドポイントを使用）
     bucket: ${S3_BUCKET_NAME}
   cognito:
     region: ap-northeast-1
