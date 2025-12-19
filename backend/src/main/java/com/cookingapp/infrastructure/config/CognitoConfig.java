@@ -1,8 +1,11 @@
 package com.cookingapp.infrastructure.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
@@ -16,10 +19,11 @@ import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityPr
  */
 @Configuration
 public class CognitoConfig {
+    private static final Logger log = LoggerFactory.getLogger(CognitoConfig.class);
 
     @Value("${aws.region:ap-northeast-1}")
     private String region;
-    
+
     @Value("${aws.cognito.region:ap-northeast-1}")
     private String cognitoRegion;
 
@@ -32,18 +36,21 @@ public class CognitoConfig {
     @Bean
     public CognitoIdentityProviderClient cognitoIdentityProviderClient() {
         AwsCredentialsProvider credentialsProvider;
-        
+
         // application.ymlに認証情報が設定されている場合はそれを使用
-        if (accessKeyId != null && !accessKeyId.isEmpty() && 
-            secretAccessKey != null && !secretAccessKey.isEmpty()) {
+        if (accessKeyId != null && !accessKeyId.isEmpty() &&
+                secretAccessKey != null && !secretAccessKey.isEmpty()) {
+            log.info("Using static credentials for Cognito");
             credentialsProvider = StaticCredentialsProvider.create(
-                AwsBasicCredentials.create(accessKeyId, secretAccessKey)
-            );
+                    AwsBasicCredentials.create(accessKeyId, secretAccessKey));
         } else {
-            // 設定されていない場合はデフォルト（環境変数、~/.aws/credentials等）
+            // Lambda環境ではDefaultCredentialsProviderがIAMロールの認証情報を自動取得
+            log.info("Using default credentials provider for Cognito (Lambda IAM Role)");
             credentialsProvider = DefaultCredentialsProvider.create();
         }
-        
+
+        log.info("Cognito region: {}", cognitoRegion);
+
         // Cognitoは専用のリージョン設定を使用（LocalStackとは別）
         return CognitoIdentityProviderClient.builder()
                 .region(Region.of(cognitoRegion))

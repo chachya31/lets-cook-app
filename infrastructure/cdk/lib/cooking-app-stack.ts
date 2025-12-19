@@ -1,11 +1,11 @@
 import * as cdk from 'aws-cdk-lib';
-import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
-import * as s3 from 'aws-cdk-lib/aws-s3';
-import * as cognito from 'aws-cdk-lib/aws-cognito';
-import * as apigateway from 'aws-cdk-lib/aws-apigateway';
-import * as lambda from 'aws-cdk-lib/aws-lambda';
-import * as iam from 'aws-cdk-lib/aws-iam';
 import * as amplify from 'aws-cdk-lib/aws-amplify';
+import * as apigateway from 'aws-cdk-lib/aws-apigateway';
+import * as cognito from 'aws-cdk-lib/aws-cognito';
+import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
+import * as iam from 'aws-cdk-lib/aws-iam';
+import * as lambda from 'aws-cdk-lib/aws-lambda';
+import * as s3 from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 
 interface CookingAppStackProps extends cdk.StackProps {
@@ -80,7 +80,10 @@ export class CookingAppStack extends cdk.Stack {
     this.tables.schedules = new dynamodb.Table(this, 'SchedulesTable', {
       tableName: `cooking-app-schedules-${stage}`,
       partitionKey: { name: 'UserId', type: dynamodb.AttributeType.STRING },
-      sortKey: { name: 'DateTypeRecipeId', type: dynamodb.AttributeType.STRING },
+      sortKey: {
+        name: 'DateTypeRecipeId',
+        type: dynamodb.AttributeType.STRING,
+      },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       removalPolicy: stage === 'prod' ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY,
     });
@@ -201,22 +204,36 @@ export class CookingAppStack extends cdk.Stack {
     });
 
     // DynamoDBへのアクセス権限
-    Object.values(this.tables).forEach(table => {
+    Object.values(this.tables).forEach((table) => {
       table.grantReadWriteData(lambdaRole);
     });
+
+    // DynamoDB Query権限を明示的に追加（GSI含む）
+    lambdaRole.addToPolicy(
+      new iam.PolicyStatement({
+        actions: ['dynamodb:Query', 'dynamodb:Scan'],
+        resources: [
+          ...Object.values(this.tables).map((table) => table.tableArn),
+          ...Object.values(this.tables).map((table) => `${table.tableArn}/index/*`),
+        ],
+      })
+    );
 
     // S3へのアクセス権限
     this.imagesBucket.grantReadWrite(lambdaRole);
 
     // Cognitoへのアクセス権限
-    lambdaRole.addToPolicy(new iam.PolicyStatement({
-      actions: [
-        'cognito-idp:AdminGetUser',
-        'cognito-idp:AdminCreateUser',
-        'cognito-idp:AdminDeleteUser',
-      ],
-      resources: [this.userPool.userPoolArn],
-    }));
+    lambdaRole.addToPolicy(
+      new iam.PolicyStatement({
+        actions: [
+          'cognito-idp:AdminGetUser',
+          'cognito-idp:AdminCreateUser',
+          'cognito-idp:AdminDeleteUser',
+          'cognito-idp:AdminListGroupsForUser',
+        ],
+        resources: [this.userPool.userPoolArn],
+      })
+    );
 
     // Lambda関数
     // 注意: デプロイ前に backend/build/libs/backend-1.0.0.jar が存在することを確認してください
@@ -264,7 +281,14 @@ export class CookingAppStack extends cdk.Stack {
       defaultCorsPreflightOptions: {
         allowOrigins: apigateway.Cors.ALL_ORIGINS,
         allowMethods: apigateway.Cors.ALL_METHODS,
-        allowHeaders: ['Content-Type', 'Authorization', 'Accept', 'Accept-Language', 'X-User-Id', 'X-Requested-With'],
+        allowHeaders: [
+          'Content-Type',
+          'Authorization',
+          'Accept',
+          'Accept-Language',
+          'X-User-Id',
+          'X-Requested-With',
+        ],
       },
     });
 

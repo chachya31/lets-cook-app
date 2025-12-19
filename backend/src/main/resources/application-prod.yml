@@ -6,7 +6,7 @@ aws:
       users: ${DYNAMODB_USERS_TABLE}
       recipes: ${DYNAMODB_RECIPES_TABLE}
       schedules: ${DYNAMODB_SCHEDULES_TABLE}
-      shopping-lists: ${DYNAMODB_SHOPPING_LISTS_TABLE}
+      shoppingLists: ${DYNAMODB_SHOPPING_LISTS_TABLE}
       reviews: ${DYNAMODB_REVIEWS_TABLE}
   s3:
     endpoint: # 空欄（デフォルトエンドポイントを使用）

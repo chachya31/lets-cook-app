@@ -6,12 +6,12 @@ aws:
       users: ${DYNAMODB_USERS_TABLE}
       recipes: ${DYNAMODB_RECIPES_TABLE}
       schedules: ${DYNAMODB_SCHEDULES_TABLE}
-      shopping-lists: ${DYNAMODB_SHOPPING_LISTS_TABLE}
+      shoppingLists: ${DYNAMODB_SHOPPING_LISTS_TABLE}
       reviews: ${DYNAMODB_REVIEWS_TABLE}
   s3:
     endpoint: # 空欄（デフォルトエンドポイントを使用）
     bucket: ${S3_BUCKET_NAME}
   cognito:
-    endpoint: # 空欄（デフォルトエンドポイントを使用）
+    region: ap-northeast-1
     userPoolId: ${AWS_COGNITO_USER_POOL_ID}
     clientId: ${AWS_COGNITO_CLIENT_ID}
