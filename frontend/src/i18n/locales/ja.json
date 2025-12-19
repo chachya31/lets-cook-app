@@ -36,7 +36,10 @@
       "success": "メールアドレスが確認されました。ログインしてください",
       "error": "確認コードが無効です",
       "resendSuccess": "確認コードを再送信しました",
-      "resendError": "確認コードの再送信に失敗しました"
+      "resendError": "確認コードの再送信に失敗しました",
+      "remainingTime": "残り時間: {{time}}",
+      "codeExpired": "確認コードの有効期限が切れました",
+      "codeExpiredError": "確認コードの有効期限が切れました。再発行してください"
     }
   },
   "language": {

@@ -36,7 +36,10 @@
       "success": "이메일 주소가 확인되었습니다. 로그인하세요",
       "error": "확인 코드가 유효하지 않습니다",
       "resendSuccess": "확인 코드를 재전송했습니다",
-      "resendError": "확인 코드 재전송에 실패했습니다"
+      "resendError": "확인 코드 재전송에 실패했습니다",
+      "remainingTime": "남은 시간: {{time}}",
+      "codeExpired": "확인 코드의 유효 기간이 만료되었습니다",
+      "codeExpiredError": "확인 코드의 유효 기간이 만료되었습니다. 재발급해 주세요"
     }
   },
   "language": {

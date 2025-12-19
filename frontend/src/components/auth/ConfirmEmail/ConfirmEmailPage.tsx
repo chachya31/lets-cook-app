@@ -1,37 +1,98 @@
-import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { Clock, RefreshCw } from 'lucide-react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Card } from '../../ui/card';
-import { Button } from '../../ui/button';
-import { useForm } from '../../../hooks/useForm';
-import { FormField } from '../../common/FormField';
+import { useDispatch } from 'react-redux';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { confirmSignUp, resendConfirmationCode } from '../../../api/userApi';
+import { useForm } from '../../../hooks/useForm';
+import { login } from '../../../store/slices/authSlice';
+import { AppDispatch } from '../../../store/store';
+import { FormField } from '../../common/FormField';
+import { Button } from '../../ui/button';
+import { Card } from '../../ui/card';
 import {
+  confirmEmailFormFields,
   confirmEmailFormInitialValues,
   getConfirmEmailValidationRules,
-  confirmEmailFormFields,
 } from './confirmEmailFormConfig';
+
+// 確認コードの有効期間（秒）
+const CODE_VALIDITY_SECONDS = 5 * 60; // 5分
 
 export const ConfirmEmailPage: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch<AppDispatch>();
   const email = location.state?.email || '';
+  const password = location.state?.password || '';
 
   const [error, setError] = useState('');
   const [isResending, setIsResending] = useState(false);
   const [resendMessage, setResendMessage] = useState('');
+  const [remainingSeconds, setRemainingSeconds] = useState(CODE_VALIDITY_SECONDS);
+  const [isCodeExpired, setIsCodeExpired] = useState(false);
+  const [hasResent, setHasResent] = useState(false);
+
+  // タイマーをリセット
+  const resetTimer = useCallback(() => {
+    setRemainingSeconds(CODE_VALIDITY_SECONDS);
+    setIsCodeExpired(false);
+    setHasResent(true);
+  }, []);
+
+  // カウントダウンタイマー
+  useEffect(() => {
+    if (remainingSeconds <= 0) {
+      setIsCodeExpired(true);
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setRemainingSeconds((prev) => {
+        if (prev <= 1) {
+          setIsCodeExpired(true);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [remainingSeconds]);
+
+  // 残り時間をフォーマット（MM:SS）
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
 
   const handleFormSubmit = async (values: typeof confirmEmailFormInitialValues) => {
     setError('');
 
+    // 有効期限切れで再発行していない場合はブロック
+    if (isCodeExpired && !hasResent) {
+      setError(t('auth.confirmEmail.codeExpiredError'));
+      return;
+    }
+
     try {
+      // 確認コードを検証
       await confirmSignUp(email, values.confirmationCode);
-      navigate('/login', {
-        state: { message: t('auth.confirmEmail.success') }
-      });
+
+      // パスワードがある場合は自動ログイン
+      if (password) {
+        await dispatch(login({ email, password })).unwrap();
+        navigate('/dashboard');
+      } else {
+        // パスワードがない場合はログイン画面へ
+        navigate('/login', {
+          state: { message: t('auth.confirmEmail.success') },
+        });
+      }
     } catch (err: any) {
-      setError(err.response?.data?.message || t('auth.confirmEmail.error'));
+      setError(err.message || t('auth.confirmEmail.error'));
     }
   };
 
@@ -49,6 +110,7 @@ export const ConfirmEmailPage: React.FC = () => {
     try {
       await resendConfirmationCode(email);
       setResendMessage(t('auth.confirmEmail.resendSuccess'));
+      resetTimer();
     } catch (err: any) {
       setError(err.response?.data?.message || t('auth.confirmEmail.resendError'));
     } finally {
@@ -66,6 +128,22 @@ export const ConfirmEmailPage: React.FC = () => {
           <p className="mt-2 text-center text-sm text-gray-600">
             {t('auth.confirmEmail.description', { email })}
           </p>
+        </div>
+
+        {/* カウントダウンタイマー */}
+        <div
+          className={`flex items-center justify-center space-x-2 p-3 rounded-md ${
+            isCodeExpired ? 'bg-red-50 text-red-700' : 'bg-blue-50 text-blue-700'
+          }`}
+        >
+          <Clock size={20} />
+          {isCodeExpired ? (
+            <span className="font-medium">{t('auth.confirmEmail.codeExpired')}</span>
+          ) : (
+            <span className="font-medium">
+              {t('auth.confirmEmail.remainingTime', { time: formatTime(remainingSeconds) })}
+            </span>
+          )}
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
@@ -94,6 +172,7 @@ export const ConfirmEmailPage: React.FC = () => {
                 error={errors[field.name]}
                 onChange={handleChange}
                 maxLength={field.maxLength}
+                disabled={isCodeExpired && !hasResent}
               />
             ))}
           </div>
@@ -101,7 +180,7 @@ export const ConfirmEmailPage: React.FC = () => {
           <div className="flex flex-col space-y-4">
             <Button
               type="submit"
-              disabled={isSubmitting || !values.confirmationCode}
+              disabled={isSubmitting || !values.confirmationCode || (isCodeExpired && !hasResent)}
               className="w-full"
             >
               {isSubmitting ? t('common.loading') : t('auth.confirmEmail.submit')}
@@ -109,12 +188,13 @@ export const ConfirmEmailPage: React.FC = () => {
 
             <Button
               type="button"
-              variant="outline"
+              variant={isCodeExpired ? 'default' : 'outline'}
               onClick={handleResendCode}
               disabled={isResending}
-              className="w-full"
+              className="w-full flex items-center justify-center space-x-2"
             >
-              {isResending ? t('common.loading') : t('auth.confirmEmail.resendCode')}
+              <RefreshCw size={16} className={isResending ? 'animate-spin' : ''} />
+              <span>{isResending ? t('common.loading') : t('auth.confirmEmail.resendCode')}</span>
             </Button>
           </div>
         </form>

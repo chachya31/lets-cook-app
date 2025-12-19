@@ -21,10 +21,7 @@ interface ErrorResponse {
 /**
  * デフォルトのエラーレスポンスを生成
  */
-const createDefaultErrorResponse = (
-  code: string,
-  message: string
-): ErrorResponse => ({
+const createDefaultErrorResponse = (code: string, message: string): ErrorResponse => ({
   code,
   message,
   timestamp: new Date().toISOString(),
@@ -61,11 +58,8 @@ const handleNetworkError = (error: unknown): never => {
 const handleResponseError = async (response: Response): Promise<never> => {
   const errorData: ErrorResponse = await response
     .json()
-    .catch(() =>
-      createDefaultErrorResponse('UNKNOWN_ERROR', 'Unknown error occurred')
-    );
-  const errorMessage =
-    errorData.message || getDefaultErrorMessage(response.status);
+    .catch(() => createDefaultErrorResponse('UNKNOWN_ERROR', 'Unknown error occurred'));
+  const errorMessage = errorData.message || getDefaultErrorMessage(response.status);
   throw new Error(errorMessage);
 };
 
@@ -104,12 +98,19 @@ async function fetchWithErrorHandling<T>(
       await handleResponseError(response);
     }
 
-    // 204 No Contentの場合はnullを返す
-    if (response.status === 204) {
+    // 204 No Contentまたはボディが空の場合はnullを返す
+    if (response.status === 204 || response.headers.get('content-length') === '0') {
       return null as T;
     }
 
-    return response.json();
+    // Content-Typeをチェック
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      const text = await response.text();
+      return text ? JSON.parse(text) : (null as T);
+    }
+
+    return null as T;
   } catch (error) {
     return handleNetworkError(error);
   }
@@ -128,11 +129,7 @@ export async function apiGet<T>(endpoint: string, userId?: string): Promise<T> {
 /**
  * POST リクエスト
  */
-export async function apiPost<T>(
-  endpoint: string,
-  data: unknown,
-  userId?: string
-): Promise<T> {
+export async function apiPost<T>(endpoint: string, data: unknown, userId?: string): Promise<T> {
   return fetchWithErrorHandling<T>(endpoint, {
     method: 'POST',
     body: JSON.stringify(data),
@@ -143,11 +140,7 @@ export async function apiPost<T>(
 /**
  * PUT リクエスト
  */
-export async function apiPut<T>(
-  endpoint: string,
-  data: unknown,
-  userId?: string
-): Promise<T> {
+export async function apiPut<T>(endpoint: string, data: unknown, userId?: string): Promise<T> {
   return fetchWithErrorHandling<T>(endpoint, {
     method: 'PUT',
     body: JSON.stringify(data),
@@ -158,10 +151,7 @@ export async function apiPut<T>(
 /**
  * DELETE リクエスト
  */
-export async function apiDelete<T>(
-  endpoint: string,
-  userId?: string
-): Promise<T> {
+export async function apiDelete<T>(endpoint: string, userId?: string): Promise<T> {
   return fetchWithErrorHandling<T>(endpoint, {
     method: 'DELETE',
     userId,

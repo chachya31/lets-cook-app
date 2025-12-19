@@ -32,7 +32,9 @@ export const RegisterPage: React.FC = () => {
           nickname: formData.nickname,
           preferredLanguage: formData.preferredLanguage,
         });
-        navigate('/confirm-email', { state: { email: formData.email } });
+        navigate('/confirm-email', {
+          state: { email: formData.email, password: formData.password },
+        });
       } catch (err) {
         // Error is handled by Redux
       }
