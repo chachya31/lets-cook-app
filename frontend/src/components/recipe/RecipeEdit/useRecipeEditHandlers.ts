@@ -95,7 +95,7 @@ export const useRecipeEditHandlers = (scrollToMessage?: () => void) => {
 
   // 手順の追加
   const handleAddStep = () => {
-    setSteps([...steps, { description: '', imageUrl: undefined }]);
+    setSteps([...steps, { description: '', imageUrl: undefined, videoUrl: undefined }]);
     setStepImages([...stepImages, null]);
     setStepImagePreviews([...stepImagePreviews, null]);
   };
@@ -111,6 +111,13 @@ export const useRecipeEditHandlers = (scrollToMessage?: () => void) => {
   const handleStepChange = (index: number, value: string) => {
     const newSteps = [...steps];
     newSteps[index] = { ...newSteps[index], description: value };
+    setSteps(newSteps);
+  };
+
+  // 手順の動画URL変更
+  const handleStepVideoUrlChange = (index: number, value: string) => {
+    const newSteps = [...steps];
+    newSteps[index] = { ...newSteps[index], videoUrl: value || undefined };
     setSteps(newSteps);
   };
 
@@ -233,6 +240,7 @@ export const useRecipeEditHandlers = (scrollToMessage?: () => void) => {
     handleAddStep,
     handleRemoveStep,
     handleStepChange,
+    handleStepVideoUrlChange,
     handleMainImageChange,
     handleStepImageChange,
     handleSubmit,

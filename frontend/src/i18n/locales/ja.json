@@ -120,6 +120,8 @@
     "addStep": "手順を追加",
     "mainImage": "メイン画像",
     "stepImage": "手順の画像（任意）",
+    "stepVideoUrl": "動画URL（任意）",
+    "video": "動画",
     "basicInfo": "基本情報",
     "notFound": "レシピが見つかりません",
     "units": {

@@ -225,20 +225,24 @@ public class DynamoDBRecipeRepository implements RecipeRepository {
                 if (step.getImageUrl() != null) {
                         map.put("imageUrl", AttributeValue.builder().s(step.getImageUrl()).build());
                 }
+                if (step.getVideoUrl() != null) {
+                        map.put("videoUrl", AttributeValue.builder().s(step.getVideoUrl()).build());
+                }
                 return AttributeValue.builder().m(map).build();
         }
 
         private Step attributeValueToStep(AttributeValue attributeValue) {
-                // 新形式: マップ {description: "...", imageUrl: "..."}
+                // 新形式: マップ {description: "...", imageUrl: "...", videoUrl: "..."}
                 if (attributeValue.m() != null && !attributeValue.m().isEmpty()) {
                         Map<String, AttributeValue> map = attributeValue.m();
                         String description = map.get("description").s();
                         String imageUrl = map.containsKey("imageUrl") ? map.get("imageUrl").s() : null;
-                        return new Step(description, imageUrl);
+                        String videoUrl = map.containsKey("videoUrl") ? map.get("videoUrl").s() : null;
+                        return new Step(description, imageUrl, videoUrl);
                 }
                 // 旧形式: 文字列 "手順の説明"
                 if (attributeValue.s() != null) {
-                        return new Step(attributeValue.s(), null);
+                        return new Step(attributeValue.s(), null, null);
                 }
                 throw new IllegalArgumentException("Invalid step format in DynamoDB");
         }

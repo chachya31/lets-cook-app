@@ -7,6 +7,7 @@ import { clearCurrentRecipe, deleteRecipe, fetchRecipe } from '../../store/recip
 import { AppDispatch, RootState } from '../../store/store';
 import { Review } from '../../types/review';
 import { formatUnit } from '../../utils/unitHelper';
+import { getYouTubeEmbedUrl } from '../../utils/videoHelper';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { ReviewForm } from './ReviewForm';
@@ -187,25 +188,47 @@ const RecipeDetailPage: React.FC = () => {
         </CardHeader>
         <CardContent>
           <ol className="space-y-4">
-            {currentRecipe.steps.map((step, index) => (
-              <li key={index} className="flex gap-4 items-start border-b pb-4 last:border-b-0">
-                {/* 左側: テキスト (75%) */}
-                <div className="w-3/4 flex">
-                  <span className="font-bold mr-3">{index + 1}.</span>
-                  <span>{step.description}</span>
-                </div>
-                {/* 右側: 画像 (25%) */}
-                {step.imageUrl && (
-                  <div className="w-1/4">
-                    <img
-                      src={step.imageUrl}
-                      alt={`${t('recipe.step')} ${index + 1}`}
-                      className="w-full rounded-lg"
-                    />
+            {currentRecipe.steps.map((step, index) => {
+              const embedUrl = step.videoUrl ? getYouTubeEmbedUrl(step.videoUrl) : null;
+              return (
+                <li key={index} className="border-b pb-4 last:border-b-0">
+                  <div className="flex gap-4 items-start">
+                    {/* 左側: テキスト (75%) */}
+                    <div className="w-3/4">
+                      <div className="flex">
+                        <span className="font-bold mr-3">{index + 1}.</span>
+                        <span>{step.description}</span>
+                      </div>
+                      {/* 動画埋め込み */}
+                      {embedUrl && (
+                        <div className="mt-3 ml-6">
+                          <iframe
+                            width="100%"
+                            height="315"
+                            src={embedUrl}
+                            title={`${t('recipe.step')} ${index + 1} ${t('recipe.video')}`}
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                            className="rounded-lg max-w-lg"
+                          />
+                        </div>
+                      )}
+                    </div>
+                    {/* 右側: 画像 (25%) */}
+                    {step.imageUrl && (
+                      <div className="w-1/4">
+                        <img
+                          src={step.imageUrl}
+                          alt={`${t('recipe.step')} ${index + 1}`}
+                          className="w-full rounded-lg"
+                        />
+                      </div>
+                    )}
                   </div>
-                )}
-              </li>
-            ))}
+                </li>
+              );
+            })}
           </ol>
         </CardContent>
       </Card>

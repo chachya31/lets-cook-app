@@ -37,6 +37,7 @@ const RecipeEditPage: React.FC = () => {
     handleAddStep,
     handleRemoveStep,
     handleStepChange,
+    handleStepVideoUrlChange,
     handleMainImageChange,
     handleStepImageChange,
     handleSubmit,
@@ -179,17 +180,32 @@ const RecipeEditPage: React.FC = () => {
               <div key={index} className="border rounded-lg p-4">
                 <div className="flex gap-4 items-start">
                   {/* 左側: テキスト (75%) */}
-                  <div className="w-3/4 flex gap-2 items-start">
-                    <span className="font-bold mt-2">{index + 1}.</span>
-                    <Textarea
-                      value={step.description}
-                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                        handleStepChange(index, e.target.value)
-                      }
-                      required
-                      className="flex-1"
-                      rows={3}
-                    />
+                  <div className="w-3/4 space-y-2">
+                    <div className="flex gap-2 items-start">
+                      <span className="font-bold mt-2">{index + 1}.</span>
+                      <Textarea
+                        value={step.description}
+                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                          handleStepChange(index, e.target.value)
+                        }
+                        required
+                        className="flex-1"
+                        rows={3}
+                      />
+                    </div>
+                    {/* 動画URL入力 */}
+                    <div className="ml-6">
+                      <Label className="text-sm">{t('recipe.stepVideoUrl')}</Label>
+                      <Input
+                        type="url"
+                        value={step.videoUrl || ''}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                          handleStepVideoUrlChange(index, e.target.value)
+                        }
+                        placeholder="https://www.youtube.com/watch?v=..."
+                        className="text-sm"
+                      />
+                    </div>
                   </div>
                   {/* 右側: 画像 (25%) */}
                   <div className="w-1/4 space-y-2">

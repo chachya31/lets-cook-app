@@ -22,17 +22,19 @@ public class StepDto {
 
     private String imageUrl; // 任意
 
+    private String videoUrl; // 任意（YouTube等のURL）
+
     /**
      * DTOからエンティティに変換
      */
     public Step toEntity() {
-        return new Step(description, imageUrl);
+        return new Step(description, imageUrl, videoUrl);
     }
 
     /**
      * エンティティからDTOに変換
      */
     public static StepDto fromEntity(Step step) {
-        return new StepDto(step.getDescription(), step.getImageUrl());
+        return new StepDto(step.getDescription(), step.getImageUrl(), step.getVideoUrl());
     }
 }

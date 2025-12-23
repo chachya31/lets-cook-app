@@ -20,7 +20,7 @@ export const initialFormState = {
   ingredients: [
     { name: '', quantity: undefined, unit: '', note: '', optional: false },
   ] as Ingredient[],
-  steps: [{ description: '', imageUrl: undefined }] as Step[],
+  steps: [{ description: '', imageUrl: undefined, videoUrl: undefined }] as Step[],
 };
 
 /**

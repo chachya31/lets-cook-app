@@ -13,6 +13,7 @@ export interface Ingredient {
 export interface Step {
   description: string;
   imageUrl?: string;
+  videoUrl?: string;
 }
 
 export interface Recipe {
