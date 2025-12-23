@@ -109,6 +109,7 @@ const authSlice = createSlice({
       localStorage.removeItem('idToken');
       localStorage.removeItem('userId');
       localStorage.removeItem('user');
+      localStorage.removeItem('alert_dismissed_date');
     },
     clearError: (state) => {
       state.error = null;
