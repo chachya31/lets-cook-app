@@ -1,9 +1,11 @@
 package com.cookingapp.application.usecase.recipe;
 
+import org.springframework.stereotype.Service;
+
 import com.cookingapp.domain.entity.Recipe;
 import com.cookingapp.domain.exception.RecipeNotFoundException;
 import com.cookingapp.domain.repository.RecipeRepository;
-import org.springframework.stereotype.Service;
+import com.cookingapp.domain.service.ImageStorageService;
 
 /**
  * レシピ取得ユースケース
@@ -12,20 +14,31 @@ import org.springframework.stereotype.Service;
 public class GetRecipeUseCase {
 
     private final RecipeRepository recipeRepository;
+    private final ImageStorageService imageStorageService;
 
-    public GetRecipeUseCase(RecipeRepository recipeRepository) {
+    public GetRecipeUseCase(RecipeRepository recipeRepository, ImageStorageService imageStorageService) {
         this.recipeRepository = recipeRepository;
+        this.imageStorageService = imageStorageService;
     }
 
     /**
      * レシピを取得
+     * 画像URLがある場合は新しいPresignedURLを生成して返す
      * 
      * @param recipeId レシピID
-     * @return レシピ
+     * @return レシピ（画像URLは有効なPresignedURL）
      * @throws RecipeNotFoundException レシピが見つからない場合
      */
     public Recipe execute(String recipeId) {
-        return recipeRepository.findById(recipeId)
+        Recipe recipe = recipeRepository.findById(recipeId)
                 .orElseThrow(() -> new RecipeNotFoundException("Recipe not found: " + recipeId));
+
+        // 画像URLがある場合は新しいPresignedURLを生成
+        if (recipe.getImageUrl() != null && !recipe.getImageUrl().isEmpty()) {
+            String presignedUrl = imageStorageService.generateDownloadUrl(recipe.getImageUrl());
+            recipe.updateImageUrl(presignedUrl);
+        }
+
+        return recipe;
     }
 }

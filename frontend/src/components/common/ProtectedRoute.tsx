@@ -22,7 +22,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
   }
 
   // 管理者権限が必要な場合
-  if (requireAdmin && !user?.roles?.includes('admin')) {
+  if (requireAdmin && !user?.roles?.includes('Admins')) {
     return <Navigate to="/dashboard" replace />;
   }
 

@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Card } from '../ui/card';
-import { Button } from '../ui/button';
-import LoadingSkeleton from '../common/LoadingSkeleton';
+import { useNavigate } from 'react-router-dom';
 import { searchRecipes } from '../../api/recipeApi';
 import { getSchedules } from '../../api/scheduleApi';
 import { getShoppingList } from '../../api/shoppingListApi';
 import { Recipe } from '../../types/recipe';
 import { Schedule } from '../../types/schedule';
 import { ShoppingListItem } from '../../types/shoppingList';
+import LoadingSkeleton from '../common/LoadingSkeleton';
+import { Button } from '../ui/button';
+import { Card } from '../ui/card';
 
 /**
  * ダッシュボードページコンポーネント
@@ -90,11 +90,7 @@ const DashboardPage: React.FC = () => {
         <Card className="p-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">{t('dashboard.recentRecipes')}</h2>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate('/recipes')}
-            >
+            <Button variant="ghost" size="sm" onClick={() => navigate('/recipes')}>
               {t('dashboard.viewAll')}
             </Button>
           </div>
@@ -116,10 +112,7 @@ const DashboardPage: React.FC = () => {
               ))}
             </ul>
           )}
-          <Button
-            className="w-full mt-4"
-            onClick={() => navigate('/recipes/new')}
-          >
+          <Button className="w-full mt-4" onClick={() => navigate('/recipes/new')}>
             {t('recipe.create.button')}
           </Button>
         </Card>
@@ -128,11 +121,7 @@ const DashboardPage: React.FC = () => {
         <Card className="p-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">{t('dashboard.upcomingSchedules')}</h2>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate('/schedules')}
-            >
+            <Button variant="ghost" size="sm" onClick={() => navigate('/schedules')}>
               {t('dashboard.viewAll')}
             </Button>
           </div>
@@ -144,16 +133,13 @@ const DashboardPage: React.FC = () => {
                 <li key={schedule.scheduleId} className="p-2 border-l-4 border-green-500">
                   <div className="font-medium">{schedule.recipeTitle}</div>
                   <div className="text-sm text-gray-500">
-                    {schedule.date} - {t(`schedule.${schedule.type}`)}
+                    {schedule.date} - {t(schedule.isDone ? 'schedule.cooked' : 'schedule.planned')}
                   </div>
                 </li>
               ))}
             </ul>
           )}
-          <Button
-            className="w-full mt-4"
-            onClick={() => navigate('/schedules')}
-          >
+          <Button className="w-full mt-4" onClick={() => navigate('/schedules')}>
             {t('dashboard.manageSchedules')}
           </Button>
         </Card>
@@ -162,11 +148,7 @@ const DashboardPage: React.FC = () => {
         <Card className="p-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">{t('dashboard.shoppingList')}</h2>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate('/shopping-list')}
-            >
+            <Button variant="ghost" size="sm" onClick={() => navigate('/shopping-list')}>
               {t('dashboard.viewAll')}
             </Button>
           </div>
@@ -184,10 +166,7 @@ const DashboardPage: React.FC = () => {
               ))}
             </ul>
           )}
-          <Button
-            className="w-full mt-4"
-            onClick={() => navigate('/shopping-list')}
-          >
+          <Button className="w-full mt-4" onClick={() => navigate('/shopping-list')}>
             {t('dashboard.manageShoppingList')}
           </Button>
         </Card>
@@ -197,32 +176,16 @@ const DashboardPage: React.FC = () => {
       <div className="mt-8">
         <h2 className="text-xl font-semibold mb-4">{t('dashboard.quickActions')}</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Button
-            variant="outline"
-            className="h-20"
-            onClick={() => navigate('/recipes/new')}
-          >
+          <Button variant="outline" className="h-20" onClick={() => navigate('/recipes/new')}>
             {t('dashboard.createRecipe')}
           </Button>
-          <Button
-            variant="outline"
-            className="h-20"
-            onClick={() => navigate('/schedules')}
-          >
+          <Button variant="outline" className="h-20" onClick={() => navigate('/schedules')}>
             {t('dashboard.addSchedule')}
           </Button>
-          <Button
-            variant="outline"
-            className="h-20"
-            onClick={() => navigate('/shopping-list')}
-          >
+          <Button variant="outline" className="h-20" onClick={() => navigate('/shopping-list')}>
             {t('dashboard.addShoppingItem')}
           </Button>
-          <Button
-            variant="outline"
-            className="h-20"
-            onClick={() => navigate('/recipes')}
-          >
+          <Button variant="outline" className="h-20" onClick={() => navigate('/recipes')}>
             {t('dashboard.searchRecipes')}
           </Button>
         </div>

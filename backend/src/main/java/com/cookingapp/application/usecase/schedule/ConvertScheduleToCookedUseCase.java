@@ -1,5 +1,9 @@
 package com.cookingapp.application.usecase.schedule;
 
+import java.time.LocalDate;
+
+import org.springframework.stereotype.Service;
+
 import com.cookingapp.domain.entity.Schedule;
 import com.cookingapp.domain.entity.User;
 import com.cookingapp.domain.exception.ScheduleNotFoundException;
@@ -7,11 +11,8 @@ import com.cookingapp.domain.exception.UnauthorizedException;
 import com.cookingapp.domain.exception.UserNotFoundException;
 import com.cookingapp.domain.repository.ScheduleRepository;
 import com.cookingapp.domain.repository.UserRepository;
-import com.cookingapp.domain.valueobject.ScheduleType;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
+import lombok.RequiredArgsConstructor;
 
 /**
  * 予定を実績に変換するユースケース
@@ -31,7 +32,7 @@ public class ConvertScheduleToCookedUseCase {
             throw new UnauthorizedException("You are not authorized to convert this schedule");
         }
 
-        schedule.convertToCooked();
+        schedule.markAsDone();
         Schedule updatedSchedule = scheduleRepository.save(schedule);
 
         // LastCookingDateを更新

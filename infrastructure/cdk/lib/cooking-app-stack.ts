@@ -53,10 +53,11 @@ export class CookingAppStack extends cdk.Stack {
     });
 
     // Recipes Table
+    // 設計書通り、RecipeIdのみをパーティションキーとする（ソートキーなし）
+    // RecipeIdはUUIDで一意なため、ソートキーは不要
     this.tables.recipes = new dynamodb.Table(this, 'RecipesTable', {
       tableName: `cooking-app-recipes-${stage}`,
       partitionKey: { name: 'RecipeId', type: dynamodb.AttributeType.STRING },
-      sortKey: { name: 'CreatedAt', type: dynamodb.AttributeType.STRING },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       removalPolicy: stage === 'prod' ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY,
       pointInTimeRecovery: stage === 'prod',
@@ -81,7 +82,7 @@ export class CookingAppStack extends cdk.Stack {
       tableName: `cooking-app-schedules-${stage}`,
       partitionKey: { name: 'UserId', type: dynamodb.AttributeType.STRING },
       sortKey: {
-        name: 'DateTypeRecipeId',
+        name: 'DateRecipeId',
         type: dynamodb.AttributeType.STRING,
       },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,

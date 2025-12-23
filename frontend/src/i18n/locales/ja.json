@@ -163,7 +163,7 @@
     "date": "日付",
     "type": "種類",
     "planned": "予定",
-    "cooked": "実績",
+    "cooked": "完了",
     "recipe": "レシピ",
     "selectRecipe": "レシピを選択",
     "selectRecipePlaceholder": "レシピを選択してください",
@@ -172,7 +172,8 @@
     "memo": "メモ",
     "create": "作成",
     "noSchedules": "スケジュールがありません",
-    "convertToCooked": "実績に変換",
+    "convertToCooked": "完了にする",
+    "markAsDone": "完了にする",
     "confirmDelete": "本当にこのスケジュールを削除しますか？"
   },
   "alert": {

@@ -2,13 +2,11 @@
  * スケジュール型定義
  */
 
-export type ScheduleType = 'planned' | 'cooked';
-
 export interface Schedule {
   scheduleId: string;
   userId: string;
   date: string; // YYYY-MM-DD形式
-  type: ScheduleType;
+  isDone: boolean;
   recipeId: string;
   recipeTitle: string;
   memo?: string;
@@ -17,7 +15,6 @@ export interface Schedule {
 
 export interface CreateScheduleRequest {
   date: string; // YYYY-MM-DD形式
-  type: ScheduleType;
   recipeId: string;
   recipeTitle: string;
   memo?: string;

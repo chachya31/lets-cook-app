@@ -4,15 +4,15 @@ import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { useScrollToMessage } from '../../hooks/useScrollToMessage';
 import {
-  convertToCooked,
   createSchedule,
   deleteSchedule,
   fetchSchedules,
+  markAsDone,
   updateSchedule,
 } from '../../store/slices/scheduleSlice';
 import { AppDispatch, RootState } from '../../store/store';
 import { Recipe } from '../../types/recipe';
-import { Schedule, ScheduleType } from '../../types/schedule';
+import { Schedule } from '../../types/schedule';
 import { MessageDisplay } from '../common/MessageDisplay';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
@@ -42,7 +42,6 @@ const SchedulePage: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
     date: '',
-    type: 'planned' as ScheduleType,
     recipeId: '',
     recipeTitle: '',
     memo: '',
@@ -81,7 +80,6 @@ const SchedulePage: React.FC = () => {
         userId: user.userId,
         request: {
           date: formData.date,
-          type: formData.type,
           recipeId: formData.recipeId,
           recipeTitle: formData.recipeTitle,
           memo: formData.memo || undefined,
@@ -90,7 +88,7 @@ const SchedulePage: React.FC = () => {
     );
 
     setShowForm(false);
-    setFormData({ date: '', type: 'planned', recipeId: '', recipeTitle: '', memo: '' });
+    setFormData({ date: '', recipeId: '', recipeTitle: '', memo: '' });
   };
 
   const handleUpdate = async (scheduleId: string, memo: string) => {
@@ -114,10 +112,10 @@ const SchedulePage: React.FC = () => {
     await dispatch(deleteSchedule({ userId: user.userId, scheduleId }));
   };
 
-  const handleConvertToCooked = async (scheduleId: string) => {
+  const handleMarkAsDone = async (scheduleId: string) => {
     if (!user?.userId) return;
 
-    await dispatch(convertToCooked({ userId: user.userId, scheduleId }));
+    await dispatch(markAsDone({ userId: user.userId, scheduleId }));
   };
 
   const handleRecipeSelect = (recipe: Recipe) => {
@@ -188,18 +186,6 @@ const SchedulePage: React.FC = () => {
               />
             </div>
             <div>
-              <Label htmlFor="type">{t('schedule.type')}</Label>
-              <select
-                id="type"
-                value={formData.type}
-                onChange={(e) => setFormData({ ...formData, type: e.target.value as ScheduleType })}
-                className="w-full border rounded p-2"
-              >
-                <option value="planned">{t('schedule.planned')}</option>
-                <option value="cooked">{t('schedule.cooked')}</option>
-              </select>
-            </div>
-            <div>
               <Label>{t('schedule.recipe')}</Label>
               <div className="flex gap-2">
                 <Input
@@ -241,12 +227,10 @@ const SchedulePage: React.FC = () => {
                   <span className="font-bold">{schedule.date}</span>
                   <span
                     className={`px-2 py-1 rounded text-sm ${
-                      schedule.type === 'cooked'
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-blue-100 text-blue-800'
+                      schedule.isDone ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
                     }`}
                   >
-                    {t(`schedule.${schedule.type}`)}
+                    {t(schedule.isDone ? 'schedule.cooked' : 'schedule.planned')}
                   </span>
                 </div>
                 <p className="text-lg font-semibold">{schedule.recipeTitle}</p>
@@ -284,13 +268,13 @@ const SchedulePage: React.FC = () => {
                 )}
               </div>
               <div className="flex gap-2">
-                {schedule.type === 'planned' && (
+                {!schedule.isDone && (
                   <Button
-                    onClick={() => handleConvertToCooked(schedule.scheduleId)}
+                    onClick={() => handleMarkAsDone(schedule.scheduleId)}
                     size="sm"
                     variant="outline"
                   >
-                    {t('schedule.convertToCooked')}
+                    {t('schedule.markAsDone')}
                   </Button>
                 )}
                 <Button onClick={() => setEditingSchedule(schedule)} size="sm" variant="outline">

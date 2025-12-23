@@ -16,8 +16,8 @@ awslocal dynamodb create-table \
   --table-name cooking-app-recipes-local \
   --attribute-definitions \
     AttributeName=RecipeId,AttributeType=S \
-    AttributeName=CreatedAt,AttributeType=S \
     AttributeName=AuthorId,AttributeType=S \
+    AttributeName=CreatedAt,AttributeType=S \
   --key-schema \
     AttributeName=RecipeId,KeyType=HASH \
   --global-secondary-indexes \
@@ -38,10 +38,10 @@ awslocal dynamodb create-table \
   --table-name cooking-app-schedules-local \
   --attribute-definitions \
     AttributeName=UserId,AttributeType=S \
-    AttributeName=DateTypeRecipeId,AttributeType=S \
+    AttributeName=DateRecipeId,AttributeType=S \
   --key-schema \
     AttributeName=UserId,KeyType=HASH \
-    AttributeName=DateTypeRecipeId,KeyType=RANGE \
+    AttributeName=DateRecipeId,KeyType=RANGE \
   --billing-mode PAY_PER_REQUEST
 
 # ShoppingLists Table

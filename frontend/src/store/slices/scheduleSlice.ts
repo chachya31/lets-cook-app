@@ -1,12 +1,12 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import * as scheduleApi from '../../api/scheduleApi';
 import {
-  Schedule,
   CreateScheduleRequest,
-  UpdateScheduleRequest,
+  Schedule,
   ScheduleSearchParams,
   ScheduleState,
+  UpdateScheduleRequest,
 } from '../../types/schedule';
-import * as scheduleApi from '../../api/scheduleApi';
 
 const initialState: ScheduleState = {
   schedules: [],
@@ -64,12 +64,12 @@ export const deleteSchedule = createAsyncThunk(
 );
 
 /**
- * 予定を実績に変換
+ * 予定を実績に変換（完了にする）
  */
-export const convertToCooked = createAsyncThunk(
-  'schedule/convertToCooked',
+export const markAsDone = createAsyncThunk(
+  'schedule/markAsDone',
   async ({ userId, scheduleId }: { userId: string; scheduleId: string }) => {
-    return await scheduleApi.convertToCooked(userId, scheduleId);
+    return await scheduleApi.markAsDone(userId, scheduleId);
   }
 );
 
@@ -116,9 +116,7 @@ const scheduleSlice = createSlice({
       })
       .addCase(updateSchedule.fulfilled, (state, action: PayloadAction<Schedule>) => {
         state.loading = false;
-        const index = state.schedules.findIndex(
-          (s) => s.scheduleId === action.payload.scheduleId
-        );
+        const index = state.schedules.findIndex((s) => s.scheduleId === action.payload.scheduleId);
         if (index !== -1) {
           state.schedules[index] = action.payload;
         }
@@ -134,31 +132,27 @@ const scheduleSlice = createSlice({
       })
       .addCase(deleteSchedule.fulfilled, (state, action: PayloadAction<string>) => {
         state.loading = false;
-        state.schedules = state.schedules.filter(
-          (s) => s.scheduleId !== action.payload
-        );
+        state.schedules = state.schedules.filter((s) => s.scheduleId !== action.payload);
       })
       .addCase(deleteSchedule.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to delete schedule';
       })
-      // convertToCooked
-      .addCase(convertToCooked.pending, (state) => {
+      // markAsDone
+      .addCase(markAsDone.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(convertToCooked.fulfilled, (state, action: PayloadAction<Schedule>) => {
+      .addCase(markAsDone.fulfilled, (state, action: PayloadAction<Schedule>) => {
         state.loading = false;
-        const index = state.schedules.findIndex(
-          (s) => s.scheduleId === action.payload.scheduleId
-        );
+        const index = state.schedules.findIndex((s) => s.scheduleId === action.payload.scheduleId);
         if (index !== -1) {
           state.schedules[index] = action.payload;
         }
       })
-      .addCase(convertToCooked.rejected, (state, action) => {
+      .addCase(markAsDone.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Failed to convert schedule to cooked';
+        state.error = action.error.message || 'Failed to mark schedule as done';
       });
   },
 });

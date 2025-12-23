@@ -6,13 +6,13 @@
 
 ## テーブル一覧
 
-| テーブル名    | 用途             | Partition Key | Sort Key         | GSI               |
-| ------------- | ---------------- | ------------- | ---------------- | ----------------- |
-| Users         | ユーザー情報     | UserId        | -                | -                 |
-| Recipes       | レシピ情報       | RecipeId      | -                | GSI_Author        |
-| Reviews       | レビュー情報     | RecipeId      | ReviewId         | GSI_User          |
-| Schedules     | スケジュール情報 | UserId        | DateTypeRecipeId | -                 |
-| ShoppingLists | 買い物リスト     | UserId        | ItemId           | GSI_NormalizedKey |
+| テーブル名    | 用途             | Partition Key | Sort Key     | GSI               |
+| ------------- | ---------------- | ------------- | ------------ | ----------------- |
+| Users         | ユーザー情報     | UserId        | -            | -                 |
+| Recipes       | レシピ情報       | RecipeId      | -            | GSI_Author        |
+| Reviews       | レビュー情報     | RecipeId      | ReviewId     | GSI_User          |
+| Schedules     | スケジュール情報 | UserId        | DateRecipeId | -                 |
+| ShoppingLists | 買い物リスト     | UserId        | ItemId       | GSI_NormalizedKey |
 
 ---
 
@@ -176,43 +176,36 @@
 
 ### キー構造
 - **Partition Key**: `UserId` (String)
-- **Sort Key**: `DateTypeRecipeId` (String, 複合キー)
-  - 形式: `{Date}#{Type}#{RecipeId}`
-  - 例: `2024-12-01#PLANNED#660e8400-e29b-41d4-a716-446655440001`
+- **Sort Key**: `DateRecipeId` (String, 複合キー)
+  - 形式: `{Date}#{RecipeId}`
+  - 例: `2024-12-01#660e8400-e29b-41d4-a716-446655440001`
 
 ### 属性
 
-| 属性名           | 型     | 必須 | 説明                            | 例                                     |
-| ---------------- | ------ | ---- | ------------------------------- | -------------------------------------- |
-| UserId           | String | ✓    | ユーザーID                      | "550e8400-e29b-41d4-a716-446655440000" |
-| DateTypeRecipeId | String | ✓    | 複合ソートキー                  | "2024-12-01#PLANNED#660e..."           |
-| ScheduleId       | String | ✓    | スケジュールID（UUID）          | "880e8400-e29b-41d4-a716-446655440003" |
-| Date             | String | ✓    | 日付（YYYY-MM-DD形式）          | "2024-12-01"                           |
-| Type             | String | ✓    | タイプ（"PLANNED" or "COOKED"） | "PLANNED"                              |
-| RecipeId         | String | ✓    | レシピID                        | "660e8400-e29b-41d4-a716-446655440001" |
-| RecipeTitle      | String | ✓    | レシピタイトル（参照用）        | "簡単カレーライス"                     |
-| Memo             | String |      | メモ（最大120文字）             | "夕食用"                               |
-| CreatedAt        | String | ✓    | 作成日時（ISO8601形式）         | "2024-11-30T15:00:00Z"                 |
-
-### タイプ値
-
-| 値      | 説明     |
-| ------- | -------- |
-| PLANNED | 料理予定 |
-| COOKED  | 料理実績 |
+| 属性名       | 型      | 必須 | 説明                                | 例                                     |
+| ------------ | ------- | ---- | ----------------------------------- | -------------------------------------- |
+| UserId       | String  | ✓    | ユーザーID                          | "550e8400-e29b-41d4-a716-446655440000" |
+| DateRecipeId | String  | ✓    | 複合ソートキー                      | "2024-12-01#660e..."                   |
+| ScheduleId   | String  | ✓    | スケジュールID（UUID）              | "880e8400-e29b-41d4-a716-446655440003" |
+| Date         | String  | ✓    | 日付（YYYY-MM-DD形式）              | "2024-12-01"                           |
+| RecipeId     | String  | ✓    | レシピID                            | "660e8400-e29b-41d4-a716-446655440001" |
+| RecipeTitle  | String  | ✓    | レシピタイトル（参照用）            | "簡単カレーライス"                     |
+| IsDone       | Boolean | ✓    | 完了フラグ（false=予定、true=実績） | false                                  |
+| Memo         | String  |      | メモ（最大120文字）                 | "夕食用"                               |
+| CreatedAt    | String  | ✓    | 作成日時（ISO8601形式）             | "2024-11-30T15:00:00Z"                 |
 
 ### インデックス
 なし
 
 ### アクセスパターン
-1. **日付範囲検索**: `UserId` と `DateTypeRecipeId` の範囲検索（Query）
+1. **日付範囲検索**: `UserId` と `DateRecipeId` の範囲検索（Query）
    - 例: 2024-12-01 から 2024-12-07 までのスケジュール
 2. **スケジュールID検索**: `ScheduleId` でスキャン（Scan）
    - ⚠️ 非効率だが、IDでの検索は稀なため許容
 
 ### 備考
 - Sort Keyに日付を含めることで、日付範囲での効率的な検索が可能
-- 予定（PLANNED）を実績（COOKED）に変換する機能あり
+- `IsDone`フラグをtrueにすることで予定を実績に変換
 - 実績登録時は `Users` テーブルの `LastCookingDate` も更新
 
 ---

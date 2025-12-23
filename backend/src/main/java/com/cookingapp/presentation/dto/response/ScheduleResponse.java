@@ -1,12 +1,14 @@
 package com.cookingapp.presentation.dto.response;
 
+import java.time.format.DateTimeFormatter;
+
 import com.cookingapp.domain.entity.Schedule;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.format.DateTimeFormatter;
 
 /**
  * スケジュールレスポンスDTO
@@ -21,7 +23,8 @@ public class ScheduleResponse {
     private String scheduleId;
     private String userId;
     private String date;
-    private String type;
+    @JsonProperty("isDone")
+    private boolean isDone;
     private String recipeId;
     private String recipeTitle;
     private String memo;
@@ -32,7 +35,7 @@ public class ScheduleResponse {
                 .scheduleId(schedule.getScheduleId())
                 .userId(schedule.getUserId())
                 .date(schedule.getDate().format(DATE_FORMATTER))
-                .type(schedule.getType().getCode())
+                .isDone(schedule.isDone())
                 .recipeId(schedule.getRecipeId())
                 .recipeTitle(schedule.getRecipeTitle())
                 .memo(schedule.getMemo())
