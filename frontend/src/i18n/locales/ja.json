@@ -10,7 +10,9 @@
     "saving": "保存中...",
     "cancel": "キャンセル",
     "remove": "削除",
-    "delete": "削除"
+    "delete": "削除",
+    "select": "選択",
+    "edit": "編集"
   },
   "auth": {
     "login": "ログイン",
@@ -162,8 +164,11 @@
     "type": "種類",
     "planned": "予定",
     "cooked": "実績",
-    "recipeId": "レシピID",
-    "recipeTitle": "レシピ名",
+    "recipe": "レシピ",
+    "selectRecipe": "レシピを選択",
+    "selectRecipePlaceholder": "レシピを選択してください",
+    "searchRecipePlaceholder": "レシピ名で検索...",
+    "noRecipesFound": "レシピが見つかりません",
     "memo": "メモ",
     "create": "作成",
     "noSchedules": "スケジュールがありません",

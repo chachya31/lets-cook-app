@@ -11,12 +11,14 @@ import {
   updateSchedule,
 } from '../../store/slices/scheduleSlice';
 import { AppDispatch, RootState } from '../../store/store';
+import { Recipe } from '../../types/recipe';
 import { Schedule, ScheduleType } from '../../types/schedule';
 import { MessageDisplay } from '../common/MessageDisplay';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
+import RecipeSelectModal from './RecipeSelectModal';
 
 /**
  * スケジュール管理ページ
@@ -46,6 +48,7 @@ const SchedulePage: React.FC = () => {
     memo: '',
   });
   const [editingSchedule, setEditingSchedule] = useState<Schedule | null>(null);
+  const [showRecipeModal, setShowRecipeModal] = useState(false);
 
   useEffect(() => {
     // デフォルトで今月のスケジュールを取得
@@ -115,6 +118,14 @@ const SchedulePage: React.FC = () => {
     if (!user?.userId) return;
 
     await dispatch(convertToCooked({ userId: user.userId, scheduleId }));
+  };
+
+  const handleRecipeSelect = (recipe: Recipe) => {
+    setFormData({
+      ...formData,
+      recipeId: recipe.recipeId,
+      recipeTitle: recipe.title,
+    });
   };
 
   return (
@@ -189,20 +200,18 @@ const SchedulePage: React.FC = () => {
               </select>
             </div>
             <div>
-              <Label htmlFor="recipeId">{t('schedule.recipeId')}</Label>
-              <Input
-                id="recipeId"
-                value={formData.recipeId}
-                onChange={(e) => setFormData({ ...formData, recipeId: e.target.value })}
-              />
-            </div>
-            <div>
-              <Label htmlFor="recipeTitle">{t('schedule.recipeTitle')}</Label>
-              <Input
-                id="recipeTitle"
-                value={formData.recipeTitle}
-                onChange={(e) => setFormData({ ...formData, recipeTitle: e.target.value })}
-              />
+              <Label>{t('schedule.recipe')}</Label>
+              <div className="flex gap-2">
+                <Input
+                  value={formData.recipeTitle}
+                  readOnly
+                  placeholder={t('schedule.selectRecipePlaceholder')}
+                  className="flex-1 bg-gray-50"
+                />
+                <Button type="button" variant="outline" onClick={() => setShowRecipeModal(true)}>
+                  {t('schedule.selectRecipe')}
+                </Button>
+              </div>
             </div>
             <div>
               <Label htmlFor="memo">{t('schedule.memo')}</Label>
@@ -243,6 +252,7 @@ const SchedulePage: React.FC = () => {
                 <p className="text-lg font-semibold">{schedule.recipeTitle}</p>
                 {editingSchedule?.scheduleId === schedule.scheduleId ? (
                   <div className="mt-2">
+                    <Label className="text-sm text-gray-500">{t('schedule.memo')}</Label>
                     <Input
                       value={editingSchedule.memo || ''}
                       onChange={(e) =>
@@ -265,7 +275,12 @@ const SchedulePage: React.FC = () => {
                     </div>
                   </div>
                 ) : (
-                  <p className="text-gray-600 mt-1">{schedule.memo}</p>
+                  schedule.memo && (
+                    <div className="mt-1">
+                      <span className="text-sm text-gray-500">{t('schedule.memo')}: </span>
+                      <span className="text-gray-600">{schedule.memo}</span>
+                    </div>
+                  )
                 )}
               </div>
               <div className="flex gap-2">
@@ -293,6 +308,13 @@ const SchedulePage: React.FC = () => {
           </Card>
         ))}
       </div>
+
+      {/* レシピ選択モーダル */}
+      <RecipeSelectModal
+        open={showRecipeModal}
+        onClose={() => setShowRecipeModal(false)}
+        onSelect={handleRecipeSelect}
+      />
     </div>
   );
 };

@@ -10,7 +10,9 @@
     "saving": "저장 중...",
     "cancel": "취소",
     "remove": "삭제",
-    "delete": "삭제"
+    "delete": "삭제",
+    "select": "선택",
+    "edit": "편집"
   },
   "auth": {
     "login": "로그인",
@@ -162,8 +164,11 @@
     "type": "유형",
     "planned": "예정",
     "cooked": "실적",
-    "recipeId": "레시피 ID",
-    "recipeTitle": "레시피 이름",
+    "recipe": "레시피",
+    "selectRecipe": "레시피 선택",
+    "selectRecipePlaceholder": "레시피를 선택하세요",
+    "searchRecipePlaceholder": "레시피 이름으로 검색...",
+    "noRecipesFound": "레시피를 찾을 수 없습니다",
     "memo": "메모",
     "create": "작성",
     "noSchedules": "일정이 없습니다",
