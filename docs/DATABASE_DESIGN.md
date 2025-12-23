@@ -67,19 +67,19 @@
 
 ### 属性
 
-| 属性名      | 型           | 必須 | 説明                          | 例                                     |
-| ----------- | ------------ | ---- | ----------------------------- | -------------------------------------- |
-| RecipeId    | String       | ✓    | レシピID（UUID）              | "660e8400-e29b-41d4-a716-446655440001" |
-| Title       | String       | ✓    | レシピタイトル（最大100文字） | "簡単カレーライス"                     |
-| AuthorId    | String       | ✓    | 作成者ID（UserId）            | "550e8400-e29b-41d4-a716-446655440000" |
-| Ingredients | List<Map>    | ✓    | 食材リスト                    | 下記参照                               |
-| Steps       | List<String> | ✓    | 調理手順リスト                | ["野菜を切る", "炒める", ...]          |
-| CookingTime | Number       | ✓    | 調理時間（分）                | 30                                     |
-| ImageUrl    | String       |      | レシピ画像URL                 | "https://s3.../recipe.jpg"             |
-| IsPublic    | Boolean      | ✓    | 公開フラグ                    | true                                   |
-| IsDeleted   | Boolean      | ✓    | 論理削除フラグ                | false                                  |
-| CreatedAt   | String       | ✓    | 作成日時（ISO8601形式）       | "2024-11-15T14:30:00"                  |
-| UpdatedAt   | String       | ✓    | 更新日時（ISO8601形式）       | "2024-11-20T16:45:00"                  |
+| 属性名      | 型        | 必須 | 説明                          | 例                                     |
+| ----------- | --------- | ---- | ----------------------------- | -------------------------------------- |
+| RecipeId    | String    | ✓    | レシピID（UUID）              | "660e8400-e29b-41d4-a716-446655440001" |
+| Title       | String    | ✓    | レシピタイトル（最大100文字） | "簡単カレーライス"                     |
+| AuthorId    | String    | ✓    | 作成者ID（UserId）            | "550e8400-e29b-41d4-a716-446655440000" |
+| Ingredients | List<Map> | ✓    | 食材リスト                    | 下記参照                               |
+| Steps       | List<Map> | ✓    | 調理手順リスト                | 下記参照                               |
+| CookingTime | Number    | ✓    | 調理時間（分）                | 30                                     |
+| ImageUrl    | String    |      | レシピ画像URL                 | "https://s3.../recipe.jpg"             |
+| IsPublic    | Boolean   | ✓    | 公開フラグ                    | true                                   |
+| IsDeleted   | Boolean   | ✓    | 論理削除フラグ                | false                                  |
+| CreatedAt   | String    | ✓    | 作成日時（ISO8601形式）       | "2024-11-15T14:30:00"                  |
+| UpdatedAt   | String    | ✓    | 更新日時（ISO8601形式）       | "2024-11-20T16:45:00"                  |
 
 ### Ingredients（食材）の構造
 
@@ -94,6 +94,19 @@
 | optional | Boolean | ✓    | 任意フラグ                   | false      |
 
 ※ quantity と unit は任意項目です。「適量」「少々」など数量を指定しない食材に対応しています。
+
+### Steps（手順）の構造
+
+各手順は以下の属性を持つMapオブジェクト：
+
+| 属性名      | 型     | 必須 | 説明                                   | 例                                    |
+| ----------- | ------ | ---- | -------------------------------------- | ------------------------------------- |
+| description | String | ✓    | 手順の説明                             | "野菜を一口大に切る"                  |
+| imageUrl    | String |      | 手順の画像URL（任意）                  | "https://s3.../step1.jpg"             |
+| videoUrl    | String |      | 手順の動画URL（任意、YouTube等に対応） | "https://www.youtube.com/watch?v=..." |
+
+※ 旧形式（文字列のみ）との後方互換性を維持しています。
+
 | slice | 枚 | 枚 |
 | clove | 片 | 片 |
 | pinch | ひとつまみ | ひとつまみ |
