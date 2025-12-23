@@ -1,14 +1,15 @@
 package com.cookingapp.presentation.dto;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.cookingapp.domain.entity.Recipe;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * レシピレスポンスDTO
@@ -23,7 +24,7 @@ public class RecipeResponse {
     private String title;
     private String authorId;
     private List<IngredientDto> ingredients;
-    private List<String> steps;
+    private List<StepDto> steps;
     private int cookingTime;
     private String imageUrl;
     private boolean isPublic;
@@ -38,17 +39,20 @@ public class RecipeResponse {
                 .map(IngredientDto::from)
                 .collect(Collectors.toList());
 
+        List<StepDto> stepDtos = recipe.getSteps().stream()
+                .map(StepDto::fromEntity)
+                .collect(Collectors.toList());
+
         return new RecipeResponse(
                 recipe.getRecipeId(),
                 recipe.getTitle(),
                 recipe.getAuthorId(),
                 ingredientDtos,
-                recipe.getSteps(),
+                stepDtos,
                 recipe.getCookingTime(),
                 recipe.getImageUrl(),
                 recipe.isPublic(),
                 recipe.getCreatedAt(),
-                recipe.getUpdatedAt()
-        );
+                recipe.getUpdatedAt());
     }
 }

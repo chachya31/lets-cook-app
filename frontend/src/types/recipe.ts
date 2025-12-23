@@ -10,12 +10,17 @@ export interface Ingredient {
   optional: boolean;
 }
 
+export interface Step {
+  description: string;
+  imageUrl?: string;
+}
+
 export interface Recipe {
   recipeId: string;
   title: string;
   authorId: string;
   ingredients: Ingredient[];
-  steps: string[];
+  steps: Step[];
   cookingTime: number;
   imageUrl?: string;
   isPublic: boolean;
@@ -26,7 +31,7 @@ export interface Recipe {
 export interface RecipeRequest {
   title: string;
   ingredients: Ingredient[];
-  steps: string[];
+  steps: Step[];
   cookingTime: number;
 }
 

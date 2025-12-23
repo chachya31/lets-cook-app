@@ -5,7 +5,7 @@ import {
   RECIPE_MIN_STEPS,
   RECIPE_TITLE_MAX_LENGTH,
 } from '../../../constants/validation';
-import { Ingredient } from '../../../types/recipe';
+import { Ingredient, Step } from '../../../types/recipe';
 
 /**
  * レシピ編集フォームの設定
@@ -20,7 +20,7 @@ export const initialFormState = {
   ingredients: [
     { name: '', quantity: undefined, unit: '', note: '', optional: false },
   ] as Ingredient[],
-  steps: [''],
+  steps: [{ description: '', imageUrl: undefined }] as Step[],
 };
 
 /**

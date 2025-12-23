@@ -116,7 +116,10 @@
     "optional": "선택",
     "addIngredient": "재료 추가",
     "steps": "조리 순서",
+    "step": "단계",
     "addStep": "단계 추가",
+    "mainImage": "메인 이미지",
+    "stepImage": "단계 이미지 (선택)",
     "basicInfo": "기본 정보",
     "notFound": "레시피를 찾을 수 없습니다",
     "units": {

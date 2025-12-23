@@ -1,13 +1,16 @@
 package com.cookingapp.presentation.dto;
 
+import java.util.List;
+
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.util.List;
 
 /**
  * レシピ作成・更新リクエストDTO
@@ -29,7 +32,8 @@ public class RecipeRequest {
 
     @NotNull(message = "Steps are required")
     @Size(min = 1, message = "At least one step is required")
-    private List<@NotBlank(message = "Step cannot be empty") String> steps;
+    @Valid
+    private List<StepDto> steps;
 
     @Min(value = 0, message = "Cooking time must be 0 or greater")
     private int cookingTime;

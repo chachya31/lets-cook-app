@@ -1,5 +1,5 @@
-import { Recipe, RecipeRequest, RecipeSearchParams } from '../types/recipe';
-import { apiGet, apiPost, apiPut, apiDelete, apiPostFile } from '../utils/apiClient';
+import { Ingredient, Recipe, RecipeRequest, RecipeSearchParams, Step } from '../types/recipe';
+import { apiDelete, apiGet, apiPost, apiPostFile, apiPut } from '../utils/apiClient';
 
 /**
  * レシピを検索
@@ -25,6 +25,39 @@ export const getRecipe = async (recipeId: string): Promise<Recipe> => {
  */
 export const createRecipe = async (userId: string, recipe: RecipeRequest): Promise<Recipe> => {
   return apiPost<Recipe>('/api/recipes', recipe, userId);
+};
+
+/**
+ * レシピを作成（画像付き）
+ */
+export const createRecipeWithImages = async (
+  userId: string,
+  title: string,
+  ingredients: Ingredient[],
+  steps: Step[],
+  cookingTime: number,
+  mainImage?: File,
+  stepImages?: (File | null)[]
+): Promise<Recipe> => {
+  const formData = new FormData();
+  formData.append('title', title);
+  formData.append('ingredients', JSON.stringify(ingredients));
+  formData.append('steps', JSON.stringify(steps));
+  formData.append('cookingTime', cookingTime.toString());
+
+  if (mainImage) {
+    formData.append('mainImage', mainImage);
+  }
+
+  if (stepImages) {
+    stepImages.forEach((file) => {
+      if (file) {
+        formData.append('stepImages', file);
+      }
+    });
+  }
+
+  return apiPostFile<Recipe>('/api/recipes/with-images', formData, userId);
 };
 
 /**
@@ -56,4 +89,18 @@ export const uploadRecipeImage = async (
   const formData = new FormData();
   formData.append('file', file);
   return apiPostFile<Recipe>(`/api/recipes/${recipeId}/image`, formData, userId);
+};
+
+/**
+ * 手順画像をアップロード
+ */
+export const uploadStepImage = async (
+  recipeId: string,
+  stepIndex: number,
+  userId: string,
+  file: File
+): Promise<Recipe> => {
+  const formData = new FormData();
+  formData.append('file', file);
+  return apiPostFile<Recipe>(`/api/recipes/${recipeId}/steps/${stepIndex}/image`, formData, userId);
 };

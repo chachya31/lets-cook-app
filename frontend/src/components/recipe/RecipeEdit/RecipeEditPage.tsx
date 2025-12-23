@@ -24,6 +24,8 @@ const RecipeEditPage: React.FC = () => {
     setCookingTime,
     ingredients,
     steps,
+    mainImagePreview,
+    stepImagePreviews,
     isEditMode,
     loading,
     error,
@@ -35,6 +37,8 @@ const RecipeEditPage: React.FC = () => {
     handleAddStep,
     handleRemoveStep,
     handleStepChange,
+    handleMainImageChange,
+    handleStepImageChange,
     handleSubmit,
     handleCancel,
   } = useRecipeEditHandlers(scrollToMessage);
@@ -78,6 +82,25 @@ const RecipeEditPage: React.FC = () => {
                 required
                 min={0}
               />
+            </div>
+            {/* メイン画像 */}
+            <div>
+              <Label htmlFor="mainImage">{t('recipe.mainImage')}</Label>
+              <Input
+                id="mainImage"
+                type="file"
+                accept="image/*"
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  handleMainImageChange(e.target.files?.[0] || null)
+                }
+              />
+              {mainImagePreview && (
+                <img
+                  src={mainImagePreview}
+                  alt={t('recipe.mainImage')}
+                  className="mt-2 max-w-xs rounded-lg"
+                />
+              )}
             </div>
           </CardContent>
         </Card>
@@ -153,25 +176,51 @@ const RecipeEditPage: React.FC = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             {steps.map((step, index) => (
-              <div key={index} className="flex gap-2 items-start">
-                <span className="font-bold mt-2">{index + 1}.</span>
-                <Textarea
-                  value={step}
-                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                    handleStepChange(index, e.target.value)
-                  }
-                  required
-                  className="flex-1"
-                  rows={2}
-                />
-                <Button
-                  type="button"
-                  variant="destructive"
-                  onClick={() => handleRemoveStep(index)}
-                  disabled={steps.length === 1}
-                >
-                  {t('common.remove')}
-                </Button>
+              <div key={index} className="border rounded-lg p-4">
+                <div className="flex gap-4 items-start">
+                  {/* 左側: テキスト (75%) */}
+                  <div className="w-3/4 flex gap-2 items-start">
+                    <span className="font-bold mt-2">{index + 1}.</span>
+                    <Textarea
+                      value={step.description}
+                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                        handleStepChange(index, e.target.value)
+                      }
+                      required
+                      className="flex-1"
+                      rows={3}
+                    />
+                  </div>
+                  {/* 右側: 画像 (25%) */}
+                  <div className="w-1/4 space-y-2">
+                    <Label className="text-sm">{t('recipe.stepImage')}</Label>
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      className="text-xs"
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        handleStepImageChange(index, e.target.files?.[0] || null)
+                      }
+                    />
+                    {stepImagePreviews[index] && (
+                      <img
+                        src={stepImagePreviews[index]!}
+                        alt={`${t('recipe.step')} ${index + 1}`}
+                        className="w-full rounded-lg"
+                      />
+                    )}
+                  </div>
+                  {/* 削除ボタン */}
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    onClick={() => handleRemoveStep(index)}
+                    disabled={steps.length === 1}
+                    className="shrink-0"
+                  >
+                    {t('common.remove')}
+                  </Button>
+                </div>
               </div>
             ))}
             <Button type="button" variant="outline" onClick={handleAddStep}>

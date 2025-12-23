@@ -1,15 +1,18 @@
 package com.cookingapp.application.usecase.recipe;
 
+import java.io.IOException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.cookingapp.application.validation.ImageValidator;
 import com.cookingapp.domain.entity.Recipe;
 import com.cookingapp.domain.exception.RecipeNotFoundException;
 import com.cookingapp.domain.exception.UnauthorizedException;
 import com.cookingapp.domain.repository.RecipeRepository;
 import com.cookingapp.domain.service.ImageStorageService;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
 
 /**
  * レシピ画像アップロードユースケース
@@ -17,13 +20,15 @@ import java.io.IOException;
 @Service
 public class UploadRecipeImageUseCase {
 
+    private static final Logger logger = LoggerFactory.getLogger(UploadRecipeImageUseCase.class);
+
     private final RecipeRepository recipeRepository;
     private final ImageStorageService imageStorageService;
     private final ImageValidator imageValidator;
 
     public UploadRecipeImageUseCase(RecipeRepository recipeRepository,
-                                    ImageStorageService imageStorageService,
-                                    ImageValidator imageValidator) {
+            ImageStorageService imageStorageService,
+            ImageValidator imageValidator) {
         this.recipeRepository = recipeRepository;
         this.imageStorageService = imageStorageService;
         this.imageValidator = imageValidator;
@@ -33,39 +38,73 @@ public class UploadRecipeImageUseCase {
      * レシピ画像をアップロード
      * 
      * @param recipeId レシピID
-     * @param userId ユーザーID
-     * @param file 画像ファイル
+     * @param userId   ユーザーID
+     * @param file     画像ファイル
      * @return 更新されたレシピ
      * @throws RecipeNotFoundException レシピが見つからない場合
-     * @throws UnauthorizedException 編集権限がない場合
-     * @throws IOException ファイル読み込みエラー
+     * @throws UnauthorizedException   編集権限がない場合
+     * @throws IOException             ファイル読み込みエラー
      */
     public Recipe execute(String recipeId, String userId, MultipartFile file) throws IOException {
-        // レシピを取得
         Recipe recipe = recipeRepository.findById(recipeId)
                 .orElseThrow(() -> new RecipeNotFoundException("Recipe not found: " + recipeId));
 
-        // 編集権限チェック
         if (!recipe.canEdit(userId)) {
             throw new UnauthorizedException("User does not have permission to edit this recipe");
         }
 
-        // 画像バリデーション
         imageValidator.validate(file);
 
-        // S3にアップロード
-        String fileName = "recipes/" + recipeId + "/" + file.getOriginalFilename();
+        String fileName = "recipes/" + recipeId + "/main/" + file.getOriginalFilename();
         String imageUrl = imageStorageService.uploadImage(
                 fileName,
                 file.getContentType(),
                 file.getInputStream(),
-                file.getSize()
-        );
+                file.getSize());
 
-        // レシピの画像URLを更新
         recipe.updateImageUrl(imageUrl);
+        logger.info("Uploaded main image for recipe: {}", recipeId);
 
-        // リポジトリに保存
+        return recipeRepository.save(recipe);
+    }
+
+    /**
+     * 手順画像をアップロード
+     * 
+     * @param recipeId  レシピID
+     * @param userId    ユーザーID
+     * @param stepIndex 手順インデックス（0始まり）
+     * @param file      画像ファイル
+     * @return 更新されたレシピ
+     * @throws RecipeNotFoundException レシピが見つからない場合
+     * @throws UnauthorizedException   編集権限がない場合
+     * @throws IOException             ファイル読み込みエラー
+     */
+    public Recipe executeStepImage(String recipeId, String userId, int stepIndex, MultipartFile file)
+            throws IOException {
+        Recipe recipe = recipeRepository.findById(recipeId)
+                .orElseThrow(() -> new RecipeNotFoundException("Recipe not found: " + recipeId));
+
+        if (!recipe.canEdit(userId)) {
+            throw new UnauthorizedException("User does not have permission to edit this recipe");
+        }
+
+        if (stepIndex < 0 || stepIndex >= recipe.getSteps().size()) {
+            throw new IllegalArgumentException("Invalid step index: " + stepIndex);
+        }
+
+        imageValidator.validate(file);
+
+        String fileName = "recipes/" + recipeId + "/steps/" + stepIndex + "/" + file.getOriginalFilename();
+        String imageUrl = imageStorageService.uploadImage(
+                fileName,
+                file.getContentType(),
+                file.getInputStream(),
+                file.getSize());
+
+        recipe.updateStepImageUrl(stepIndex, imageUrl);
+        logger.info("Uploaded step {} image for recipe: {}", stepIndex, recipeId);
+
         return recipeRepository.save(recipe);
     }
 }

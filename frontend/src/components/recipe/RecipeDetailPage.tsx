@@ -188,9 +188,22 @@ const RecipeDetailPage: React.FC = () => {
         <CardContent>
           <ol className="space-y-4">
             {currentRecipe.steps.map((step, index) => (
-              <li key={index} className="flex">
-                <span className="font-bold mr-3">{index + 1}.</span>
-                <span>{step}</span>
+              <li key={index} className="flex gap-4 items-start border-b pb-4 last:border-b-0">
+                {/* 左側: テキスト (75%) */}
+                <div className="w-3/4 flex">
+                  <span className="font-bold mr-3">{index + 1}.</span>
+                  <span>{step.description}</span>
+                </div>
+                {/* 右側: 画像 (25%) */}
+                {step.imageUrl && (
+                  <div className="w-1/4">
+                    <img
+                      src={step.imageUrl}
+                      alt={`${t('recipe.step')} ${index + 1}`}
+                      className="w-full rounded-lg"
+                    />
+                  </div>
+                )}
               </li>
             ))}
           </ol>

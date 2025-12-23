@@ -1,12 +1,14 @@
 package com.cookingapp.domain.entity;
 
-import com.cookingapp.domain.valueobject.Ingredient;
-import lombok.Getter;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import com.cookingapp.domain.valueobject.Ingredient;
+import com.cookingapp.domain.valueobject.Step;
+
+import lombok.Getter;
 
 /**
  * レシピエンティティ
@@ -18,7 +20,7 @@ public class Recipe {
     private String title;
     private final String authorId;
     private List<Ingredient> ingredients;
-    private List<String> steps;
+    private List<Step> steps;
     private int cookingTime;
     private String imageUrl;
     private boolean isPublic;
@@ -29,8 +31,8 @@ public class Recipe {
     /**
      * 新規レシピを作成
      */
-    public Recipe(String authorId, String title, List<Ingredient> ingredients, 
-                  List<String> steps, int cookingTime) {
+    public Recipe(String authorId, String title, List<Ingredient> ingredients,
+            List<Step> steps, int cookingTime) {
         validateTitle(title);
         validateIngredients(ingredients);
         validateSteps(steps);
@@ -52,8 +54,8 @@ public class Recipe {
      * 既存レシピを復元（リポジトリから取得時）
      */
     public Recipe(String recipeId, String authorId, String title, List<Ingredient> ingredients,
-                  List<String> steps, int cookingTime, String imageUrl, boolean isPublic,
-                  boolean isDeleted, LocalDateTime createdAt, LocalDateTime updatedAt) {
+            List<Step> steps, int cookingTime, String imageUrl, boolean isPublic,
+            boolean isDeleted, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.recipeId = recipeId;
         this.authorId = authorId;
         this.title = title;
@@ -67,9 +69,6 @@ public class Recipe {
         this.updatedAt = updatedAt;
     }
 
-    /**
-     * タイトルをバリデーション
-     */
     private void validateTitle(String title) {
         if (title == null || title.trim().isEmpty()) {
             throw new IllegalArgumentException("タイトルは必須です");
@@ -79,57 +78,32 @@ public class Recipe {
         }
     }
 
-    /**
-     * 食材リストをバリデーション
-     */
     private void validateIngredients(List<Ingredient> ingredients) {
         if (ingredients == null || ingredients.isEmpty()) {
             throw new IllegalArgumentException("食材は最低1つ必要です");
         }
     }
 
-    /**
-     * 手順リストをバリデーション
-     */
-    private void validateSteps(List<String> steps) {
+    private void validateSteps(List<Step> steps) {
         if (steps == null || steps.isEmpty()) {
             throw new IllegalArgumentException("手順は最低1つ必要です");
         }
-        for (String step : steps) {
-            if (step == null || step.trim().isEmpty()) {
-                throw new IllegalArgumentException("手順に空の項目があります");
-            }
-        }
     }
 
-    /**
-     * 調理時間をバリデーション
-     */
     private void validateCookingTime(int cookingTime) {
         if (cookingTime < 0) {
             throw new IllegalArgumentException("調理時間は0以上である必要があります");
         }
     }
 
-    /**
-     * 食材をバリデーション
-     * 
-     * @param ingredient 食材
-     * @return バリデーション結果
-     */
     public boolean validateIngredient(Ingredient ingredient) {
-        try {
-            // Ingredientのコンストラクタでバリデーションが行われる
-            return ingredient != null;
-        } catch (IllegalArgumentException e) {
-            return false;
-        }
+        return ingredient != null;
     }
 
     /**
      * レシピを更新
      */
-    public void update(String title, List<Ingredient> ingredients, List<String> steps, int cookingTime) {
+    public void update(String title, List<Ingredient> ingredients, List<Step> steps, int cookingTime) {
         validateTitle(title);
         validateIngredients(ingredients);
         validateSteps(steps);
@@ -151,39 +125,35 @@ public class Recipe {
     }
 
     /**
-     * 公開状態を変更
+     * 手順の画像URLを更新
      */
+    public void updateStepImageUrl(int stepIndex, String imageUrl) {
+        if (stepIndex < 0 || stepIndex >= steps.size()) {
+            throw new IllegalArgumentException("無効な手順インデックス: " + stepIndex);
+        }
+        Step oldStep = steps.get(stepIndex);
+        steps.set(stepIndex, oldStep.withImageUrl(imageUrl));
+        this.updatedAt = LocalDateTime.now();
+    }
+
     public void setPublic(boolean isPublic) {
         this.isPublic = isPublic;
         this.updatedAt = LocalDateTime.now();
     }
 
-    /**
-     * レシピを削除済みとしてマーク
-     * スケジュールと買い物リストの参照を保持するため、物理削除ではなく論理削除
-     */
     public void markAsDeleted() {
         this.isDeleted = true;
         this.updatedAt = LocalDateTime.now();
     }
 
-    /**
-     * 作成者かどうか確認
-     */
     public boolean isAuthor(String userId) {
         return this.authorId.equals(userId);
     }
 
-    /**
-     * 編集可能かどうか確認
-     */
     public boolean canEdit(String userId) {
         return isAuthor(userId) && !isDeleted;
     }
 
-    /**
-     * 削除可能かどうか確認
-     */
     public boolean canDelete(String userId) {
         return isAuthor(userId) && !isDeleted;
     }

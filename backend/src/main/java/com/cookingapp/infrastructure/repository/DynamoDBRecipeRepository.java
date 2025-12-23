@@ -17,6 +17,7 @@ import org.springframework.stereotype.Repository;
 import com.cookingapp.domain.entity.Recipe;
 import com.cookingapp.domain.repository.RecipeRepository;
 import com.cookingapp.domain.valueobject.Ingredient;
+import com.cookingapp.domain.valueobject.Step;
 
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
@@ -84,7 +85,6 @@ public class DynamoDBRecipeRepository implements RecipeRepository {
 
         @Override
         public List<Recipe> findByAuthorId(String authorId) {
-                // GSI_Authorを使用して検索
                 QueryRequest request = QueryRequest.builder()
                                 .tableName(tableName)
                                 .indexName("GSI_Author")
@@ -136,9 +136,6 @@ public class DynamoDBRecipeRepository implements RecipeRepository {
                 return findById(recipeId).isPresent();
         }
 
-        /**
-         * RecipeをDynamoDB AttributeMapに変換
-         */
         private Map<String, AttributeValue> toAttributeMap(Recipe recipe) {
                 Map<String, AttributeValue> item = new HashMap<>();
 
@@ -155,24 +152,19 @@ public class DynamoDBRecipeRepository implements RecipeRepository {
                         item.put("ImageUrl", AttributeValue.builder().s(recipe.getImageUrl()).build());
                 }
 
-                // 食材リストを変換
                 List<AttributeValue> ingredientsList = recipe.getIngredients().stream()
                                 .map(this::ingredientToAttributeValue)
                                 .collect(Collectors.toList());
                 item.put("Ingredients", AttributeValue.builder().l(ingredientsList).build());
 
-                // 手順リストを変換
                 List<AttributeValue> stepsList = recipe.getSteps().stream()
-                                .map(step -> AttributeValue.builder().s(step).build())
+                                .map(this::stepToAttributeValue)
                                 .collect(Collectors.toList());
                 item.put("Steps", AttributeValue.builder().l(stepsList).build());
 
                 return item;
         }
 
-        /**
-         * DynamoDB AttributeMapからRecipeに変換
-         */
         private Recipe fromAttributeMap(Map<String, AttributeValue> item) {
                 String recipeId = item.get("RecipeId").s();
                 String title = item.get("Title").s();
@@ -189,17 +181,14 @@ public class DynamoDBRecipeRepository implements RecipeRepository {
                                 .map(this::attributeValueToIngredient)
                                 .collect(Collectors.toList());
 
-                List<String> steps = item.get("Steps").l().stream()
-                                .map(AttributeValue::s)
+                List<Step> steps = item.get("Steps").l().stream()
+                                .map(this::attributeValueToStep)
                                 .collect(Collectors.toList());
 
                 return new Recipe(recipeId, authorId, title, ingredients, steps, cookingTime,
                                 imageUrl, isPublic, isDeleted, createdAt, updatedAt);
         }
 
-        /**
-         * IngredientをAttributeValueに変換
-         */
         private AttributeValue ingredientToAttributeValue(Ingredient ingredient) {
                 Map<String, AttributeValue> map = new HashMap<>();
                 map.put("name", AttributeValue.builder().s(ingredient.getName()).build());
@@ -208,11 +197,9 @@ public class DynamoDBRecipeRepository implements RecipeRepository {
                 if (ingredient.getQuantity() != null) {
                         map.put("quantity", AttributeValue.builder().n(ingredient.getQuantity().toString()).build());
                 }
-
                 if (ingredient.getUnit() != null) {
                         map.put("unit", AttributeValue.builder().s(ingredient.getUnit()).build());
                 }
-
                 if (ingredient.getNote() != null) {
                         map.put("note", AttributeValue.builder().s(ingredient.getNote()).build());
                 }
@@ -220,9 +207,6 @@ public class DynamoDBRecipeRepository implements RecipeRepository {
                 return AttributeValue.builder().m(map).build();
         }
 
-        /**
-         * AttributeValueからIngredientに変換
-         */
         private Ingredient attributeValueToIngredient(AttributeValue attributeValue) {
                 Map<String, AttributeValue> map = attributeValue.m();
 
@@ -233,5 +217,29 @@ public class DynamoDBRecipeRepository implements RecipeRepository {
                 String note = map.containsKey("note") ? map.get("note").s() : null;
 
                 return new Ingredient(name, quantity, unit, note, optional);
+        }
+
+        private AttributeValue stepToAttributeValue(Step step) {
+                Map<String, AttributeValue> map = new HashMap<>();
+                map.put("description", AttributeValue.builder().s(step.getDescription()).build());
+                if (step.getImageUrl() != null) {
+                        map.put("imageUrl", AttributeValue.builder().s(step.getImageUrl()).build());
+                }
+                return AttributeValue.builder().m(map).build();
+        }
+
+        private Step attributeValueToStep(AttributeValue attributeValue) {
+                // 新形式: マップ {description: "...", imageUrl: "..."}
+                if (attributeValue.m() != null && !attributeValue.m().isEmpty()) {
+                        Map<String, AttributeValue> map = attributeValue.m();
+                        String description = map.get("description").s();
+                        String imageUrl = map.containsKey("imageUrl") ? map.get("imageUrl").s() : null;
+                        return new Step(description, imageUrl);
+                }
+                // 旧形式: 文字列 "手順の説明"
+                if (attributeValue.s() != null) {
+                        return new Step(attributeValue.s(), null);
+                }
+                throw new IllegalArgumentException("Invalid step format in DynamoDB");
         }
 }
