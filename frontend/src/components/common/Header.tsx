@@ -1,9 +1,10 @@
 import { Calendar, LogOut, Search, Shield, ShoppingCart, User } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { RootState } from '../../store/store';
+import { logout } from '../../store/slices/authSlice';
+import { AppDispatch, RootState } from '../../store/store';
 import { Button } from '../ui/button';
 
 /**
@@ -13,6 +14,7 @@ import { Button } from '../ui/button';
 const Header: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
   const currentUser = useSelector((state: RootState) => state.auth.user);
   const isLoggedIn = !!currentUser;
   const isAdmin = currentUser?.roles?.includes('Admins') ?? false;
@@ -20,8 +22,7 @@ const Header: React.FC = () => {
   const profileMenuRef = useRef<HTMLDivElement>(null);
 
   const handleLogout = () => {
-    localStorage.removeItem('userId');
-    localStorage.removeItem('accessToken');
+    dispatch(logout());
     navigate('/login');
   };
 
