@@ -1,12 +1,13 @@
 package com.cookingapp.presentation.dto.response;
 
+import java.math.BigDecimal;
+
 import com.cookingapp.domain.entity.ShoppingListItem;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.math.BigDecimal;
 
 /**
  * 買い物リストアイテムレスポンス
@@ -32,7 +33,7 @@ public class ShoppingListItemResponse {
                 .userId(item.getUserId())
                 .name(item.getName())
                 .quantity(item.getQuantity())
-                .unit(item.getUnit().getCode())
+                .unit(item.getUnit())
                 .isChecked(item.isChecked())
                 .isCheckedAt(item.getIsCheckedAt() != null ? item.getIsCheckedAt().toString() : null)
                 .addedAt(item.getAddedAt().toString())

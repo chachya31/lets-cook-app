@@ -30,9 +30,9 @@ sequenceDiagram
 
 ### リクエスト
 
-| 項目 | 型 | 必須 | 説明 | 例 |
-|------|---|------|------|-----|
-| - | - | - | パラメータなし | - |
+| 項目 | 型  | 必須 | 説明           | 例  |
+| ---- | --- | ---- | -------------- | --- |
+| -    | -   | -    | パラメータなし | -   |
 
 ### レスポンス
 
@@ -40,28 +40,28 @@ sequenceDiagram
 
 **ボディ**: `List<RecipeResponse>`
 
-| 項目 | 型 | 説明 | 例 |
-|------|---|------|-----|
-| recipeId | String | レシピID（UUID） | "660e8400-e29b-41d4-a716-446655440001" |
-| title | String | レシピタイトル | "簡単カレーライス" |
-| authorId | String | 作成者ID | "550e8400-e29b-41d4-a716-446655440000" |
-| ingredients | List\<IngredientDto\> | 食材リスト | 下記参照 |
-| steps | List\<String\> | 調理手順 | ["野菜を切る", "炒める", ...] |
-| cookingTime | Integer | 調理時間（分） | 30 |
-| imageUrl | String | レシピ画像URL | "https://s3.../recipe.jpg" |
-| isPublic | Boolean | 公開フラグ | true |
-| createdAt | String | 作成日時（ISO8601） | "2024-11-15T14:30:00" |
-| updatedAt | String | 更新日時（ISO8601） | "2024-11-20T16:45:00" |
+| 項目        | 型                    | 説明                | 例                                     |
+| ----------- | --------------------- | ------------------- | -------------------------------------- |
+| recipeId    | String                | レシピID（UUID）    | "660e8400-e29b-41d4-a716-446655440001" |
+| title       | String                | レシピタイトル      | "簡単カレーライス"                     |
+| authorId    | String                | 作成者ID            | "550e8400-e29b-41d4-a716-446655440000" |
+| ingredients | List\<IngredientDto\> | 食材リスト          | 下記参照                               |
+| steps       | List\<String\>        | 調理手順            | ["野菜を切る", "炒める", ...]          |
+| cookingTime | Integer               | 調理時間（分）      | 30                                     |
+| imageUrl    | String                | レシピ画像URL       | "https://s3.../recipe.jpg"             |
+| isPublic    | Boolean               | 公開フラグ          | true                                   |
+| createdAt   | String                | 作成日時（ISO8601） | "2024-11-15T14:30:00"                  |
+| updatedAt   | String                | 更新日時（ISO8601） | "2024-11-20T16:45:00"                  |
 
 **IngredientDto の構造**:
 
-| 項目 | 型 | 説明 | 例 |
-|------|---|------|-----|
-| name | String | 食材名 | "玉ねぎ" |
-| quantity | BigDecimal | 数量 | 2 |
-| unit | String | 単位コード | "piece" |
-| note | String | メモ（任意） | "中サイズ" |
-| optional | Boolean | 任意フラグ | false |
+| 項目     | 型         | 必須 | 説明             | 例         |
+| -------- | ---------- | ---- | ---------------- | ---------- |
+| name     | String     | ✓    | 食材名           | "玉ねぎ"   |
+| quantity | BigDecimal |      | 数量（任意）     | 2          |
+| unit     | String     |      | 単位（自由入力） | "個"       |
+| note     | String     |      | メモ（任意）     | "中サイズ" |
+| optional | Boolean    | ✓    | 任意フラグ       | false      |
 
 ## 2. 作成者別レシピ検索
 
@@ -95,9 +95,9 @@ sequenceDiagram
 
 **クエリパラメータ**:
 
-| 項目 | 型 | 必須 | 説明 | 例 |
-|------|---|------|------|-----|
-| authorId | String | ✓ | 作成者ID（UUID） | "550e8400-e29b-41d4-a716-446655440000" |
+| 項目     | 型     | 必須 | 説明             | 例                                     |
+| -------- | ------ | ---- | ---------------- | -------------------------------------- |
+| authorId | String | ✓    | 作成者ID（UUID） | "550e8400-e29b-41d4-a716-446655440000" |
 
 ### レスポンス
 
@@ -139,9 +139,9 @@ sequenceDiagram
 
 **クエリパラメータ**:
 
-| 項目 | 型 | 必須 | 説明 | 例 |
-|------|---|------|------|-----|
-| keyword | String | ✓ | 検索キーワード（タイトルに含まれる文字列） | "カレー" |
+| 項目    | 型     | 必須 | 説明                                       | 例       |
+| ------- | ------ | ---- | ------------------------------------------ | -------- |
+| keyword | String | ✓    | 検索キーワード（タイトルに含まれる文字列） | "カレー" |
 
 ### レスポンス
 
@@ -196,9 +196,9 @@ sequenceDiagram
 
 **パスパラメータ**:
 
-| 項目 | 型 | 必須 | 説明 | 例 |
-|------|---|------|------|-----|
-| id | String | ✓ | レシピID（UUID） | "660e8400-e29b-41d4-a716-446655440001" |
+| 項目 | 型     | 必須 | 説明             | 例                                     |
+| ---- | ------ | ---- | ---------------- | -------------------------------------- |
+| id   | String | ✓    | レシピID（UUID） | "660e8400-e29b-41d4-a716-446655440001" |
 
 ### レスポンス（成功時）
 
@@ -260,14 +260,14 @@ sequenceDiagram
 
 ### 主要クラスの責務
 
-| クラス | 責務 |
-|--------|------|
-| **StreamLambdaHandler** | Lambda エントリーポイント、Spring Boot統合 |
-| **RecipeController** | HTTPリクエスト処理、バリデーション、DTO変換 |
-| **SearchRecipesUseCase** | レシピ検索のビジネスロジック |
-| **GetRecipeUseCase** | レシピ詳細取得のビジネスロジック |
-| **RecipeRepository** | データアクセスインターフェース（ドメイン層） |
-| **DynamoDBRecipeRepository** | DynamoDB実装、AttributeMap変換 |
+| クラス                       | 責務                                         |
+| ---------------------------- | -------------------------------------------- |
+| **StreamLambdaHandler**      | Lambda エントリーポイント、Spring Boot統合   |
+| **RecipeController**         | HTTPリクエスト処理、バリデーション、DTO変換  |
+| **SearchRecipesUseCase**     | レシピ検索のビジネスロジック                 |
+| **GetRecipeUseCase**         | レシピ詳細取得のビジネスロジック             |
+| **RecipeRepository**         | データアクセスインターフェース（ドメイン層） |
+| **DynamoDBRecipeRepository** | DynamoDB実装、AttributeMap変換               |
 
 ### 共通インフラ層（シーケンス図では省略）
 
@@ -372,8 +372,8 @@ RecipeResponse DTO (Presentation)
 // DynamoDB → Ingredient
 Map<String, AttributeValue> → Ingredient
   - name: String
-  - quantity: BigDecimal
-  - unit: Unit (Enum)
+  - quantity: BigDecimal (optional)
+  - unit: String (optional, 自由入力)
   - note: String (optional)
   - optional: boolean
 ```
@@ -388,12 +388,12 @@ List<AttributeValue> → List<String>
 
 ### 現在の実装
 
-| 操作 | 方式 | パフォーマンス |
-|------|------|--------------|
-| 公開レシピ一覧 | Scan | ⚠️ データ量に比例 |
-| 作成者別検索 | Query (GSI) | ✅ 高速 |
+| 操作           | 方式            | パフォーマンス   |
+| -------------- | --------------- | ---------------- |
+| 公開レシピ一覧 | Scan            | ⚠️ データ量に比例 |
+| 作成者別検索   | Query (GSI)     | ✅ 高速           |
 | キーワード検索 | Scan + フィルタ | ⚠️ データ量に比例 |
-| レシピ詳細 | GetItem | ✅ 高速 |
+| レシピ詳細     | GetItem         | ✅ 高速           |
 
 ### 改善案
 
@@ -405,12 +405,12 @@ List<AttributeValue> → List<String>
 
 ### 主なエラーケース
 
-| エラー | HTTPステータス | 説明 |
-|--------|---------------|------|
-| RecipeNotFoundException | 404 | レシピが存在しない、または削除済み |
-| ValidationException | 400 | リクエストパラメータ不正 |
-| DynamoDbException | 500 | DynamoDB接続エラー |
-| UnauthorizedException | 401 | 認証トークン無効 |
+| エラー                  | HTTPステータス | 説明                               |
+| ----------------------- | -------------- | ---------------------------------- |
+| RecipeNotFoundException | 404            | レシピが存在しない、または削除済み |
+| ValidationException     | 400            | リクエストパラメータ不正           |
+| DynamoDbException       | 500            | DynamoDB接続エラー                 |
+| UnauthorizedException   | 401            | 認証トークン無効                   |
 
 ## ログ出力
 

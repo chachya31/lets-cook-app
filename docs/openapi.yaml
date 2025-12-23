@@ -1086,7 +1086,7 @@ components:
 
     Ingredient:
       type: object
-      required: [name, quantity, unit]
+      required: [name]
       properties:
         name:
           type: string
@@ -1096,11 +1096,13 @@ components:
           type: number
           minimum: 0.01
           maximum: 9999
+          description: 数量（任意）
           example: 2
         unit:
           type: string
-          description: 単位コード
-          example: piece
+          maxLength: 50
+          description: 単位（自由入力、任意）
+          example: 個
         note:
           type: string
           maxLength: 200

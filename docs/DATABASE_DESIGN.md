@@ -6,13 +6,13 @@
 
 ## テーブル一覧
 
-| テーブル名 | 用途 | Partition Key | Sort Key | GSI |
-|-----------|------|--------------|----------|-----|
-| Users | ユーザー情報 | UserId | - | - |
-| Recipes | レシピ情報 | RecipeId | - | GSI_Author |
-| Reviews | レビュー情報 | RecipeId | ReviewId | GSI_User |
-| Schedules | スケジュール情報 | UserId | DateTypeRecipeId | - |
-| ShoppingLists | 買い物リスト | UserId | ItemId | GSI_NormalizedKey |
+| テーブル名    | 用途             | Partition Key | Sort Key         | GSI               |
+| ------------- | ---------------- | ------------- | ---------------- | ----------------- |
+| Users         | ユーザー情報     | UserId        | -                | -                 |
+| Recipes       | レシピ情報       | RecipeId      | -                | GSI_Author        |
+| Reviews       | レビュー情報     | RecipeId      | ReviewId         | GSI_User          |
+| Schedules     | スケジュール情報 | UserId        | DateTypeRecipeId | -                 |
+| ShoppingLists | 買い物リスト     | UserId        | ItemId           | GSI_NormalizedKey |
 
 ---
 
@@ -27,19 +27,19 @@
 
 ### 属性
 
-| 属性名 | 型 | 必須 | 説明 | 例 |
-|--------|---|------|------|-----|
-| UserId | String | ✓ | ユーザーID（UUID） | "550e8400-e29b-41d4-a716-446655440000" |
-| Email | String | ✓ | メールアドレス | "user@example.com" |
-| Nickname | String | ✓ | ニックネーム（1-50文字） | "山田太郎" |
-| DisplayName | String | ✓ | 表示名（1-50文字） | "Taro Yamada" |
-| ProfileImageUrl | String | | プロフィール画像URL | "https://s3.../profile.jpg" |
-| PreferredLanguage | String | ✓ | 優先言語（"ja" or "ko"） | "ja" |
-| LastCookingDate | String | | 最終料理日（ISO8601形式） | "2024-12-01" |
-| LastLoginDate | String | | 最終ログイン日時（ISO8601形式） | "2024-12-02T10:30:00" |
-| CreatedAt | String | ✓ | 作成日時（ISO8601形式） | "2024-11-01T09:00:00" |
-| Timezone | String | ✓ | タイムゾーン | "Asia/Tokyo" |
-| MarketingOptOut | Boolean | ✓ | マーケティング配信拒否フラグ | false |
+| 属性名            | 型      | 必須 | 説明                            | 例                                     |
+| ----------------- | ------- | ---- | ------------------------------- | -------------------------------------- |
+| UserId            | String  | ✓    | ユーザーID（UUID）              | "550e8400-e29b-41d4-a716-446655440000" |
+| Email             | String  | ✓    | メールアドレス                  | "user@example.com"                     |
+| Nickname          | String  | ✓    | ニックネーム（1-50文字）        | "山田太郎"                             |
+| DisplayName       | String  | ✓    | 表示名（1-50文字）              | "Taro Yamada"                          |
+| ProfileImageUrl   | String  |      | プロフィール画像URL             | "https://s3.../profile.jpg"            |
+| PreferredLanguage | String  | ✓    | 優先言語（"ja" or "ko"）        | "ja"                                   |
+| LastCookingDate   | String  |      | 最終料理日（ISO8601形式）       | "2024-12-01"                           |
+| LastLoginDate     | String  |      | 最終ログイン日時（ISO8601形式） | "2024-12-02T10:30:00"                  |
+| CreatedAt         | String  | ✓    | 作成日時（ISO8601形式）         | "2024-11-01T09:00:00"                  |
+| Timezone          | String  | ✓    | タイムゾーン                    | "Asia/Tokyo"                           |
+| MarketingOptOut   | Boolean | ✓    | マーケティング配信拒否フラグ    | false                                  |
 
 ### インデックス
 なし
@@ -67,47 +67,33 @@
 
 ### 属性
 
-| 属性名 | 型 | 必須 | 説明 | 例 |
-|--------|---|------|------|-----|
-| RecipeId | String | ✓ | レシピID（UUID） | "660e8400-e29b-41d4-a716-446655440001" |
-| Title | String | ✓ | レシピタイトル（最大100文字） | "簡単カレーライス" |
-| AuthorId | String | ✓ | 作成者ID（UserId） | "550e8400-e29b-41d4-a716-446655440000" |
-| Ingredients | List<Map> | ✓ | 食材リスト | 下記参照 |
-| Steps | List<String> | ✓ | 調理手順リスト | ["野菜を切る", "炒める", ...] |
-| CookingTime | Number | ✓ | 調理時間（分） | 30 |
-| ImageUrl | String | | レシピ画像URL | "https://s3.../recipe.jpg" |
-| IsPublic | Boolean | ✓ | 公開フラグ | true |
-| IsDeleted | Boolean | ✓ | 論理削除フラグ | false |
-| CreatedAt | String | ✓ | 作成日時（ISO8601形式） | "2024-11-15T14:30:00" |
-| UpdatedAt | String | ✓ | 更新日時（ISO8601形式） | "2024-11-20T16:45:00" |
+| 属性名      | 型           | 必須 | 説明                          | 例                                     |
+| ----------- | ------------ | ---- | ----------------------------- | -------------------------------------- |
+| RecipeId    | String       | ✓    | レシピID（UUID）              | "660e8400-e29b-41d4-a716-446655440001" |
+| Title       | String       | ✓    | レシピタイトル（最大100文字） | "簡単カレーライス"                     |
+| AuthorId    | String       | ✓    | 作成者ID（UserId）            | "550e8400-e29b-41d4-a716-446655440000" |
+| Ingredients | List<Map>    | ✓    | 食材リスト                    | 下記参照                               |
+| Steps       | List<String> | ✓    | 調理手順リスト                | ["野菜を切る", "炒める", ...]          |
+| CookingTime | Number       | ✓    | 調理時間（分）                | 30                                     |
+| ImageUrl    | String       |      | レシピ画像URL                 | "https://s3.../recipe.jpg"             |
+| IsPublic    | Boolean      | ✓    | 公開フラグ                    | true                                   |
+| IsDeleted   | Boolean      | ✓    | 論理削除フラグ                | false                                  |
+| CreatedAt   | String       | ✓    | 作成日時（ISO8601形式）       | "2024-11-15T14:30:00"                  |
+| UpdatedAt   | String       | ✓    | 更新日時（ISO8601形式）       | "2024-11-20T16:45:00"                  |
 
 ### Ingredients（食材）の構造
 
 各食材は以下の属性を持つMapオブジェクト：
 
-| 属性名 | 型 | 必須 | 説明 | 例 |
-|--------|---|------|------|-----|
-| name | String | ✓ | 食材名（最大100文字） | "玉ねぎ" |
-| quantity | Number | ✓ | 数量（0.01-9999） | 2 |
-| unit | String | ✓ | 単位コード | "piece" |
-| note | String | | メモ（最大200文字） | "中サイズ" |
-| optional | Boolean | ✓ | 任意フラグ | false |
+| 属性名   | 型      | 必須 | 説明                         | 例         |
+| -------- | ------- | ---- | ---------------------------- | ---------- |
+| name     | String  | ✓    | 食材名（最大100文字）        | "玉ねぎ"   |
+| quantity | Number  |      | 数量（0.01-9999、任意）      | 2          |
+| unit     | String  |      | 単位（最大50文字、自由入力） | "個"       |
+| note     | String  |      | メモ（最大200文字）          | "中サイズ" |
+| optional | Boolean | ✓    | 任意フラグ                   | false      |
 
-### 単位コード一覧
-
-| コード | 表示名 | 説明 |
-|--------|--------|------|
-| g | g | グラム |
-| kg | kg | キログラム |
-| ml | ml | ミリリットル |
-| l | l | リットル |
-| tbsp | 大さじ | 大さじ |
-| tsp | 小さじ | 小さじ |
-| cup | カップ | カップ |
-| piece | 個 | 個 |
-| pack | パック | パック |
-| can | 缶 | 缶 |
-| bottle | 本 | 本 |
+※ quantity と unit は任意項目です。「適量」「少々」など数量を指定しない食材に対応しています。
 | slice | 枚 | 枚 |
 | clove | 片 | 片 |
 | pinch | ひとつまみ | ひとつまみ |
@@ -144,24 +130,24 @@
 
 ### 属性
 
-| 属性名 | 型 | 必須 | 説明 | 例 |
-|--------|---|------|------|-----|
-| RecipeId | String | ✓ | レシピID | "660e8400-e29b-41d4-a716-446655440001" |
-| ReviewId | String | ✓ | レビューID（UUID） | "770e8400-e29b-41d4-a716-446655440002" |
-| UserId | String | ✓ | レビュー投稿者ID | "550e8400-e29b-41d4-a716-446655440000" |
-| Rating | Number | ✓ | 星評価（1-5） | 5 |
-| Comment | String | | コメント（最大300文字） | "とても美味しかったです！" |
-| Status | String | ✓ | ステータス（"visible" or "hidden"） | "visible" |
-| ReportedCount | Number | ✓ | 通報カウント | 0 |
-| CreatedAt | String | ✓ | 作成日時（ISO8601形式） | "2024-11-16T10:00:00Z" |
-| UpdatedAt | String | ✓ | 更新日時（ISO8601形式） | "2024-11-16T10:00:00Z" |
+| 属性名        | 型     | 必須 | 説明                                | 例                                     |
+| ------------- | ------ | ---- | ----------------------------------- | -------------------------------------- |
+| RecipeId      | String | ✓    | レシピID                            | "660e8400-e29b-41d4-a716-446655440001" |
+| ReviewId      | String | ✓    | レビューID（UUID）                  | "770e8400-e29b-41d4-a716-446655440002" |
+| UserId        | String | ✓    | レビュー投稿者ID                    | "550e8400-e29b-41d4-a716-446655440000" |
+| Rating        | Number | ✓    | 星評価（1-5）                       | 5                                      |
+| Comment       | String |      | コメント（最大300文字）             | "とても美味しかったです！"             |
+| Status        | String | ✓    | ステータス（"visible" or "hidden"） | "visible"                              |
+| ReportedCount | Number | ✓    | 通報カウント                        | 0                                      |
+| CreatedAt     | String | ✓    | 作成日時（ISO8601形式）             | "2024-11-16T10:00:00Z"                 |
+| UpdatedAt     | String | ✓    | 更新日時（ISO8601形式）             | "2024-11-16T10:00:00Z"                 |
 
 ### ステータス値
 
-| 値 | 説明 |
-|----|------|
-| visible | 表示可能 |
-| hidden | 非表示（通報により自動非表示） |
+| 値      | 説明                           |
+| ------- | ------------------------------ |
+| visible | 表示可能                       |
+| hidden  | 非表示（通報により自動非表示） |
 
 ### インデックス
 
@@ -196,24 +182,24 @@
 
 ### 属性
 
-| 属性名 | 型 | 必須 | 説明 | 例 |
-|--------|---|------|------|-----|
-| UserId | String | ✓ | ユーザーID | "550e8400-e29b-41d4-a716-446655440000" |
-| DateTypeRecipeId | String | ✓ | 複合ソートキー | "2024-12-01#PLANNED#660e..." |
-| ScheduleId | String | ✓ | スケジュールID（UUID） | "880e8400-e29b-41d4-a716-446655440003" |
-| Date | String | ✓ | 日付（YYYY-MM-DD形式） | "2024-12-01" |
-| Type | String | ✓ | タイプ（"PLANNED" or "COOKED"） | "PLANNED" |
-| RecipeId | String | ✓ | レシピID | "660e8400-e29b-41d4-a716-446655440001" |
-| RecipeTitle | String | ✓ | レシピタイトル（参照用） | "簡単カレーライス" |
-| Memo | String | | メモ（最大120文字） | "夕食用" |
-| CreatedAt | String | ✓ | 作成日時（ISO8601形式） | "2024-11-30T15:00:00Z" |
+| 属性名           | 型     | 必須 | 説明                            | 例                                     |
+| ---------------- | ------ | ---- | ------------------------------- | -------------------------------------- |
+| UserId           | String | ✓    | ユーザーID                      | "550e8400-e29b-41d4-a716-446655440000" |
+| DateTypeRecipeId | String | ✓    | 複合ソートキー                  | "2024-12-01#PLANNED#660e..."           |
+| ScheduleId       | String | ✓    | スケジュールID（UUID）          | "880e8400-e29b-41d4-a716-446655440003" |
+| Date             | String | ✓    | 日付（YYYY-MM-DD形式）          | "2024-12-01"                           |
+| Type             | String | ✓    | タイプ（"PLANNED" or "COOKED"） | "PLANNED"                              |
+| RecipeId         | String | ✓    | レシピID                        | "660e8400-e29b-41d4-a716-446655440001" |
+| RecipeTitle      | String | ✓    | レシピタイトル（参照用）        | "簡単カレーライス"                     |
+| Memo             | String |      | メモ（最大120文字）             | "夕食用"                               |
+| CreatedAt        | String | ✓    | 作成日時（ISO8601形式）         | "2024-11-30T15:00:00Z"                 |
 
 ### タイプ値
 
-| 値 | 説明 |
-|----|------|
+| 値      | 説明     |
+| ------- | -------- |
 | PLANNED | 料理予定 |
-| COOKED | 料理実績 |
+| COOKED  | 料理実績 |
 
 ### インデックス
 なし
@@ -242,18 +228,18 @@
 
 ### 属性
 
-| 属性名 | 型 | 必須 | 説明 | 例 |
-|--------|---|------|------|-----|
-| UserId | String | ✓ | ユーザーID | "550e8400-e29b-41d4-a716-446655440000" |
-| ItemId | String | ✓ | アイテムID（UUID） | "990e8400-e29b-41d4-a716-446655440004" |
-| Name | String | ✓ | アイテム名（最大100文字） | "玉ねぎ" |
-| Quantity | Number | ✓ | 数量（0.01-9999） | 2 |
-| Unit | String | ✓ | 単位コード | "piece" |
-| IsChecked | Boolean | ✓ | チェック済みフラグ | false |
-| IsCheckedAt | String | | チェック日時（ISO8601形式） | "2024-12-01T18:00:00Z" |
-| AddedAt | String | ✓ | 追加日時（ISO8601形式） | "2024-11-30T10:00:00Z" |
-| SourceRecipeId | String | | 元レシピID（レシピから追加した場合） | "660e8400-e29b-41d4-a716-446655440001" |
-| NormalizedKey | String | ✓ | 正規化キー（名前+単位） | "玉ねぎ#piece" |
+| 属性名         | 型      | 必須 | 説明                                 | 例                                     |
+| -------------- | ------- | ---- | ------------------------------------ | -------------------------------------- |
+| UserId         | String  | ✓    | ユーザーID                           | "550e8400-e29b-41d4-a716-446655440000" |
+| ItemId         | String  | ✓    | アイテムID（UUID）                   | "990e8400-e29b-41d4-a716-446655440004" |
+| Name           | String  | ✓    | アイテム名（最大100文字）            | "玉ねぎ"                               |
+| Quantity       | Number  | ✓    | 数量（0.01-9999）                    | 2                                      |
+| Unit           | String  | ✓    | 単位コード                           | "piece"                                |
+| IsChecked      | Boolean | ✓    | チェック済みフラグ                   | false                                  |
+| IsCheckedAt    | String  |      | チェック日時（ISO8601形式）          | "2024-12-01T18:00:00Z"                 |
+| AddedAt        | String  | ✓    | 追加日時（ISO8601形式）              | "2024-11-30T10:00:00Z"                 |
+| SourceRecipeId | String  |      | 元レシピID（レシピから追加した場合） | "660e8400-e29b-41d4-a716-446655440001" |
+| NormalizedKey  | String  | ✓    | 正規化キー（名前+単位）              | "玉ねぎ#piece"                         |
 
 ### インデックス
 

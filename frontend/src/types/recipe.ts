@@ -4,8 +4,8 @@
 
 export interface Ingredient {
   name: string;
-  quantity: number;
-  unit: string;
+  quantity?: number;
+  unit?: string;
   note?: string;
   optional: boolean;
 }

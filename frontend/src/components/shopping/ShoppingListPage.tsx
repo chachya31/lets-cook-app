@@ -34,7 +34,7 @@ const ShoppingListPage: React.FC = () => {
 
   const [name, setName] = useState('');
   const [quantity, setQuantity] = useState('');
-  const [unit, setUnit] = useState('piece');
+  const [unit, setUnit] = useState('');
 
   useEffect(() => {
     if (user?.userId) {
@@ -60,7 +60,7 @@ const ShoppingListPage: React.FC = () => {
     // フォームをリセット
     setName('');
     setQuantity('');
-    setUnit('piece');
+    setUnit('');
   };
 
   const handleToggleCheck = async (itemId: string, isChecked: boolean) => {
@@ -103,7 +103,10 @@ const ShoppingListPage: React.FC = () => {
         <h2 className="text-xl font-semibold mb-4">{t('shoppingList.addItem')}</h2>
         <form onSubmit={handleAddItem} className="space-y-4">
           <div>
-            <Label htmlFor="name">{t('shoppingList.itemName')}</Label>
+            <Label htmlFor="name">
+              {t('shoppingList.itemName')}
+              <span className="text-red-500 ml-1">*</span>
+            </Label>
             <Input
               id="name"
               type="text"
@@ -116,7 +119,10 @@ const ShoppingListPage: React.FC = () => {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="quantity">{t('shoppingList.quantity')}</Label>
+              <Label htmlFor="quantity">
+                {t('shoppingList.quantity')}
+                <span className="text-red-500 ml-1">*</span>
+              </Label>
               <Input
                 id="quantity"
                 type="number"
@@ -132,29 +138,13 @@ const ShoppingListPage: React.FC = () => {
 
             <div>
               <Label htmlFor="unit">{t('shoppingList.unit')}</Label>
-              <select
+              <Input
                 id="unit"
+                type="text"
                 value={unit}
                 onChange={(e) => setUnit(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-              >
-                <option value="g">g</option>
-                <option value="kg">kg</option>
-                <option value="ml">ml</option>
-                <option value="l">l</option>
-                <option value="tbsp">{t('recipe.units.tbsp')}</option>
-                <option value="tsp">{t('recipe.units.tsp')}</option>
-                <option value="cup">{t('recipe.units.cup')}</option>
-                <option value="piece">{t('recipe.units.piece')}</option>
-                <option value="pack">{t('recipe.units.pack')}</option>
-                <option value="can">{t('recipe.units.can')}</option>
-                <option value="bottle">{t('recipe.units.bottle')}</option>
-                <option value="slice">{t('recipe.units.slice')}</option>
-                <option value="clove">{t('recipe.units.clove')}</option>
-                <option value="pinch">{t('recipe.units.pinch')}</option>
-                <option value="to_taste">{t('recipe.units.to_taste')}</option>
-                <option value="as_needed">{t('recipe.units.as_needed')}</option>
-              </select>
+                placeholder={t('shoppingList.unitPlaceholder')}
+              />
             </div>
           </div>
 

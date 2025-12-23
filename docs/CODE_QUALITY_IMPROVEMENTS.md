@@ -86,12 +86,12 @@ public Ingredient toDomain() {
 **変更後**:
 ```java
 public Ingredient toEntity() {
-    Unit unitEnum = Unit.fromCode(unit);
-    return new Ingredient(name, quantity, unitEnum, note, optional);
+    return new Ingredient(name, quantity, unit, note, optional);
 }
 ```
 
 **理由**: DTOからドメインエンティティへの変換であることを明確にするため、`toDomain()` → `toEntity()` に変更しました。
+また、unitは自由入力のString型に変更されたため、Unit enumへの変換は不要になりました。
 
 #### RecipeController.java
 **変更前**:

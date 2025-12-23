@@ -6,9 +6,7 @@ import { Button } from '../../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card';
 import { Input } from '../../ui/input';
 import { Label } from '../../ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
 import { Textarea } from '../../ui/textarea';
-import { unitOptions } from './recipeEditConfig';
 import { useRecipeEditHandlers } from './useRecipeEditHandlers';
 
 /**
@@ -67,7 +65,9 @@ const RecipeEditPage: React.FC = () => {
               />
             </div>
             <div>
-              <Label htmlFor="cookingTime">{t('recipe.cookingTime')}</Label>
+              <Label htmlFor="cookingTime">
+                {t('recipe.cookingTime')}（{t('recipe.minutes')}）
+              </Label>
               <Input
                 id="cookingTime"
                 type="number"
@@ -91,7 +91,10 @@ const RecipeEditPage: React.FC = () => {
             {ingredients.map((ingredient, index) => (
               <div key={index} className="flex gap-2 items-end">
                 <div className="flex-1">
-                  <Label>{t('recipe.ingredientName')}</Label>
+                  <Label>
+                    {t('recipe.ingredientName')}
+                    <span className="text-red-500 ml-1">*</span>
+                  </Label>
                   <Input
                     value={ingredient.name}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -104,32 +107,28 @@ const RecipeEditPage: React.FC = () => {
                   <Label>{t('recipe.quantity')}</Label>
                   <Input
                     type="number"
-                    value={ingredient.quantity}
+                    value={ingredient.quantity ?? ''}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      handleIngredientChange(index, 'quantity', parseFloat(e.target.value) || 0)
+                      handleIngredientChange(
+                        index,
+                        'quantity',
+                        e.target.value ? parseFloat(e.target.value) : undefined
+                      )
                     }
-                    required
                     min={0}
                     step="0.1"
+                    placeholder={t('recipe.quantityPlaceholder')}
                   />
                 </div>
                 <div className="w-32">
                   <Label>{t('recipe.unit')}</Label>
-                  <Select
-                    value={ingredient.unit}
-                    onValueChange={(value) => handleIngredientChange(index, 'unit', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder={t('recipe.selectUnit')} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {unitOptions.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Input
+                    value={ingredient.unit ?? ''}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      handleIngredientChange(index, 'unit', e.target.value)
+                    }
+                    placeholder={t('recipe.unitPlaceholder')}
+                  />
                 </div>
                 <Button
                   type="button"

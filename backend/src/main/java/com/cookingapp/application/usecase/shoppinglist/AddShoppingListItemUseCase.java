@@ -1,15 +1,16 @@
 package com.cookingapp.application.usecase.shoppinglist;
 
-import com.cookingapp.domain.entity.ShoppingListItem;
-import com.cookingapp.domain.repository.ShoppingListRepository;
-import com.cookingapp.domain.valueobject.Unit;
-import lombok.RequiredArgsConstructor;
+import java.math.BigDecimal;
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.util.Optional;
+import com.cookingapp.domain.entity.ShoppingListItem;
+import com.cookingapp.domain.repository.ShoppingListRepository;
+
+import lombok.RequiredArgsConstructor;
 
 /**
  * 買い物リストアイテム追加ユースケース
@@ -28,14 +29,13 @@ public class AddShoppingListItemUseCase {
             String userId,
             String name,
             BigDecimal quantity,
-            Unit unit,
-            String sourceRecipeId
-    ) {
+            String unit,
+            String sourceRecipeId) {
         String normalizedKey = ShoppingListItem.generateNormalizedKey(name, unit);
-        
+
         // 既存のアイテムを検索
         Optional<ShoppingListItem> existingItem = shoppingListRepository.findByNormalizedKey(userId, normalizedKey);
-        
+
         if (existingItem.isPresent()) {
             // 既存アイテムがある場合は数量を合算
             ShoppingListItem updatedItem = existingItem.get().updateQuantity(quantity);

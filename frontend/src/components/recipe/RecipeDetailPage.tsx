@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
-import { AppDispatch, RootState } from '../../store/store';
-import { fetchRecipe, deleteRecipe, clearCurrentRecipe } from '../../store/recipeSlice';
-import { useTranslation } from 'react-i18next';
-import { Button } from '../ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { ReviewList } from './ReviewList';
-import { ReviewForm } from './ReviewForm';
 import { useReview } from '../../hooks/useReview';
+import { clearCurrentRecipe, deleteRecipe, fetchRecipe } from '../../store/recipeSlice';
+import { AppDispatch, RootState } from '../../store/store';
 import { Review } from '../../types/review';
 import { formatUnit } from '../../utils/unitHelper';
+import { Button } from '../ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { ReviewForm } from './ReviewForm';
+import { ReviewList } from './ReviewList';
 
 /**
  * レシピ詳細ページ
@@ -78,11 +78,7 @@ const RecipeDetailPage: React.FC = () => {
   }
 
   if (!currentRecipe) {
-    return (
-      <div className="container mx-auto px-4 py-8 text-center">
-        {t('recipe.notFound')}
-      </div>
-    );
+    return <div className="container mx-auto px-4 py-8 text-center">{t('recipe.notFound')}</div>;
   }
 
   const isAuthor = user && currentRecipe.authorId === user.userId;
@@ -165,10 +161,14 @@ const RecipeDetailPage: React.FC = () => {
             {currentRecipe.ingredients.map((ingredient, index) => (
               <li key={index} className="flex items-center">
                 <span className="font-medium">{ingredient.name}</span>
-                <span className="mx-2">-</span>
-                <span>
-                  {ingredient.quantity} {formatUnit(ingredient.unit, t)}
-                </span>
+                {(ingredient.quantity || ingredient.unit) && (
+                  <>
+                    <span className="mx-2">-</span>
+                    <span>
+                      {ingredient.quantity} {ingredient.unit ? formatUnit(ingredient.unit, t) : ''}
+                    </span>
+                  </>
+                )}
                 {ingredient.optional && (
                   <span className="ml-2 text-sm text-gray-500">({t('recipe.optional')})</span>
                 )}
@@ -203,9 +203,7 @@ const RecipeDetailPage: React.FC = () => {
           <div className="flex justify-between items-center">
             <CardTitle>{t('review.title')}</CardTitle>
             {user && !showReviewForm && (
-              <Button onClick={() => setShowReviewForm(true)}>
-                {t('review.submit')}
-              </Button>
+              <Button onClick={() => setShowReviewForm(true)}>{t('review.submit')}</Button>
             )}
           </div>
         </CardHeader>

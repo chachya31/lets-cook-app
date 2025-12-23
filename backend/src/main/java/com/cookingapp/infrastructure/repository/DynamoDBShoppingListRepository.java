@@ -1,19 +1,29 @@
 package com.cookingapp.infrastructure.repository;
 
-import com.cookingapp.domain.entity.ShoppingListItem;
-import com.cookingapp.domain.repository.ShoppingListRepository;
-import com.cookingapp.domain.valueobject.Unit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Repository;
-import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
-import software.amazon.awssdk.services.dynamodb.model.*;
-
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
+
+import com.cookingapp.domain.entity.ShoppingListItem;
+import com.cookingapp.domain.repository.ShoppingListRepository;
+
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
+import software.amazon.awssdk.services.dynamodb.model.DeleteItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.GetItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.GetItemResponse;
+import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.QueryRequest;
+import software.amazon.awssdk.services.dynamodb.model.QueryResponse;
 
 /**
  * DynamoDB買い物リストリポジトリ実装
@@ -40,19 +50,19 @@ public class DynamoDBShoppingListRepository implements ShoppingListRepository {
         itemMap.put("ItemId", AttributeValue.builder().s(item.getItemId()).build());
         itemMap.put("Name", AttributeValue.builder().s(item.getName()).build());
         itemMap.put("Quantity", AttributeValue.builder().n(item.getQuantity().toString()).build());
-        itemMap.put("Unit", AttributeValue.builder().s(item.getUnit().getCode()).build());
+        itemMap.put("Unit", AttributeValue.builder().s(item.getUnit() != null ? item.getUnit() : "").build());
         itemMap.put("IsChecked", AttributeValue.builder().bool(item.isChecked()).build());
-        
+
         if (item.getIsCheckedAt() != null) {
             itemMap.put("IsCheckedAt", AttributeValue.builder().s(item.getIsCheckedAt().toString()).build());
         }
-        
+
         itemMap.put("AddedAt", AttributeValue.builder().s(item.getAddedAt().toString()).build());
-        
+
         if (item.getSourceRecipeId() != null) {
             itemMap.put("SourceRecipeId", AttributeValue.builder().s(item.getSourceRecipeId()).build());
         }
-        
+
         itemMap.put("NormalizedKey", AttributeValue.builder().s(item.getNormalizedKey()).build());
 
         PutItemRequest request = PutItemRequest.builder()
@@ -77,7 +87,7 @@ public class DynamoDBShoppingListRepository implements ShoppingListRepository {
                 .build();
 
         GetItemResponse response = dynamoDbClient.getItem(request);
-        
+
         if (!response.hasItem() || response.item().isEmpty()) {
             return Optional.empty();
         }
@@ -97,7 +107,7 @@ public class DynamoDBShoppingListRepository implements ShoppingListRepository {
                 .build();
 
         QueryResponse response = dynamoDbClient.query(request);
-        
+
         return response.items().stream()
                 .map(this::mapToEntity)
                 .collect(Collectors.toList());
@@ -117,7 +127,7 @@ public class DynamoDBShoppingListRepository implements ShoppingListRepository {
                 .build();
 
         QueryResponse response = dynamoDbClient.query(request);
-        
+
         if (response.items().isEmpty()) {
             return Optional.empty();
         }
@@ -164,7 +174,7 @@ public class DynamoDBShoppingListRepository implements ShoppingListRepository {
                 .userId(item.get("UserId").s())
                 .name(item.get("Name").s())
                 .quantity(new BigDecimal(item.get("Quantity").n()))
-                .unit(Unit.fromCode(item.get("Unit").s()))
+                .unit(item.get("Unit").s())
                 .isChecked(item.get("IsChecked").bool())
                 .isCheckedAt(item.containsKey("IsCheckedAt") && item.get("IsCheckedAt").s() != null
                         ? Instant.parse(item.get("IsCheckedAt").s())

@@ -1,15 +1,15 @@
 package com.cookingapp.domain.entity;
 
-import com.cookingapp.domain.constants.ValidationConstants;
-import com.cookingapp.domain.valueobject.Unit;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
+
+import com.cookingapp.domain.constants.ValidationConstants;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
 
 /**
  * 買い物リストアイテムエンティティ
@@ -22,7 +22,7 @@ public class ShoppingListItem {
     private final String userId;
     private final String name;
     private final BigDecimal quantity;
-    private final Unit unit;
+    private final String unit;
     private final boolean isChecked;
     private final Instant isCheckedAt;
     private final Instant addedAt;
@@ -36,9 +36,8 @@ public class ShoppingListItem {
             String userId,
             String name,
             BigDecimal quantity,
-            Unit unit,
-            String sourceRecipeId
-    ) {
+            String unit,
+            String sourceRecipeId) {
         String normalizedKey = generateNormalizedKey(name, unit);
         return ShoppingListItem.builder()
                 .itemId(UUID.randomUUID().toString())
@@ -57,9 +56,10 @@ public class ShoppingListItem {
     /**
      * 正規化キーを生成（名前と単位から）
      */
-    public static String generateNormalizedKey(String name, Unit unit) {
+    public static String generateNormalizedKey(String name, String unit) {
         String normalizedName = name.trim().toLowerCase();
-        return normalizedName + "#" + unit.getCode();
+        String normalizedUnit = unit != null ? unit.trim().toLowerCase() : "";
+        return normalizedName + "#" + normalizedUnit;
     }
 
     /**
@@ -123,7 +123,8 @@ public class ShoppingListItem {
         if (!isChecked || isCheckedAt == null) {
             return false;
         }
-        Instant thresholdDate = Instant.now().minus(ValidationConstants.SHOPPING_LIST_AUTO_DELETE_DAYS, ChronoUnit.DAYS);
+        Instant thresholdDate = Instant.now().minus(ValidationConstants.SHOPPING_LIST_AUTO_DELETE_DAYS,
+                ChronoUnit.DAYS);
         return isCheckedAt.isBefore(thresholdDate);
     }
 

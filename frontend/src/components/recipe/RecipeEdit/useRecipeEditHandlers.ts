@@ -60,7 +60,7 @@ export const useRecipeEditHandlers = (scrollToMessage?: () => void) => {
   const handleAddIngredient = () => {
     setIngredients([
       ...ingredients,
-      { name: '', quantity: 0, unit: 'g', note: '', optional: false },
+      { name: '', quantity: undefined, unit: '', note: '', optional: false },
     ]);
   };
 
@@ -73,7 +73,7 @@ export const useRecipeEditHandlers = (scrollToMessage?: () => void) => {
   const handleIngredientChange = (
     index: number,
     field: keyof Ingredient,
-    value: string | number | boolean
+    value: string | number | boolean | undefined
   ) => {
     const newIngredients = [...ingredients];
     newIngredients[index] = { ...newIngredients[index], [field]: value };
