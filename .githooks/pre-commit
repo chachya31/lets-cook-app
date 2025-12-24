@@ -19,6 +19,26 @@ if echo "$CHANGED_FILES" | grep -q "backend/.*\.java$"; then
         exit 1
     fi
     
+    # ワイルドカードimportのチェック
+    if git diff --cached --name-only --diff-filter=ACM | grep "backend/src/main.*\.java$" | xargs grep -l "^import .*\.\*;" 2>/dev/null; then
+        echo "❌ Error: Wildcard import (.*) found"
+        echo "Please use explicit imports instead of wildcard imports"
+        exit 1
+    fi
+    
+    # @Slf4jのチェック
+    if git diff --cached --name-only --diff-filter=ACM | grep "backend/src/main.*\.java$" | xargs grep -l "@Slf4j" 2>/dev/null; then
+        echo "❌ Error: @Slf4j annotation found"
+        echo "Please use: private static final Logger log = LoggerFactory.getLogger(ClassName.class);"
+        exit 1
+    fi
+    
+    # publicフィールドのチェック（定数以外）
+    if git diff --cached --name-only --diff-filter=ACM | grep "backend/src/main.*\.java$" | xargs grep -E "^\s+public\s+(?!static\s+final)[A-Z][a-zA-Z0-9<>,\s]*\s+[a-z]" 2>/dev/null; then
+        echo "⚠️  Warning: public non-final field found"
+        echo "Consider using private final instead"
+    fi
+    
     # バックエンドビルド
     echo "🔨 Building backend..."
     cd backend && ./gradlew.bat build -x test

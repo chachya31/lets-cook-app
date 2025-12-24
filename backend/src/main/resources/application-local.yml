@@ -1,7 +1,7 @@
 aws:
   # LocalStackはus-east-1をデフォルトで使用（DynamoDB、S3）
   # Cognitoは実際のAWS（ap-northeast-1）を使用
-  region: us-east-1
+  region: ap-northeast-1
   # AWS認証情報（実際のAWSサービス用 - Cognitoのみ）
   # 環境変数から取得: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
   accessKeyId: ${AWS_ACCESS_KEY_ID:YOUR_AWS_ACCESS_KEY_ID}
@@ -13,6 +13,7 @@ aws:
     table:
       users: cooking-app-users-local
       recipes: cooking-app-recipes-local
+      recipe-ingredients: cooking-app-recipe-ingredients-local
       reviews: cooking-app-reviews-local
       schedules: cooking-app-schedules-local
       shoppingLists: cooking-app-shopping-lists-local

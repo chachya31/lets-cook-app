@@ -4,6 +4,7 @@ aws:
     table:
       users: ${DYNAMODB_USERS_TABLE}
       recipes: ${DYNAMODB_RECIPES_TABLE}
+      recipe-ingredients: ${DYNAMODB_RECIPE_INGREDIENTS_TABLE}
       schedules: ${DYNAMODB_SCHEDULES_TABLE}
       shoppingLists: ${DYNAMODB_SHOPPING_LISTS_TABLE}
       reviews: ${DYNAMODB_REVIEWS_TABLE}

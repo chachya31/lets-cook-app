@@ -80,6 +80,7 @@
     "maxSize": "최대 크기: {{maxSize}}MB",
     "removeImage": "이미지 삭제",
     "changeImage": "이미지 변경",
+    "compressing": "이미지 압축 중...",
     "errors": {
       "fileTooLarge": "파일 크기가 너무 큽니다. 최대 {{maxSize}}MB까지 가능합니다",
       "invalidFormat": "지원되지 않는 파일 형식입니다. JPEG, PNG만 지원합니다"
@@ -90,7 +91,23 @@
       "title": "레시피 검색",
       "placeholder": "레시피 검색...",
       "button": "검색",
-      "noResults": "레시피를 찾을 수 없습니다"
+      "noResults": "레시피를 찾을 수 없습니다",
+      "tabKeyword": "레시피명으로 검색",
+      "tabIngredients": "재료로 검색"
+    },
+    "searchByIngredients": {
+      "title": "재료로 레시피 찾기",
+      "navTitle": "냉장고 파먹기",
+      "subtitle": "냉장고에 있는 재료를 입력하세요",
+      "inputPlaceholder": "재료명 입력...",
+      "addButton": "추가",
+      "searchButton": "레시피 찾기",
+      "clearAll": "모두 지우기",
+      "noIngredients": "재료를 1개 이상 입력하세요",
+      "duplicateIngredient": "「{{ingredient}}」은(는) 이미 추가되었습니다",
+      "noResults": "냉장고에 있는 재료로 만들 수 있는 요리가 없네요 😢",
+      "resultsTitle": "{{count}}개의 레시피를 찾았습니다",
+      "searchedIngredients": "검색한 재료"
     },
     "create": {
       "title": "레시피 작성",

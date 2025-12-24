@@ -42,7 +42,9 @@
   "prettier.semi": true,
   "prettier.trailingComma": "es5",
   // ESLint 설정
-  "eslint.workingDirectories": ["./frontend"],
+  "eslint.workingDirectories": [
+    "./frontend"
+  ],
   // 파일 연관
   "files.associations": {
     "*.gradle": "groovy"

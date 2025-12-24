@@ -80,6 +80,7 @@
     "maxSize": "最大サイズ: {{maxSize}}MB",
     "removeImage": "画像を削除",
     "changeImage": "画像を変更",
+    "compressing": "画像を圧縮中...",
     "errors": {
       "fileTooLarge": "ファイルサイズが大きすぎます。最大{{maxSize}}MBまでです",
       "invalidFormat": "サポートされていないファイル形式です。JPEG、PNGのみ対応しています"
@@ -90,7 +91,23 @@
       "title": "レシピ検索",
       "placeholder": "レシピを検索...",
       "button": "検索",
-      "noResults": "レシピが見つかりませんでした"
+      "noResults": "レシピが見つかりませんでした",
+      "tabKeyword": "レシピ名で検索",
+      "tabIngredients": "食材で検索"
+    },
+    "searchByIngredients": {
+      "title": "食材からレシピを探す",
+      "navTitle": "冷蔵庫パトロール",
+      "subtitle": "冷蔵庫にある食材を入力してください",
+      "inputPlaceholder": "食材名を入力...",
+      "addButton": "追加",
+      "searchButton": "レシピを探す",
+      "clearAll": "すべてクリア",
+      "noIngredients": "食材を1つ以上入力してください",
+      "duplicateIngredient": "「{{ingredient}}」は既に追加されています",
+      "noResults": "冷蔵庫にある食材で作れる料理が見つかりませんでした 😢",
+      "resultsTitle": "{{count}}件のレシピが見つかりました",
+      "searchedIngredients": "検索した食材"
     },
     "create": {
       "title": "レシピ作成",

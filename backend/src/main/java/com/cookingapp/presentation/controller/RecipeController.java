@@ -21,14 +21,19 @@ import org.springframework.web.multipart.MultipartFile;
 import com.cookingapp.application.usecase.recipe.CreateRecipeUseCase;
 import com.cookingapp.application.usecase.recipe.DeleteRecipeUseCase;
 import com.cookingapp.application.usecase.recipe.GetRecipeUseCase;
+import com.cookingapp.application.usecase.recipe.SearchRecipesByIngredientsUseCase;
 import com.cookingapp.application.usecase.recipe.SearchRecipesUseCase;
 import com.cookingapp.application.usecase.recipe.UpdateRecipeUseCase;
 import com.cookingapp.application.usecase.recipe.UploadRecipeImageUseCase;
 import com.cookingapp.domain.entity.Recipe;
+import com.cookingapp.domain.entity.RecipeIngredient;
 import com.cookingapp.domain.valueobject.Ingredient;
 import com.cookingapp.domain.valueobject.Step;
 import com.cookingapp.presentation.dto.RecipeRequest;
 import com.cookingapp.presentation.dto.RecipeResponse;
+import com.cookingapp.presentation.dto.request.SearchByIngredientsRequest;
+import com.cookingapp.presentation.dto.response.RecipeSearchByIngredientResponse;
+import com.cookingapp.presentation.dto.response.RecipeSearchByIngredientResponse.RecipeSummary;
 import com.cookingapp.presentation.mapper.RecipeMapper;
 
 import jakarta.validation.Valid;
@@ -45,6 +50,7 @@ public class RecipeController {
     private final DeleteRecipeUseCase deleteRecipeUseCase;
     private final GetRecipeUseCase getRecipeUseCase;
     private final SearchRecipesUseCase searchRecipesUseCase;
+    private final SearchRecipesByIngredientsUseCase searchRecipesByIngredientsUseCase;
     private final UploadRecipeImageUseCase uploadRecipeImageUseCase;
 
     public RecipeController(
@@ -53,12 +59,14 @@ public class RecipeController {
             DeleteRecipeUseCase deleteRecipeUseCase,
             GetRecipeUseCase getRecipeUseCase,
             SearchRecipesUseCase searchRecipesUseCase,
+            SearchRecipesByIngredientsUseCase searchRecipesByIngredientsUseCase,
             UploadRecipeImageUseCase uploadRecipeImageUseCase) {
         this.createRecipeUseCase = createRecipeUseCase;
         this.updateRecipeUseCase = updateRecipeUseCase;
         this.deleteRecipeUseCase = deleteRecipeUseCase;
         this.getRecipeUseCase = getRecipeUseCase;
         this.searchRecipesUseCase = searchRecipesUseCase;
+        this.searchRecipesByIngredientsUseCase = searchRecipesByIngredientsUseCase;
         this.uploadRecipeImageUseCase = uploadRecipeImageUseCase;
     }
 
@@ -86,6 +94,34 @@ public class RecipeController {
         }
 
         return ResponseEntity.ok(RecipeMapper.toResponseList(recipes));
+    }
+
+    /**
+     * 食材でレシピを検索（AND条件）
+     * POST /api/recipes/search/by-ingredients
+     * 
+     * @param request 食材リスト
+     * @return 検索結果（レシピの簡易情報を含む）
+     */
+    @PostMapping("/search/by-ingredients")
+    public ResponseEntity<RecipeSearchByIngredientResponse> searchByIngredients(
+            @Valid @RequestBody SearchByIngredientsRequest request) {
+
+        List<RecipeIngredient> results = searchRecipesByIngredientsUseCase.execute(request.getIngredients());
+
+        List<RecipeSummary> summaries = results.stream()
+                .map(ri -> new RecipeSummary(
+                        ri.getRecipeId(),
+                        ri.getRecipeTitle(),
+                        ri.getRecipeImageUrl()))
+                .toList();
+
+        RecipeSearchByIngredientResponse response = new RecipeSearchByIngredientResponse(
+                summaries,
+                summaries.size(),
+                request.getIngredients());
+
+        return ResponseEntity.ok(response);
     }
 
     /**

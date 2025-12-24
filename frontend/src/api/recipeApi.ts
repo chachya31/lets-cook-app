@@ -1,4 +1,11 @@
-import { Ingredient, Recipe, RecipeRequest, RecipeSearchParams, Step } from '../types/recipe';
+import {
+    Ingredient,
+    Recipe,
+    RecipeRequest,
+    RecipeSearchByIngredientResponse,
+    RecipeSearchParams,
+    Step
+} from '../types/recipe';
 import { apiDelete, apiGet, apiPost, apiPostFile, apiPut } from '../utils/apiClient';
 
 /**
@@ -103,4 +110,16 @@ export const uploadStepImage = async (
   const formData = new FormData();
   formData.append('file', file);
   return apiPostFile<Recipe>(`/api/recipes/${recipeId}/steps/${stepIndex}/image`, formData, userId);
+};
+
+
+/**
+ * 食材でレシピを検索（AND条件）
+ */
+export const searchRecipesByIngredients = async (
+  ingredients: string[]
+): Promise<RecipeSearchByIngredientResponse> => {
+  return apiPost<RecipeSearchByIngredientResponse>('/api/recipes/search/by-ingredients', {
+    ingredients,
+  });
 };

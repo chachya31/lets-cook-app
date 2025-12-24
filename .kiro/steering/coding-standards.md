@@ -18,11 +18,16 @@ inclusion: always
 - ❌ `@Slf4j` 禁止 → ✅ `Logger` 直接定義
 - ❌ `System.getProperty()` 禁止 → ✅ `@Value` アノテーション
 - ❌ `System.out.println()` 禁止 → ✅ `log.info()`
+- ❌ ワイルドカードimport禁止 (`import java.util.*`) → ✅ 個別import (`import java.util.List`)
+- ❌ `public` フィールド禁止 → ✅ `private final` フィールド
+- ✅ Gradleコマンドは `./gradlew.bat` を使用（例: `./gradlew.bat build`）
 
 ### フロントエンド（TypeScript）
 - ❌ `axios` 禁止 → ✅ `apiClient.ts` のヘルパー関数
 - ❌ `fetch` 直接使用禁止 → ✅ `apiGet()`, `apiPost()` 等
 - ❌ `console.log()` 禁止（本番コード）
+- ❌ `let` 禁止（再代入不要な場合） → ✅ `const` 優先
+- ❌ `any` 型禁止 → ✅ 具体的な型定義 or `unknown`
 
 ### 共通
 - ✅ コミット前にビルド確認

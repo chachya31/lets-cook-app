@@ -2,7 +2,7 @@
 
 このドキュメントは、バックエンドとフロントエンドの実装状況を追跡します。
 
-最終更新: 2024-12-18
+最終更新: 2024-12-24
 
 ---
 
@@ -12,7 +12,9 @@
 |------------|------------|--------------|------|
 | ユーザー認証 | ✅ | ✅ | 完了 |
 | プロフィール管理 | ✅ | ✅ | 完了 |
-| レシピ管理 | ✅ | ⚠️ | 一部未実装 |
+| レシピ管理 | ✅ | ✅ | 完了 |
+| レシピ画像アップロード | ✅ | ✅ | 完了 |
+| 食材検索機能 | ✅ | ✅ | 完了 |
 | レビュー機能 | ✅ | ✅ | 完了 |
 | スケジュール管理 | ✅ | ✅ | 完了 |
 | 買い物リスト | ✅ | ✅ | 完了 |
@@ -62,20 +64,51 @@
 | `/api/recipes` | GET | ✅ | ✅ | RecipeSearchPage |
 | `/api/recipes/{id}` | GET | ✅ | ✅ | RecipeDetailPage |
 | `/api/recipes` | POST | ✅ | ✅ | RecipeEditPage |
+| `/api/recipes/with-images` | POST | ✅ | ✅ | RecipeEditPage |
 | `/api/recipes/{id}` | PUT | ✅ | ✅ | RecipeEditPage |
 | `/api/recipes/{id}` | DELETE | ✅ | ✅ | RecipeDetailPage |
+| `/api/recipes/{id}/image` | POST | ✅ | ✅ | RecipeEditPage |
+| `/api/recipes/{id}/steps/{index}/image` | POST | ✅ | ✅ | RecipeEditPage |
+| `/api/recipes/search/by-ingredients` | POST | ✅ | ✅ | RecipeSearchPage |
 
-#### ❌ 未実装（フロントエンド）
-- **レシピ画像アップロード機能**
-  - エンドポイント: `POST /api/recipes/{id}/image`
-  - バックエンド: ✅ 実装済み
-  - フロントエンド: ❌ 未実装
-  - 必要な作業:
-    1. `RecipeEditPage`に`ImageUploader`コンポーネントを追加
-    2. `recipeApi.ts`に`uploadRecipeImage`関数を追加（既に存在）
-    3. レシピ作成・編集フローに画像アップロードを統合
-  - 優先度: **高**
-  - 参考実装: `ProfileEditPage`の画像アップロード実装
+---
+
+### 3.1 食材検索機能（新規追加: 2024-12-24）
+
+#### ✅ 完全実装
+| 機能 | バックエンド | フロントエンド | 説明 |
+|-----|------------|--------------|------|
+| 食材からレシピ検索 | ✅ | ✅ | 複数食材のAND条件検索 |
+| RecipeIngredientsテーブル | ✅ | - | 逆引きインデックス |
+| トランザクション処理 | ✅ | - | Recipe + RecipeIngredients の原子性保証 |
+| タブUI | - | ✅ | レシピ名検索 / 食材検索の切り替え |
+
+**関連ファイル:**
+- `backend/src/main/java/com/cookingapp/domain/entity/RecipeIngredient.java`
+- `backend/src/main/java/com/cookingapp/infrastructure/repository/DynamoDBRecipeIngredientRepository.java`
+- `backend/src/main/java/com/cookingapp/application/usecase/recipe/SearchRecipesByIngredientsUseCase.java`
+- `frontend/src/components/recipe/RecipeSearchPage.tsx`
+
+---
+
+### 3.2 画像アップロード機能
+
+#### ✅ 完全実装
+| 機能 | バックエンド | フロントエンド | 説明 |
+|-----|------------|--------------|------|
+| メイン画像アップロード | ✅ | ✅ | S3 + Presigned URL |
+| 手順画像アップロード | ✅ | ✅ | S3 + Presigned URL |
+| ドラッグ&ドロップUI | - | ✅ | ImageUploaderコンポーネント |
+| 画像圧縮・リサイズ | - | ✅ | browser-image-compression |
+
+**画像圧縮設定:**
+- メイン画像: 最大幅 1920px、最大 1MB
+- 手順画像: 最大幅 1280px、最大 0.5MB
+
+**関連ファイル:**
+- `frontend/src/components/common/ImageUploader.tsx`
+- `frontend/src/utils/imageCompression.ts`
+- `backend/src/main/java/com/cookingapp/domain/service/ImageStorageService.java`
 
 ---
 
@@ -142,78 +175,102 @@
 
 ## 🚀 優先実装タスク
 
-### 高優先度
-1. **レシピ画像アップロード機能**
-   - 場所: `RecipeEditPage`
-   - 参考: `ProfileEditPage`の実装
-   - 工数: 2-3時間
+### 完了済み ✅
+1. **レシピ画像アップロード機能** - 2024-12-24完了
+2. **食材検索機能** - 2024-12-24完了
+3. **画像圧縮・リサイズ機能** - 2024-12-24完了
+4. **ドラッグ&ドロップUI** - 2024-12-24完了
 
-### 低優先度
-2. **アカウント削除機能**
+### 低優先度（Nice to have）
+1. **アカウント削除機能**
    - 場所: プロフィール設定ページ（新規作成）
    - 工数: 1-2時間
+
+2. **画像削除機能**
+   - 場所: RecipeEditPage
+   - 工数: 1-2時間
+
+3. **アップロード進捗表示**
+   - 場所: ImageUploader
+   - 工数: 2-3時間
 
 ---
 
 ## 📝 実装ガイド
 
-### レシピ画像アップロード機能の実装手順
+### 汎用ImageUploaderコンポーネントの使用方法
 
-#### 1. RecipeEditPageの修正
 ```typescript
-// frontend/src/components/recipe/RecipeEdit/RecipeEditPage.tsx
+// frontend/src/components/common/ImageUploader.tsx
 
-import { ImageUploader } from '../../profile/ImageUploader';
-import { uploadRecipeImage } from '../../../api/recipeApi';
+import { ImageUploader } from '../../common/ImageUploader';
 
-// 状態追加
-const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
-const [recipeImageUrl, setRecipeImageUrl] = useState<string | undefined>();
+// プロフィール画像（円形）
+<ImageUploader
+  currentImageUrl={profileImageUrl}
+  onImageSelect={handleImageSelect}
+  onImageRemove={handleImageRemove}
+  shape="circle"
+  enableCompression={true}
+/>
 
-// 画像選択ハンドラー
-const handleImageSelect = (file: File) => {
-  setSelectedImageFile(file);
-};
-
-// 送信時に画像アップロード
-const handleSubmit = async (e: React.FormEvent) => {
-  // ... レシピ作成/更新 ...
-  
-  // 画像アップロード
-  if (selectedImageFile && createdRecipe.recipeId) {
-    await uploadRecipeImage(createdRecipe.recipeId, currentUser.userId, selectedImageFile);
-  }
-};
-
-// JSX内に追加
-<Card>
-  <CardHeader>
-    <CardTitle>{t('recipe.image')}</CardTitle>
-  </CardHeader>
-  <CardContent>
-    <ImageUploader
-      currentImageUrl={recipeImageUrl}
-      onImageSelect={handleImageSelect}
-      maxSizeMB={5}
-    />
-  </CardContent>
-</Card>
+// レシピ画像（矩形）
+<ImageUploader
+  currentImageUrl={recipeImageUrl}
+  onImageSelect={handleImageSelect}
+  onImageRemove={handleImageRemove}
+  shape="rectangle"
+  height="h-40"
+  enableCompression={true}
+  compressionOptions={{ maxWidthOrHeight: 1920, maxSizeMB: 1 }}
+/>
 ```
 
-#### 2. 翻訳追加
-```json
-// frontend/src/i18n/locales/ja.json
-{
-  "recipe": {
-    "image": "レシピ画像"
-  }
-}
+### ImageUploaderのプロパティ
+
+| プロパティ | 型 | デフォルト | 説明 |
+|-----------|-----|-----------|------|
+| currentImageUrl | string | - | 現在の画像URL |
+| onImageSelect | (file: File) => void | - | 画像選択時のコールバック |
+| onImageRemove | () => void | - | 画像削除時のコールバック |
+| maxSizeMB | number | 5 | 最大ファイルサイズ（MB） |
+| allowedFormats | string[] | ['image/jpeg', 'image/png'] | 許可するファイル形式 |
+| shape | 'circle' \| 'rectangle' | 'circle' | プレビューの形状 |
+| height | string | 'h-32' | ドロップエリアの高さ |
+| enableCompression | boolean | true | 圧縮の有効/無効 |
+| compressionOptions | object | { maxWidthOrHeight: 1920, maxSizeMB: 1 } | 圧縮設定 |
+
+### 画像圧縮ユーティリティの使用方法
+
+```typescript
+// frontend/src/utils/imageCompression.ts
+
+import { compressImage, compressImages } from '../../utils/imageCompression';
+
+// 単一画像の圧縮
+const compressedFile = await compressImage(file, {
+  maxWidthOrHeight: 1920,
+  maxSizeMB: 1,
+});
+
+// 複数画像の圧縮
+const compressedFiles = await compressImages(files, {
+  maxWidthOrHeight: 1280,
+  maxSizeMB: 0.5,
+});
 ```
 
 ---
 
 ## 🔄 更新履歴
 
+- **2024-12-24**: 食材検索機能・画像アップロード機能完了
+  - RecipeIngredientsテーブル追加（逆引きインデックス）
+  - 食材検索API実装（AND条件）
+  - RecipeSearchPageにタブUI追加
+  - ImageUploaderコンポーネント汎用化
+  - 画像圧縮・リサイズ機能追加（browser-image-compression）
+  - ドラッグ&ドロップUI対応
 - **2024-12-18**: 初版作成
   - プロフィール編集機能完了
   - レシピ画像アップロード未実装を確認

@@ -40,3 +40,28 @@ export interface RecipeSearchParams {
   keyword?: string;
   authorId?: string;
 }
+
+/**
+ * 食材検索リクエスト
+ */
+export interface SearchByIngredientsRequest {
+  ingredients: string[];
+}
+
+/**
+ * 食材検索レスポンス
+ */
+export interface RecipeSearchByIngredientResponse {
+  recipes: RecipeSummary[];
+  totalCount: number;
+  searchedIngredients: string[];
+}
+
+/**
+ * レシピ概要（検索結果用）
+ */
+export interface RecipeSummary {
+  recipeId: string;
+  title: string;
+  imageUrl?: string;
+}

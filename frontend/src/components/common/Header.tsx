@@ -1,4 +1,11 @@
-import { Calendar, LogOut, Search, Shield, ShoppingCart, User } from 'lucide-react';
+import {
+    Calendar,
+    LogOut,
+    Search,
+    Shield,
+    ShoppingCart,
+    User
+} from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';

@@ -1,6 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useScrollToMessage } from '../../../hooks/useScrollToMessage';
+import { ImageUploader } from '../../common/ImageUploader';
 import { MessageDisplay } from '../../common/MessageDisplay';
 import { Button } from '../../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card';
@@ -86,22 +87,16 @@ const RecipeEditPage: React.FC = () => {
             </div>
             {/* メイン画像 */}
             <div>
-              <Label htmlFor="mainImage">{t('recipe.mainImage')}</Label>
-              <Input
-                id="mainImage"
-                type="file"
-                accept="image/*"
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  handleMainImageChange(e.target.files?.[0] || null)
-                }
+              <Label>{t('recipe.mainImage')}</Label>
+              <ImageUploader
+                currentImageUrl={mainImagePreview || undefined}
+                onImageSelect={handleMainImageChange}
+                onImageRemove={() => handleMainImageChange(null)}
+                shape="rectangle"
+                height="h-40"
+                enableCompression={true}
+                compressionOptions={{ maxWidthOrHeight: 1920, maxSizeMB: 1 }}
               />
-              {mainImagePreview && (
-                <img
-                  src={mainImagePreview}
-                  alt={t('recipe.mainImage')}
-                  className="mt-2 max-w-xs rounded-lg"
-                />
-              )}
             </div>
           </CardContent>
         </Card>
@@ -210,21 +205,15 @@ const RecipeEditPage: React.FC = () => {
                   {/* 右側: 画像 (25%) */}
                   <div className="w-1/4 space-y-2">
                     <Label className="text-sm">{t('recipe.stepImage')}</Label>
-                    <Input
-                      type="file"
-                      accept="image/*"
-                      className="text-xs"
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                        handleStepImageChange(index, e.target.files?.[0] || null)
-                      }
+                    <ImageUploader
+                      currentImageUrl={stepImagePreviews[index] || undefined}
+                      onImageSelect={(file) => handleStepImageChange(index, file)}
+                      onImageRemove={() => handleStepImageChange(index, null)}
+                      shape="rectangle"
+                      height="h-24"
+                      enableCompression={true}
+                      compressionOptions={{ maxWidthOrHeight: 1280, maxSizeMB: 0.5 }}
                     />
-                    {stepImagePreviews[index] && (
-                      <img
-                        src={stepImagePreviews[index]!}
-                        alt={`${t('recipe.step')} ${index + 1}`}
-                        className="w-full rounded-lg"
-                      />
-                    )}
                   </div>
                   {/* 削除ボタン */}
                   <Button

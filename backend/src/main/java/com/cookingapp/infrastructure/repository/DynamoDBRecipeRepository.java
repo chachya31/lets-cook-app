@@ -3,10 +3,13 @@ package com.cookingapp.infrastructure.repository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -15,20 +18,23 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import com.cookingapp.domain.entity.Recipe;
+import com.cookingapp.domain.entity.RecipeIngredient;
 import com.cookingapp.domain.repository.RecipeRepository;
 import com.cookingapp.domain.valueobject.Ingredient;
 import com.cookingapp.domain.valueobject.Step;
 
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
-import software.amazon.awssdk.services.dynamodb.model.DeleteItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.Delete;
 import software.amazon.awssdk.services.dynamodb.model.GetItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.GetItemResponse;
-import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.Put;
 import software.amazon.awssdk.services.dynamodb.model.QueryRequest;
 import software.amazon.awssdk.services.dynamodb.model.QueryResponse;
 import software.amazon.awssdk.services.dynamodb.model.ScanRequest;
 import software.amazon.awssdk.services.dynamodb.model.ScanResponse;
+import software.amazon.awssdk.services.dynamodb.model.TransactWriteItem;
+import software.amazon.awssdk.services.dynamodb.model.TransactWriteItemsRequest;
 
 /**
  * DynamoDB レシピリポジトリ実装
@@ -38,28 +44,87 @@ public class DynamoDBRecipeRepository implements RecipeRepository {
 
         private static final Logger logger = LoggerFactory.getLogger(DynamoDBRecipeRepository.class);
         private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+        private static final int TRANSACTION_BATCH_SIZE = 25;
 
         private final DynamoDbClient dynamoDbClient;
-        private final String tableName;
+        private final String recipesTableName;
+        private final String recipeIngredientsTableName;
 
         public DynamoDBRecipeRepository(
                         DynamoDbClient dynamoDbClient,
-                        @Value("${aws.dynamodb.table.recipes:Recipes}") String tableName) {
+                        @Value("${aws.dynamodb.table.recipes:Recipes}") String recipesTableName,
+                        @Value("${aws.dynamodb.table.recipe-ingredients:RecipeIngredients}") String recipeIngredientsTableName) {
                 this.dynamoDbClient = dynamoDbClient;
-                this.tableName = tableName;
+                this.recipesTableName = recipesTableName;
+                this.recipeIngredientsTableName = recipeIngredientsTableName;
         }
 
         @Override
         public Recipe save(Recipe recipe) {
-                Map<String, AttributeValue> item = toAttributeMap(recipe);
+                // 既存の食材インデックスを取得（更新時の差分削除用）
+                Set<String> existingIngredientNames = getExistingIngredientNames(recipe.getRecipeId());
 
-                PutItemRequest request = PutItemRequest.builder()
-                                .tableName(tableName)
-                                .item(item)
-                                .build();
+                // 新しい食材名セット
+                Set<String> newIngredientNames = recipe.getIngredients().stream()
+                                .map(ing -> RecipeIngredient.normalizeIngredientName(ing.getName()))
+                                .collect(Collectors.toSet());
 
-                dynamoDbClient.putItem(request);
-                logger.info("Saved recipe: {}", recipe.getRecipeId());
+                // 削除対象: 既存にあって新規にない食材
+                Set<String> toDelete = new HashSet<>(existingIngredientNames);
+                toDelete.removeAll(newIngredientNames);
+
+                // 追加対象: 新規にあって既存にない食材（または全て上書き）
+                // シンプルに全食材を上書きする方式を採用
+                List<RecipeIngredient> toAdd = recipe.getIngredients().stream()
+                                .map(ing -> new RecipeIngredient(
+                                                ing.getName(),
+                                                recipe.getRecipeId(),
+                                                recipe.getTitle(),
+                                                recipe.getImageUrl()))
+                                .collect(Collectors.toList());
+
+                // トランザクションアイテムを構築
+                List<TransactWriteItem> transactItems = new ArrayList<>();
+
+                // 1. レシピ本体のPut
+                transactItems.add(TransactWriteItem.builder()
+                                .put(Put.builder()
+                                                .tableName(recipesTableName)
+                                                .item(toAttributeMap(recipe))
+                                                .build())
+                                .build());
+
+                // 2. 削除対象の食材インデックスをDelete
+                for (String ingredientName : toDelete) {
+                        transactItems.add(TransactWriteItem.builder()
+                                        .delete(Delete.builder()
+                                                        .tableName(recipeIngredientsTableName)
+                                                        .key(Map.of(
+                                                                        "IngredientName",
+                                                                        AttributeValue.builder().s(ingredientName)
+                                                                                        .build(),
+                                                                        "RecipeId",
+                                                                        AttributeValue.builder().s(recipe.getRecipeId())
+                                                                                        .build()))
+                                                        .build())
+                                        .build());
+                }
+
+                // 3. 新しい食材インデックスをPut
+                for (RecipeIngredient ri : toAdd) {
+                        transactItems.add(TransactWriteItem.builder()
+                                        .put(Put.builder()
+                                                        .tableName(recipeIngredientsTableName)
+                                                        .item(recipeIngredientToAttributeMap(ri))
+                                                        .build())
+                                        .build());
+                }
+
+                // トランザクション実行（25件制限対応）
+                executeTransactionInBatches(transactItems);
+
+                logger.info("Saved recipe with ingredients: recipeId={}, added={}, deleted={}",
+                                recipe.getRecipeId(), toAdd.size(), toDelete.size());
 
                 return recipe;
         }
@@ -70,7 +135,7 @@ public class DynamoDBRecipeRepository implements RecipeRepository {
                                 "RecipeId", AttributeValue.builder().s(recipeId).build());
 
                 GetItemRequest request = GetItemRequest.builder()
-                                .tableName(tableName)
+                                .tableName(recipesTableName)
                                 .key(key)
                                 .build();
 
@@ -86,7 +151,7 @@ public class DynamoDBRecipeRepository implements RecipeRepository {
         @Override
         public List<Recipe> findByAuthorId(String authorId) {
                 QueryRequest request = QueryRequest.builder()
-                                .tableName(tableName)
+                                .tableName(recipesTableName)
                                 .indexName("GSI_Author")
                                 .keyConditionExpression("AuthorId = :authorId")
                                 .expressionAttributeValues(Map.of(
@@ -103,7 +168,7 @@ public class DynamoDBRecipeRepository implements RecipeRepository {
         @Override
         public List<Recipe> findAllPublic() {
                 ScanRequest request = ScanRequest.builder()
-                                .tableName(tableName)
+                                .tableName(recipesTableName)
                                 .filterExpression("IsPublic = :isPublic AND IsDeleted = :isDeleted")
                                 .expressionAttributeValues(Map.of(
                                                 ":isPublic", AttributeValue.builder().bool(true).build(),
@@ -119,21 +184,81 @@ public class DynamoDBRecipeRepository implements RecipeRepository {
 
         @Override
         public void delete(String recipeId) {
-                Map<String, AttributeValue> key = Map.of(
-                                "RecipeId", AttributeValue.builder().s(recipeId).build());
+                // 食材インデックスも一緒に削除
+                Set<String> existingIngredientNames = getExistingIngredientNames(recipeId);
 
-                DeleteItemRequest request = DeleteItemRequest.builder()
-                                .tableName(tableName)
-                                .key(key)
-                                .build();
+                List<TransactWriteItem> transactItems = new ArrayList<>();
 
-                dynamoDbClient.deleteItem(request);
-                logger.info("Deleted recipe: {}", recipeId);
+                // 1. レシピ本体の削除
+                transactItems.add(TransactWriteItem.builder()
+                                .delete(Delete.builder()
+                                                .tableName(recipesTableName)
+                                                .key(Map.of("RecipeId", AttributeValue.builder().s(recipeId).build()))
+                                                .build())
+                                .build());
+
+                // 2. 食材インデックスの削除
+                for (String ingredientName : existingIngredientNames) {
+                        transactItems.add(TransactWriteItem.builder()
+                                        .delete(Delete.builder()
+                                                        .tableName(recipeIngredientsTableName)
+                                                        .key(Map.of(
+                                                                        "IngredientName",
+                                                                        AttributeValue.builder().s(ingredientName)
+                                                                                        .build(),
+                                                                        "RecipeId",
+                                                                        AttributeValue.builder().s(recipeId).build()))
+                                                        .build())
+                                        .build());
+                }
+
+                executeTransactionInBatches(transactItems);
+
+                logger.info("Deleted recipe and {} ingredient indexes: {}",
+                                existingIngredientNames.size(), recipeId);
         }
 
         @Override
         public boolean existsById(String recipeId) {
                 return findById(recipeId).isPresent();
+        }
+
+        /**
+         * 既存の食材インデックスから食材名を取得
+         */
+        private Set<String> getExistingIngredientNames(String recipeId) {
+                ScanRequest scanRequest = ScanRequest.builder()
+                                .tableName(recipeIngredientsTableName)
+                                .filterExpression("RecipeId = :recipeId")
+                                .expressionAttributeValues(Map.of(
+                                                ":recipeId", AttributeValue.builder().s(recipeId).build()))
+                                .build();
+
+                ScanResponse response = dynamoDbClient.scan(scanRequest);
+
+                return response.items().stream()
+                                .map(item -> item.get("IngredientName").s())
+                                .collect(Collectors.toSet());
+        }
+
+        /**
+         * トランザクションを25件ずつバッチ実行
+         */
+        private void executeTransactionInBatches(List<TransactWriteItem> transactItems) {
+                if (transactItems.isEmpty()) {
+                        return;
+                }
+
+                for (int i = 0; i < transactItems.size(); i += TRANSACTION_BATCH_SIZE) {
+                        int endIndex = Math.min(i + TRANSACTION_BATCH_SIZE, transactItems.size());
+                        List<TransactWriteItem> batch = transactItems.subList(i, endIndex);
+
+                        TransactWriteItemsRequest request = TransactWriteItemsRequest.builder()
+                                        .transactItems(batch)
+                                        .build();
+
+                        dynamoDbClient.transactWriteItems(request);
+                }
         }
 
         private Map<String, AttributeValue> toAttributeMap(Recipe recipe) {
@@ -161,6 +286,19 @@ public class DynamoDBRecipeRepository implements RecipeRepository {
                                 .map(this::stepToAttributeValue)
                                 .collect(Collectors.toList());
                 item.put("Steps", AttributeValue.builder().l(stepsList).build());
+
+                return item;
+        }
+
+        private Map<String, AttributeValue> recipeIngredientToAttributeMap(RecipeIngredient ri) {
+                Map<String, AttributeValue> item = new HashMap<>();
+                item.put("IngredientName", AttributeValue.builder().s(ri.getIngredientName()).build());
+                item.put("RecipeId", AttributeValue.builder().s(ri.getRecipeId()).build());
+                item.put("RecipeTitle", AttributeValue.builder().s(ri.getRecipeTitle()).build());
+
+                if (ri.getRecipeImageUrl() != null) {
+                        item.put("RecipeImageUrl", AttributeValue.builder().s(ri.getRecipeImageUrl()).build());
+                }
 
                 return item;
         }

@@ -79,6 +79,32 @@ public MyRepository(
 
 ### import文の管理
 
+#### ❌ 禁止：ワイルドカードimport
+```java
+// ワイルドカード（*）を使用したimport
+import java.util.*;
+import software.amazon.awssdk.services.dynamodb.model.*;
+```
+
+#### ✅ 必須：個別import
+```java
+// 使用するクラスを個別にimport
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
+import software.amazon.awssdk.services.dynamodb.model.QueryRequest;
+import software.amazon.awssdk.services.dynamodb.model.QueryResponse;
+```
+
+**理由**: 
+- 依存関係が明確になる
+- コードレビューしやすい
+- 名前衝突のリスク回避
+- IDEの自動補完・リファクタリング機能の活用
+
+---
+
 #### ❌ 禁止：完全修飾名の使用
 ```java
 // メソッドシグネチャやフィールドで完全修飾名を使用
@@ -115,6 +141,34 @@ public List<User> findAll() {
       // java.util.Date と java.sql.Date を区別
   }
   ```
+
+---
+
+### フィールド定義
+
+#### ❌ 禁止：可変フィールド
+```java
+// publicフィールドや再代入可能なフィールド
+public DynamoDbClient dynamoDbClient;
+private String tableName;
+```
+
+#### ✅ 必須：private final
+```java
+// 不変フィールドとして定義
+private final DynamoDbClient dynamoDbClient;
+private final String tableName;
+```
+
+**理由**: 
+- イミュータビリティ保証（スレッドセーフ）
+- 意図しない再代入を防止
+- 設計意図の明確化
+- JVMの最適化が効きやすい
+
+**例外**: 
+- 状態を持つ必要があるフィールド（カウンター、キャッシュ等）
+- Springの`@Autowired`フィールドインジェクション（ただしコンストラクタインジェクション推奨）
 
 ---
 
@@ -322,6 +376,77 @@ import './styles.css';
 
 ---
 
+### 変数定義
+
+#### ❌ 禁止：再代入可能な変数
+```typescript
+// letを使用した再代入可能な変数
+let apiUrl = '/api/users';
+let config = { timeout: 5000 };
+```
+
+#### ✅ 必須：const優先
+```typescript
+// constを使用した不変変数
+const apiUrl = '/api/users';
+const config = { timeout: 5000 } as const;
+
+// 再代入が必要な場合のみletを使用
+let retryCount = 0;
+while (retryCount < 3) {
+  retryCount++;
+}
+```
+
+**理由**: 
+- 意図しない再代入を防止
+- コードの予測可能性向上
+- ESLintの`prefer-const`ルールで自動検出
+
+---
+
+### any型の使用
+
+#### ❌ 禁止：any型
+```typescript
+// any型の使用
+const data: any = response.data;
+function process(input: any): any {
+  return input;
+}
+```
+
+#### ✅ 必須：適切な型定義
+```typescript
+// 具体的な型を定義
+interface UserResponse {
+  id: string;
+  name: string;
+  email: string;
+}
+
+const data: UserResponse = response.data;
+
+// 型が不明な場合はunknownを使用
+function process(input: unknown): string {
+  if (typeof input === 'string') {
+    return input;
+  }
+  return String(input);
+}
+```
+
+**理由**: 
+- 型安全性の確保
+- コンパイル時のエラー検出
+- IDEの補完機能の活用
+
+**例外**: 
+- 外部ライブラリの型定義が不完全な場合（コメントで理由を記載）
+- テストコードでのモック作成時
+
+---
+
 ## 共通
 
 ### コミット前チェックリスト
@@ -405,6 +530,11 @@ module.exports = {
 
 ## 更新履歴
 
+- 2024-12-24: AIモデル間の一貫性向上
+  - バックエンド: ワイルドカードimport禁止、private final必須を追加
+  - フロントエンド: const優先、any型禁止を追加
+  - pre-commitフック: 新規ルールのチェック追加
+  - ESLint: prefer-const、no-explicit-anyルール追加
 - 2024-11-30: 初版作成
   - バックエンド規約（ロギング、DynamoDB、Lombok）
   - フロントエンド規約（API呼び出し、コンポーネント設計）

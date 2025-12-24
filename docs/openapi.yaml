@@ -374,6 +374,70 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
+  /api/recipes/{id}/steps/{stepIndex}/image:
+    post:
+      tags: [Recipes]
+      summary: 手順画像アップロード
+      description: 手順画像をアップロードします（JPEG/PNG、最大5MB）。
+      operationId: uploadStepImage
+      parameters:
+        - $ref: '#/components/parameters/RecipeIdPath'
+        - name: stepIndex
+          in: path
+          required: true
+          description: 手順インデックス（0始まり）
+          schema:
+            type: integer
+            minimum: 0
+        - $ref: '#/components/parameters/XUserId'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: アップロード成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/recipes/search/by-ingredients:
+    post:
+      tags: [Recipes]
+      summary: 食材でレシピ検索
+      description: |
+        指定した食材をすべて含むレシピを検索します（AND条件）。
+        RecipeIngredientsテーブル（逆引きインデックス）を使用して効率的に検索します。
+      operationId: searchRecipesByIngredients
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchByIngredientsRequest'
+      responses:
+        '200':
+          description: 検索成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeSearchByIngredientResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
   # ========================================
   # Reviews API
   # ========================================
@@ -1129,7 +1193,7 @@ components:
         steps:
           type: array
           items:
-            type: string
+            $ref: '#/components/schemas/Step'
         cookingTime:
           type: integer
           description: 調理時間（分）
@@ -1144,6 +1208,68 @@ components:
         updatedAt:
           type: string
           format: date-time
+
+    Step:
+      type: object
+      required: [description]
+      properties:
+        description:
+          type: string
+          description: 手順の説明
+          example: 野菜を一口大に切る
+        imageUrl:
+          type: string
+          format: uri
+          description: 手順の画像URL（任意）
+        videoUrl:
+          type: string
+          format: uri
+          description: 手順の動画URL（任意、YouTube等に対応）
+          example: https://www.youtube.com/watch?v=...
+
+    SearchByIngredientsRequest:
+      type: object
+      required: [ingredients]
+      properties:
+        ingredients:
+          type: array
+          minItems: 1
+          items:
+            type: string
+          description: 検索する食材名のリスト
+          example: ["玉ねぎ", "じゃがいも", "にんじん"]
+
+    RecipeSearchByIngredientResponse:
+      type: object
+      properties:
+        recipes:
+          type: array
+          items:
+            $ref: '#/components/schemas/RecipeSummary'
+        totalCount:
+          type: integer
+          description: 検索結果の総数
+          example: 5
+        searchedIngredients:
+          type: array
+          items:
+            type: string
+          description: 検索に使用した食材リスト
+          example: ["玉ねぎ", "じゃがいも"]
+
+    RecipeSummary:
+      type: object
+      properties:
+        recipeId:
+          type: string
+          format: uuid
+        title:
+          type: string
+          example: 簡単カレーライス
+        imageUrl:
+          type: string
+          format: uri
+          nullable: true
 
     # ----------------------------------------
     # Review Schemas

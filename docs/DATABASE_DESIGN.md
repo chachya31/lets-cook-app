@@ -6,13 +6,14 @@
 
 ## テーブル一覧
 
-| テーブル名    | 用途             | Partition Key | Sort Key     | GSI               |
-| ------------- | ---------------- | ------------- | ------------ | ----------------- |
-| Users         | ユーザー情報     | UserId        | -            | -                 |
-| Recipes       | レシピ情報       | RecipeId      | -            | GSI_Author        |
-| Reviews       | レビュー情報     | RecipeId      | ReviewId     | GSI_User          |
-| Schedules     | スケジュール情報 | UserId        | DateRecipeId | -                 |
-| ShoppingLists | 買い物リスト     | UserId        | ItemId       | GSI_NormalizedKey |
+| テーブル名        | 用途                   | Partition Key  | Sort Key     | GSI               |
+| ----------------- | ---------------------- | -------------- | ------------ | ----------------- |
+| Users             | ユーザー情報           | UserId         | -            | -                 |
+| Recipes           | レシピ情報             | RecipeId       | -            | GSI_Author        |
+| RecipeIngredients | 食材逆引きインデックス | IngredientName | RecipeId     | -                 |
+| Reviews           | レビュー情報           | RecipeId       | ReviewId     | GSI_User          |
+| Schedules         | スケジュール情報       | UserId         | DateRecipeId | -                 |
+| ShoppingLists     | 買い物リスト           | UserId         | ItemId       | GSI_NormalizedKey |
 
 ---
 
@@ -129,6 +130,52 @@
 - 論理削除を採用（`IsDeleted` フラグ）
 - スケジュールと買い物リストからの参照を保持するため、物理削除は行わない
 - 食材と手順はJSON形式でシリアライズして保存
+- レシピの保存・更新時は `RecipeIngredients` テーブルとトランザクションで同期
+
+---
+
+## 2.1 RecipeIngredients テーブル（逆引きインデックス）
+
+### 概要
+食材名からレシピを検索するための逆引きインデックステーブル。「冷蔵庫にある食材でレシピを探す」機能で使用。
+
+### キー構造
+- **Partition Key**: `IngredientName` (String, 正規化済み)
+- **Sort Key**: `RecipeId` (String, UUID)
+
+### 属性
+
+| 属性名         | 型     | 必須 | 説明                     | 例                                     |
+| -------------- | ------ | ---- | ------------------------ | -------------------------------------- |
+| IngredientName | String | ✓    | 食材名（正規化済み）     | "玉ねぎ"                               |
+| RecipeId       | String | ✓    | レシピID                 | "660e8400-e29b-41d4-a716-446655440001" |
+| RecipeTitle    | String | ✓    | レシピタイトル（参照用） | "簡単カレーライス"                     |
+| RecipeImageUrl | String |      | レシピ画像URL（参照用）  | "https://s3.../recipe.jpg"             |
+
+### インデックス
+なし（Partition Keyでの検索で十分）
+
+### アクセスパターン
+1. **食材名でレシピ検索**: `IngredientName` で検索（Query）
+2. **複数食材のAND検索**: アプリケーション層で各食材のレシピIDを取得し、交差集合を計算
+
+### トランザクション処理
+レシピの保存・更新・削除時は `TransactWriteItems` を使用して `Recipes` テーブルと `RecipeIngredients` テーブルを原子的に更新：
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ TransactWriteItems                                          │
+├─────────────────────────────────────────────────────────────┤
+│ 1. Put/Update Recipe in Recipes table                       │
+│ 2. Delete old RecipeIngredients (removed ingredients)       │
+│ 3. Put new RecipeIngredients (added ingredients)            │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### 備考
+- 非正規化データ（RecipeTitle, RecipeImageUrl）を含むため、検索結果を即座に表示可能
+- レシピ更新時は差分計算を行い、削除された食材のみ削除、追加された食材のみ追加
+- 食材名は `trim()` で正規化（将来的にカタカナ/ひらがな統一を追加予定）
 
 ---
 

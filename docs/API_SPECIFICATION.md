@@ -86,16 +86,17 @@
 | POST     | `/api/users/profile/image`    | プロフィール画像アップロード |
 
 ### Recipes API
-| メソッド | エンドポイント                          | 説明                   |
-| -------- | --------------------------------------- | ---------------------- |
-| GET      | `/api/recipes`                          | レシピ検索             |
-| POST     | `/api/recipes`                          | レシピ作成             |
-| POST     | `/api/recipes/with-images`              | レシピ作成（画像付き） |
-| GET      | `/api/recipes/{id}`                     | レシピ詳細取得         |
-| PUT      | `/api/recipes/{id}`                     | レシピ更新             |
-| DELETE   | `/api/recipes/{id}`                     | レシピ削除（論理削除） |
-| POST     | `/api/recipes/{id}/image`               | レシピ画像アップロード |
-| POST     | `/api/recipes/{id}/steps/{index}/image` | 手順画像アップロード   |
+| メソッド | エンドポイント                          | 説明                       |
+| -------- | --------------------------------------- | -------------------------- |
+| GET      | `/api/recipes`                          | レシピ検索                 |
+| POST     | `/api/recipes`                          | レシピ作成                 |
+| POST     | `/api/recipes/with-images`              | レシピ作成（画像付き）     |
+| GET      | `/api/recipes/{id}`                     | レシピ詳細取得             |
+| PUT      | `/api/recipes/{id}`                     | レシピ更新                 |
+| DELETE   | `/api/recipes/{id}`                     | レシピ削除（論理削除）     |
+| POST     | `/api/recipes/{id}/image`               | レシピ画像アップロード     |
+| POST     | `/api/recipes/{id}/steps/{index}/image` | 手順画像アップロード       |
+| POST     | `/api/recipes/search/by-ingredients`    | 食材でレシピ検索（AND条件）|
 
 ### Reviews API
 | メソッド | エンドポイント                    | 説明             |
@@ -219,3 +220,4 @@
 | 1.0.0      | 2024-12-02 | 初版作成                                     |
 | 1.1.0      | 2024-12-18 | openapi.yamlへ詳細仕様を移行                 |
 | 1.2.0      | 2024-12-23 | 手順画像・動画アップロードエンドポイント追加 |
+| 1.3.0      | 2024-12-24 | 食材検索エンドポイント追加                   |
