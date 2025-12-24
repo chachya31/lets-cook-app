@@ -2,18 +2,23 @@
 
 echo "Creating DynamoDB tables..."
 
+export AWS_DEFAULT_REGION=ap-northeast-1
+
 # Users Table
 awslocal dynamodb create-table \
   --table-name cooking-app-users-local \
+  --region ap-northeast-1 \
   --attribute-definitions \
     AttributeName=UserId,AttributeType=S \
   --key-schema \
     AttributeName=UserId,KeyType=HASH \
-  --billing-mode PAY_PER_REQUEST
+  --billing-mode PAY_PER_REQUEST \
+  --region ap-northeast-1
 
 # Recipes Table
 awslocal dynamodb create-table \
   --table-name cooking-app-recipes-local \
+  --region ap-northeast-1 \
   --attribute-definitions \
     AttributeName=RecipeId,AttributeType=S \
     AttributeName=AuthorId,AttributeType=S \
@@ -31,22 +36,26 @@ awslocal dynamodb create-table \
         \"Projection\": {\"ProjectionType\":\"ALL\"}
       }
     ]" \
-  --billing-mode PAY_PER_REQUEST
+  --billing-mode PAY_PER_REQUEST \
+  --region ap-northeast-1
 
 # Schedules Table
 awslocal dynamodb create-table \
   --table-name cooking-app-schedules-local \
+  --region ap-northeast-1 \
   --attribute-definitions \
     AttributeName=UserId,AttributeType=S \
     AttributeName=DateRecipeId,AttributeType=S \
   --key-schema \
     AttributeName=UserId,KeyType=HASH \
     AttributeName=DateRecipeId,KeyType=RANGE \
-  --billing-mode PAY_PER_REQUEST
+  --billing-mode PAY_PER_REQUEST \
+  --region ap-northeast-1
 
 # ShoppingLists Table
 awslocal dynamodb create-table \
   --table-name cooking-app-shopping-lists-local \
+  --region ap-northeast-1 \
   --attribute-definitions \
     AttributeName=UserId,AttributeType=S \
     AttributeName=ItemId,AttributeType=S \
@@ -65,11 +74,13 @@ awslocal dynamodb create-table \
         \"Projection\": {\"ProjectionType\":\"ALL\"}
       }
     ]" \
-  --billing-mode PAY_PER_REQUEST
+  --billing-mode PAY_PER_REQUEST \
+  --region ap-northeast-1
 
 # Reviews Table
 awslocal dynamodb create-table \
   --table-name cooking-app-reviews-local \
+  --region ap-northeast-1 \
   --attribute-definitions \
     AttributeName=RecipeId,AttributeType=S \
     AttributeName=ReviewId,AttributeType=S \
@@ -89,6 +100,20 @@ awslocal dynamodb create-table \
         \"Projection\": {\"ProjectionType\":\"ALL\"}
       }
     ]" \
-  --billing-mode PAY_PER_REQUEST
+  --billing-mode PAY_PER_REQUEST \
+  --region ap-northeast-1
+
+# RecipeIngredients Table (Inverted Index for ingredient-based recipe search)
+awslocal dynamodb create-table \
+  --table-name cooking-app-recipe-ingredients-local \
+  --region ap-northeast-1 \
+  --attribute-definitions \
+    AttributeName=IngredientName,AttributeType=S \
+    AttributeName=RecipeId,AttributeType=S \
+  --key-schema \
+    AttributeName=IngredientName,KeyType=HASH \
+    AttributeName=RecipeId,KeyType=RANGE \
+  --billing-mode PAY_PER_REQUEST \
+  --region ap-northeast-1
 
 echo "DynamoDB tables created successfully!"

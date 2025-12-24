@@ -11,7 +11,7 @@ services:
       - PERSISTENCE=1
       - DOCKER_HOST=unix:///var/run/docker.sock
     volumes:
-      - "C:/devPrac/lets-cook-app/infrastructure/localstack:/etc/localstack/init/ready.d"
+      - "./localstack:/etc/localstack/init/ready.d"
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "localstack-data:/var/lib/localstack"
 

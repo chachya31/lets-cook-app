@@ -70,13 +70,6 @@ export class CookingAppStack extends cdk.Stack {
       sortKey: { name: 'CreatedAt', type: dynamodb.AttributeType.STRING },
     });
 
-    // GSI for Recipes by Category
-    this.tables.recipes.addGlobalSecondaryIndex({
-      indexName: 'GSI_Category',
-      partitionKey: { name: 'Category', type: dynamodb.AttributeType.STRING },
-      sortKey: { name: 'CreatedAt', type: dynamodb.AttributeType.STRING },
-    });
-
     // Schedules Table
     this.tables.schedules = new dynamodb.Table(this, 'SchedulesTable', {
       tableName: `cooking-app-schedules-${stage}`,
@@ -120,6 +113,16 @@ export class CookingAppStack extends cdk.Stack {
       indexName: 'GSI_User',
       partitionKey: { name: 'UserId', type: dynamodb.AttributeType.STRING },
       sortKey: { name: 'CreatedAt', type: dynamodb.AttributeType.STRING },
+    });
+
+    // RecipeIngredients Table (Inverted Index for ingredient-based recipe search)
+    // PK: IngredientName, SK: RecipeId
+    this.tables.recipeIngredients = new dynamodb.Table(this, 'RecipeIngredientsTable', {
+      tableName: `cooking-app-recipe-ingredients-${stage}`,
+      partitionKey: { name: 'IngredientName', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'RecipeId', type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: stage === 'prod' ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY,
     });
   }
 
@@ -253,6 +256,7 @@ export class CookingAppStack extends cdk.Stack {
         AWS_REGION_NAME: this.region,
         DYNAMODB_USERS_TABLE: this.tables.users.tableName,
         DYNAMODB_RECIPES_TABLE: this.tables.recipes.tableName,
+        DYNAMODB_RECIPE_INGREDIENTS_TABLE: this.tables.recipeIngredients.tableName,
         DYNAMODB_SCHEDULES_TABLE: this.tables.schedules.tableName,
         DYNAMODB_SHOPPING_LISTS_TABLE: this.tables.shoppingLists.tableName,
         DYNAMODB_REVIEWS_TABLE: this.tables.reviews.tableName,
