@@ -10,6 +10,7 @@ import { ConfirmEmailPage } from './components/auth/ConfirmEmail/ConfirmEmailPag
 import { LoginPage } from './components/auth/Login/LoginPage';
 import { PasswordResetPage } from './components/auth/PasswordReset/PasswordResetPage';
 import { RegisterPage } from './components/auth/Register/RegisterPage';
+import GeminiChatPage from './components/chat/GeminiChatPage';
 import Footer from './components/common/Footer';
 import Header from './components/common/Header';
 import ProtectedRoute from './components/common/ProtectedRoute';
@@ -119,6 +120,14 @@ const App: React.FC = () => {
             element={
               <ProtectedRoute requireAdmin>
                 <RecipeManagementPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/chat"
+            element={
+              <ProtectedRoute>
+                <GeminiChatPage />
               </ProtectedRoute>
             }
           />

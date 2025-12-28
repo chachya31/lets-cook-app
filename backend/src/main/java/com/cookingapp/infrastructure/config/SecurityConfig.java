@@ -55,6 +55,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/recipes/*").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/recipes/*/reviews").permitAll()
 
+                        // AI APIはUSERSまたはADMINSロールが必要
+                        .requestMatchers("/api/ai/**").hasAnyRole("USERS", "ADMINS")
+
                         // 管理者APIはADMINSロールが必要
                         .requestMatchers("/api/admin/**").hasRole("ADMINS")
 

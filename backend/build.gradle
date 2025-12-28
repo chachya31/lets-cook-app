@@ -66,6 +66,9 @@ dependencies {
     // JSON
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
+    // Google Generative AI SDK
+    implementation 'com.google.genai:google-genai:1.0.0'
 }
 
 tasks.named('test') {

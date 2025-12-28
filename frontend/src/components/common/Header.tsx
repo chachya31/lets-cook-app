@@ -1,4 +1,5 @@
 import {
+    Bot,
     Calendar,
     LogOut,
     Search,
@@ -83,6 +84,15 @@ const Header: React.FC = () => {
               <ShoppingCart size={18} />
               <span>{t('shoppingList.title')}</span>
             </button>
+            {isLoggedIn && (
+              <button
+                onClick={() => navigate('/chat')}
+                className="flex items-center space-x-1 text-gray-700 hover:text-purple-600 transition-colors"
+              >
+                <Bot size={18} />
+                <span>AI Chat</span>
+              </button>
+            )}
             {isAdmin && (
               <button
                 onClick={() => navigate('/admin')}
