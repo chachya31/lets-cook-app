@@ -84,8 +84,10 @@ async function fetchWithErrorHandling<T>(
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  if (userId) {
-    headers['X-User-Id'] = userId;
+  // X-User-Idヘッダーを追加（明示的に指定されていない場合はlocalStorageから取得）
+  const effectiveUserId = userId || localStorage.getItem('userId');
+  if (effectiveUserId) {
+    headers['X-User-Id'] = effectiveUserId;
   }
 
   try {
@@ -176,8 +178,10 @@ export async function apiPostFile<T>(
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  if (userId) {
-    headers['X-User-Id'] = userId;
+  // X-User-Idヘッダーを追加（明示的に指定されていない場合はlocalStorageから取得）
+  const effectiveUserId = userId || localStorage.getItem('userId');
+  if (effectiveUserId) {
+    headers['X-User-Id'] = effectiveUserId;
   }
 
   try {

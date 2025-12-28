@@ -6,14 +6,16 @@
 
 ## テーブル一覧
 
-| テーブル名        | 用途                   | Partition Key  | Sort Key     | GSI               |
-| ----------------- | ---------------------- | -------------- | ------------ | ----------------- |
-| Users             | ユーザー情報           | UserId         | -            | -                 |
-| Recipes           | レシピ情報             | RecipeId       | -            | GSI_Author        |
-| RecipeIngredients | 食材逆引きインデックス | IngredientName | RecipeId     | -                 |
-| Reviews           | レビュー情報           | RecipeId       | ReviewId     | GSI_User          |
-| Schedules         | スケジュール情報       | UserId         | DateRecipeId | -                 |
-| ShoppingLists     | 買い物リスト           | UserId         | ItemId       | GSI_NormalizedKey |
+| テーブル名        | 用途                   | Partition Key    | Sort Key         | GSI               |
+| ----------------- | ---------------------- | ---------------- | ---------------- | ----------------- |
+| Users             | ユーザー情報           | UserId           | -                | -                 |
+| Recipes           | レシピ情報             | RecipeId         | -                | GSI_Author        |
+| RecipeIngredients | 食材逆引きインデックス | IngredientName   | RecipeId         | -                 |
+| Reviews           | レビュー情報           | RecipeId         | ReviewId         | GSI_User          |
+| Schedules         | スケジュール情報       | UserId           | DateRecipeId     | -                 |
+| ShoppingLists     | 買い物リスト           | UserId           | ItemId           | GSI_NormalizedKey |
+| ChatConversations | AIチャット会話         | UserId           | ConversationId   | -                 |
+| ChatMessages      | AIチャットメッセージ   | ConversationId   | MessageId        | -                 |
 
 ---
 
@@ -314,10 +316,108 @@
 
 ---
 
+## 6. ChatConversations テーブル
+
+### 概要
+AIチャットの会話セッションを管理するテーブル。ユーザーごとの会話履歴を保持。
+
+### キー構造
+- **Partition Key**: `UserId` (String)
+- **Sort Key**: `ConversationId` (String, UUID)
+
+### 属性
+
+| 属性名           | 型     | 必須 | 説明                                                                 | 例                                     |
+| ---------------- | ------ | ---- | -------------------------------------------------------------------- | -------------------------------------- |
+| UserId           | String | ✓    | ユーザーID                                                           | "550e8400-e29b-41d4-a716-446655440000" |
+| ConversationId   | String | ✓    | 会話ID（UUID）                                                       | "aa0e8400-e29b-41d4-a716-446655440005" |
+| Title            | String | ✓    | 会話タイトル（最大100文字）                                          | "カレーのレシピについて"               |
+| ConversationType | String | ✓    | 会話タイプ（"general", "recipe_recommendation", "expiry_check"）     | "general"                              |
+| CreatedAt        | String | ✓    | 作成日時（ISO8601形式）                                              | "2024-12-25T10:00:00Z"                 |
+| UpdatedAt        | String | ✓    | 更新日時（ISO8601形式）                                              | "2024-12-25T10:30:00Z"                 |
+
+### 会話タイプ
+
+| 値                    | 説明                       |
+| --------------------- | -------------------------- |
+| general               | 一般的なチャット           |
+| recipe_recommendation | レシピ推薦                 |
+| expiry_check          | 食材の賞味期限確認         |
+
+### インデックス
+なし
+
+### アクセスパターン
+1. **ユーザー別会話一覧**: `UserId` で検索（Query）
+2. **特定会話取得**: `UserId` と `ConversationId` で取得（GetItem）
+3. **最新会話取得**: `UserId` で検索し、`UpdatedAt` でソート
+
+### 備考
+- 会話タイトルは最初のメッセージから自動生成、または手動設定
+- `UpdatedAt` は新しいメッセージが追加されるたびに更新
+- 会話タイプにより、将来的に異なる処理やUI表示が可能
+
+---
+
+## 7. ChatMessages テーブル
+
+### 概要
+AIチャットの個別メッセージを管理するテーブル。会話ごとのメッセージ履歴を保持。
+
+### キー構造
+- **Partition Key**: `ConversationId` (String)
+- **Sort Key**: `MessageId` (String, ULID形式で時系列ソート可能)
+
+### 属性
+
+| 属性名          | 型     | 必須 | 説明                                       | 例                                     |
+| --------------- | ------ | ---- | ------------------------------------------ | -------------------------------------- |
+| ConversationId  | String | ✓    | 会話ID                                     | "aa0e8400-e29b-41d4-a716-446655440005" |
+| MessageId       | String | ✓    | メッセージID（ULID）                       | "01ARZ3NDEKTSV4RRFFQ69G5FAV"           |
+| Role            | String | ✓    | 送信者ロール（"user" or "assistant"）      | "user"                                 |
+| Content         | String | ✓    | メッセージ内容                             | "カレーの作り方を教えて"               |
+| GeneratedRecipe | Map    |      | Geminiが生成したレシピ情報（JSON）         | 下記参照                               |
+| CreatedAt       | String | ✓    | 作成日時（ISO8601形式）                    | "2024-12-25T10:00:00Z"                 |
+
+### Role（ロール）
+
+| 値        | 説明                   |
+| --------- | ---------------------- |
+| user      | ユーザーからのメッセージ |
+| assistant | AIからの応答           |
+
+### GeneratedRecipe（生成レシピ）の構造
+
+Geminiがレシピを生成した場合に保存されるMapオブジェクト：
+
+| 属性名      | 型        | 必須 | 説明                   | 例                                                                 |
+| ----------- | --------- | ---- | ---------------------- | ------------------------------------------------------------------ |
+| title       | String    | ✓    | レシピタイトル         | "簡単チキンカレー"                                                 |
+| ingredients | List<Map> | ✓    | 食材リスト             | [{"name": "鶏肉", "quantity": 300, "unit": "g"}]                   |
+| steps       | List<String> | ✓ | 調理手順               | ["野菜を切る", "鶏肉を炒める", "水を加えて煮込む"]                 |
+| cookingTime | Number    |      | 調理時間（分）         | 45                                                                 |
+| tips        | String    |      | 調理のコツ             | "鶏肉は一口大に切ると火が通りやすい"                               |
+
+### インデックス
+なし
+
+### アクセスパターン
+1. **会話別メッセージ一覧**: `ConversationId` で検索（Query）
+2. **時系列順取得**: `ConversationId` で検索し、`MessageId`（ULID）でソート
+3. **最新N件取得**: `ConversationId` で検索し、`ScanIndexForward=false` で降順取得
+
+### 備考
+- `MessageId` にULIDを使用することで、時系列順のソートが自然に行える
+- `GeneratedRecipe` はGeminiがレシピを生成した場合のみ設定
+- 通常のチャットメッセージでは `GeneratedRecipe` は null
+- メッセージ内容は最大4000文字を想定（Geminiの応答を考慮）
+
+---
+
 ## 設計書と実装の差異
 
 ### ✅ 一致している点
-1. **テーブル構造**: 5つのテーブルすべてが設計書通りに実装されている
+1. **テーブル構造**: 8つのテーブルすべてが設計書通りに実装されている
 2. **キー構造**: Partition Key、Sort Key、GSIの構造が一致
 3. **属性**: 必須属性とオプション属性が設計書通り
 4. **データ型**: String、Number、Boolean、List、Mapの使い分けが適切

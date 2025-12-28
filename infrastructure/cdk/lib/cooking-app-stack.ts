@@ -124,6 +124,26 @@ export class CookingAppStack extends cdk.Stack {
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       removalPolicy: stage === 'prod' ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY,
     });
+
+    // ChatConversations Table (AI Chat conversation sessions)
+    // PK: UserId, SK: ConversationId
+    this.tables.chatConversations = new dynamodb.Table(this, 'ChatConversationsTable', {
+      tableName: `cooking-app-chat-conversations-${stage}`,
+      partitionKey: { name: 'UserId', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'ConversationId', type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: stage === 'prod' ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY,
+    });
+
+    // ChatMessages Table (AI Chat messages)
+    // PK: ConversationId, SK: MessageId (ULID for time-based sorting)
+    this.tables.chatMessages = new dynamodb.Table(this, 'ChatMessagesTable', {
+      tableName: `cooking-app-chat-messages-${stage}`,
+      partitionKey: { name: 'ConversationId', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'MessageId', type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: stage === 'prod' ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY,
+    });
   }
 
   private createS3Bucket(stage: string) {
@@ -260,6 +280,8 @@ export class CookingAppStack extends cdk.Stack {
         DYNAMODB_SCHEDULES_TABLE: this.tables.schedules.tableName,
         DYNAMODB_SHOPPING_LISTS_TABLE: this.tables.shoppingLists.tableName,
         DYNAMODB_REVIEWS_TABLE: this.tables.reviews.tableName,
+        DYNAMODB_CHAT_CONVERSATIONS_TABLE: this.tables.chatConversations.tableName,
+        DYNAMODB_CHAT_MESSAGES_TABLE: this.tables.chatMessages.tableName,
         S3_BUCKET_NAME: this.imagesBucket.bucketName,
         AWS_COGNITO_USER_POOL_ID: this.userPool.userPoolId,
         AWS_COGNITO_CLIENT_ID: this.userPoolClient.userPoolClientId,

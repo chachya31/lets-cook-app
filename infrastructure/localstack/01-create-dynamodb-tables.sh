@@ -116,4 +116,30 @@ awslocal dynamodb create-table \
   --billing-mode PAY_PER_REQUEST \
   --region ap-northeast-1
 
+# ChatConversations Table (AI Chat conversation sessions)
+awslocal dynamodb create-table \
+  --table-name cooking-app-chat-conversations-local \
+  --region ap-northeast-1 \
+  --attribute-definitions \
+    AttributeName=UserId,AttributeType=S \
+    AttributeName=ConversationId,AttributeType=S \
+  --key-schema \
+    AttributeName=UserId,KeyType=HASH \
+    AttributeName=ConversationId,KeyType=RANGE \
+  --billing-mode PAY_PER_REQUEST \
+  --region ap-northeast-1
+
+# ChatMessages Table (AI Chat messages)
+awslocal dynamodb create-table \
+  --table-name cooking-app-chat-messages-local \
+  --region ap-northeast-1 \
+  --attribute-definitions \
+    AttributeName=ConversationId,AttributeType=S \
+    AttributeName=MessageId,AttributeType=S \
+  --key-schema \
+    AttributeName=ConversationId,KeyType=HASH \
+    AttributeName=MessageId,KeyType=RANGE \
+  --billing-mode PAY_PER_REQUEST \
+  --region ap-northeast-1
+
 echo "DynamoDB tables created successfully!"

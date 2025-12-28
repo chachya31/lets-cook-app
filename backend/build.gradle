@@ -69,6 +69,9 @@ dependencies {
 
     // Google Generative AI SDK
     implementation 'com.google.genai:google-genai:1.0.0'
+
+    // ULID (Universally Unique Lexicographically Sortable Identifier)
+    implementation 'com.github.f4b6a3:ulid-creator:5.2.3'
 }
 
 tasks.named('test') {
