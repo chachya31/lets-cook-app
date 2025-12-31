@@ -230,6 +230,29 @@
     "deleteError": "削除に失敗しました",
     "updateError": "更新に失敗しました"
   },
+  "chat": {
+    "title": "AIチャット",
+    "newConversation": "新しい会話",
+    "noHistory": "会話履歴がありません",
+    "placeholder": "メッセージを入力してください",
+    "inputPlaceholder": "メッセージを入力...",
+    "thinking": "考え中...",
+    "error": "エラーが発生しました。もう一度お試しください。",
+    "confirmDelete": "この会話を削除しますか？",
+    "deleteError": "削除に失敗しました",
+    "selectTopic": "会話の主題を選択",
+    "currentInventory": "現在の在庫（クリックで追加）",
+    "noInventory": "在庫がありません",
+    "addAllToInput": "すべて追加",
+    "topics": {
+      "general": "一般チャット",
+      "generalDesc": "料理に関する質問や相談",
+      "recipeRecommendation": "レシピ推薦",
+      "recipeRecommendationDesc": "在庫食材からレシピを提案",
+      "expiryCheck": "賞味期限確認",
+      "expiryCheckDesc": "食材の賞味期限をチェック"
+    }
+  },
   "profile": {
     "title": "プロフィール",
     "edit": {

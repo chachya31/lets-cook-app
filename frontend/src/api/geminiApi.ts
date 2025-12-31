@@ -1,5 +1,8 @@
 import { apiDelete, apiGet, apiPost } from '../utils/apiClient';
 
+// Conversation types
+export type ConversationType = 'general' | 'recipe_recommendation' | 'expiry_check';
+
 // Response types
 export interface ChatResponse {
   conversationId: string;
@@ -9,7 +12,7 @@ export interface ChatResponse {
 export interface ConversationResponse {
   conversationId: string;
   title: string;
-  conversationType: string;
+  conversationType: ConversationType;
   createdAt: string;
   updatedAt: string;
 }
@@ -24,8 +27,11 @@ export interface MessageResponse {
 /**
  * 新しい会話を開始してチャット
  */
-export const startChat = async (message: string): Promise<ChatResponse> => {
-  return apiPost<ChatResponse>('/api/ai/chat', { message });
+export const startChat = async (
+  message: string,
+  conversationType: ConversationType = 'general'
+): Promise<ChatResponse> => {
+  return apiPost<ChatResponse>('/api/ai/chat', { message, conversationType });
 };
 
 /**

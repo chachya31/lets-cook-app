@@ -1,14 +1,17 @@
-import { Bot, MessageSquarePlus, Send, Trash2, User } from 'lucide-react';
+import { Bot, ChefHat, Clock, MessageCircle, MessageSquarePlus, Package, Send, Trash2, User } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
-  ConversationResponse,
-  deleteConversation,
-  getConversations,
-  getMessages,
-  MessageResponse,
-  sendMessage,
-  startChat,
+    ConversationResponse,
+    ConversationType,
+    deleteConversation,
+    getConversations,
+    getMessages,
+    MessageResponse,
+    sendMessage,
+    startChat,
 } from '../../api/geminiApi';
+import { getInventory, InventoryItem } from '../../api/inventoryApi';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
 
@@ -18,24 +21,31 @@ interface Message {
 }
 
 const GeminiChatPage: React.FC = () => {
+  const { t } = useTranslation();
   const [conversations, setConversations] = useState<ConversationResponse[]>([]);
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
+  const [currentConversationType, setCurrentConversationType] = useState<ConversationType>('general');
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [loadingConversations, setLoadingConversations] = useState(true);
 
+  // 主題選択モーダル
+  const [showTopicModal, setShowTopicModal] = useState(false);
+
+  // 在庫データ
+  const [inventory, setInventory] = useState<InventoryItem[]>([]);
+  const [loadingInventory, setLoadingInventory] = useState(false);
+
   // 会話一覧を取得
   const loadConversations = useCallback(async () => {
     try {
       const data = await getConversations();
-      // 更新日時で降順ソート
       const sorted = data.sort(
         (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
       );
       setConversations(sorted);
     } catch {
-      // エラー時は空配列
       setConversations([]);
     } finally {
       setLoadingConversations(false);
@@ -56,27 +66,60 @@ const GeminiChatPage: React.FC = () => {
     }
   }, []);
 
+  // 在庫を取得
+  const loadInventory = useCallback(async () => {
+    setLoadingInventory(true);
+    try {
+      const data = await getInventory(true);
+      setInventory(data);
+    } catch {
+      setInventory([]);
+    } finally {
+      setLoadingInventory(false);
+    }
+  }, []);
+
   useEffect(() => {
     loadConversations();
   }, [loadConversations]);
 
   // 会話を選択
-  const handleSelectConversation = async (conversationId: string) => {
-    setCurrentConversationId(conversationId);
+  const handleSelectConversation = async (conv: ConversationResponse) => {
+    setCurrentConversationId(conv.conversationId);
+    setCurrentConversationType(conv.conversationType);
     setMessages([]);
-    await loadMessages(conversationId);
+    await loadMessages(conv.conversationId);
+
+    // 在庫関連の会話タイプなら在庫を読み込む
+    if (conv.conversationType === 'recipe_recommendation' || conv.conversationType === 'expiry_check') {
+      loadInventory();
+    }
   };
 
-  // 新しい会話を開始
-  const handleNewConversation = () => {
+  // 新しい会話ボタンクリック
+  const handleNewConversationClick = () => {
+    setShowTopicModal(true);
+  };
+
+  // 主題を選択して新しい会話を開始
+  const handleSelectTopic = async (type: ConversationType) => {
+    setShowTopicModal(false);
     setCurrentConversationId(null);
+    setCurrentConversationType(type);
     setMessages([]);
+
+    // 在庫関連の会話タイプなら在庫を読み込む
+    if (type === 'recipe_recommendation' || type === 'expiry_check') {
+      loadInventory();
+    } else {
+      setInventory([]);
+    }
   };
 
   // 会話を削除
   const handleDeleteConversation = async (conversationId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!confirm('この会話を削除しますか？')) return;
+    if (!confirm(t('chat.confirmDelete'))) return;
 
     try {
       await deleteConversation(conversationId);
@@ -86,8 +129,22 @@ const GeminiChatPage: React.FC = () => {
       }
       await loadConversations();
     } catch {
-      alert('削除に失敗しました');
+      alert(t('chat.deleteError'));
     }
+  };
+
+  // 在庫アイテムをクリックして入力欄に追加
+  const handleInventoryClick = (item: InventoryItem) => {
+    const itemText = `${item.name} ${item.quantity}${item.unit}`;
+    setInput((prev) => (prev ? `${prev}, ${itemText}` : itemText));
+  };
+
+  // 全在庫を入力欄に追加
+  const handleAddAllInventory = () => {
+    if (inventory.length === 0) return;
+
+    const itemsText = inventory.map((item) => `${item.name} ${item.quantity}${item.unit}`).join(', ');
+    setInput(itemsText);
   };
 
   // メッセージ送信
@@ -102,11 +159,9 @@ const GeminiChatPage: React.FC = () => {
     try {
       let result;
       if (currentConversationId) {
-        // 既存の会話に送信
         result = await sendMessage(currentConversationId, userMessage);
       } else {
-        // 新しい会話を開始
-        result = await startChat(userMessage);
+        result = await startChat(userMessage, currentConversationType);
         setCurrentConversationId(result.conversationId);
         await loadConversations();
       }
@@ -114,7 +169,7 @@ const GeminiChatPage: React.FC = () => {
     } catch {
       setMessages((prev) => [
         ...prev,
-        { role: 'assistant', content: 'エラーが発生しました。もう一度お試しください。' },
+        { role: 'assistant', content: t('chat.error') },
       ]);
     } finally {
       setLoading(false);
@@ -138,38 +193,66 @@ const GeminiChatPage: React.FC = () => {
     });
   };
 
+  const getTopicIcon = (type: ConversationType) => {
+    switch (type) {
+      case 'recipe_recommendation':
+        return <ChefHat size={16} className="text-orange-500" />;
+      case 'expiry_check':
+        return <Clock size={16} className="text-yellow-500" />;
+      default:
+        return <MessageCircle size={16} className="text-purple-500" />;
+    }
+  };
+
+  const getTopicLabel = (type: ConversationType) => {
+    switch (type) {
+      case 'recipe_recommendation':
+        return t('chat.topics.recipeRecommendation');
+      case 'expiry_check':
+        return t('chat.topics.expiryCheck');
+      default:
+        return t('chat.topics.general');
+    }
+  };
+
+  const showInventoryPanel =
+    currentConversationType === 'recipe_recommendation' || currentConversationType === 'expiry_check';
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex items-center space-x-3 mb-6">
         <Bot size={32} className="text-purple-600" />
-        <h1 className="text-2xl font-bold">AI Chat</h1>
+        <h1 className="text-2xl font-bold">{t('chat.title')}</h1>
       </div>
 
       <div className="flex gap-4 h-[600px]">
         {/* 会話一覧サイドバー */}
         <Card className="w-72 flex flex-col">
           <div className="p-3 border-b">
-            <Button onClick={handleNewConversation} className="w-full flex items-center gap-2">
+            <Button onClick={handleNewConversationClick} className="w-full flex items-center gap-2">
               <MessageSquarePlus size={18} />
-              新しい会話
+              {t('chat.newConversation')}
             </Button>
           </div>
           <div className="flex-1 overflow-y-auto">
             {loadingConversations ? (
-              <p className="text-gray-400 text-center mt-4">読み込み中...</p>
+              <p className="text-gray-400 text-center mt-4">{t('common.loading')}</p>
             ) : conversations.length === 0 ? (
-              <p className="text-gray-400 text-center mt-4 text-sm">会話履歴がありません</p>
+              <p className="text-gray-400 text-center mt-4 text-sm">{t('chat.noHistory')}</p>
             ) : (
               conversations.map((conv) => (
                 <div
                   key={conv.conversationId}
-                  onClick={() => handleSelectConversation(conv.conversationId)}
+                  onClick={() => handleSelectConversation(conv)}
                   className={`p-3 border-b cursor-pointer hover:bg-gray-50 flex items-center justify-between group ${
                     currentConversationId === conv.conversationId ? 'bg-purple-50' : ''
                   }`}
                 >
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{conv.title}</p>
+                    <div className="flex items-center gap-1 mb-1">
+                      {getTopicIcon(conv.conversationType)}
+                      <p className="text-sm font-medium truncate">{conv.title}</p>
+                    </div>
                     <p className="text-xs text-gray-400">{formatDate(conv.updatedAt)}</p>
                   </div>
                   <button
@@ -186,9 +269,60 @@ const GeminiChatPage: React.FC = () => {
 
         {/* チャットエリア */}
         <Card className="flex-1 flex flex-col">
+          {/* 現在の主題表示 */}
+          {!currentConversationId && (
+            <div className="px-4 py-2 border-b bg-gray-50 flex items-center gap-2">
+              {getTopicIcon(currentConversationType)}
+              <span className="text-sm font-medium">{getTopicLabel(currentConversationType)}</span>
+            </div>
+          )}
+
+          {/* 在庫パネル */}
+          {showInventoryPanel && (
+            <div className="px-4 py-3 border-b bg-blue-50">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <Package size={16} className="text-blue-600" />
+                  <span className="text-sm font-medium text-blue-800">{t('chat.currentInventory')}</span>
+                </div>
+                {inventory.length > 0 && (
+                  <button
+                    onClick={handleAddAllInventory}
+                    className="text-xs text-blue-600 hover:underline"
+                  >
+                    {t('chat.addAllToInput')}
+                  </button>
+                )}
+              </div>
+              {loadingInventory ? (
+                <p className="text-sm text-gray-500">{t('common.loading')}</p>
+              ) : inventory.length === 0 ? (
+                <p className="text-sm text-gray-500">{t('chat.noInventory')}</p>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {inventory.map((item) => (
+                    <button
+                      key={item.itemId}
+                      onClick={() => handleInventoryClick(item)}
+                      className={`px-2 py-1 text-xs rounded-full border transition-colors ${
+                        item.isExpired
+                          ? 'bg-red-100 border-red-300 text-red-700 hover:bg-red-200'
+                          : item.isExpiringSoon
+                            ? 'bg-yellow-100 border-yellow-300 text-yellow-700 hover:bg-yellow-200'
+                            : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      {item.name} {item.quantity}{item.unit}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
             {messages.length === 0 && (
-              <p className="text-gray-400 text-center mt-20">メッセージを入力してください</p>
+              <p className="text-gray-400 text-center mt-20">{t('chat.placeholder')}</p>
             )}
             {messages.map((msg, idx) => (
               <div
@@ -215,7 +349,7 @@ const GeminiChatPage: React.FC = () => {
                   <Bot size={20} />
                 </div>
                 <div className="bg-gray-100 p-3 rounded-lg">
-                  <span className="animate-pulse">考え中...</span>
+                  <span className="animate-pulse">{t('chat.thinking')}</span>
                 </div>
               </div>
             )}
@@ -227,7 +361,7 @@ const GeminiChatPage: React.FC = () => {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="メッセージを入力..."
+                placeholder={t('chat.inputPlaceholder')}
                 className="flex-1 resize-none border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 rows={2}
                 disabled={loading}
@@ -239,6 +373,54 @@ const GeminiChatPage: React.FC = () => {
           </div>
         </Card>
       </div>
+
+      {/* 主題選択モーダル */}
+      {showTopicModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <Card className="w-96 p-6">
+            <h2 className="text-lg font-bold mb-4">{t('chat.selectTopic')}</h2>
+            <div className="space-y-3">
+              <button
+                onClick={() => handleSelectTopic('general')}
+                className="w-full p-4 border rounded-lg hover:bg-gray-50 flex items-center gap-3 text-left"
+              >
+                <MessageCircle size={24} className="text-purple-500" />
+                <div>
+                  <p className="font-medium">{t('chat.topics.general')}</p>
+                  <p className="text-sm text-gray-500">{t('chat.topics.generalDesc')}</p>
+                </div>
+              </button>
+              <button
+                onClick={() => handleSelectTopic('recipe_recommendation')}
+                className="w-full p-4 border rounded-lg hover:bg-gray-50 flex items-center gap-3 text-left"
+              >
+                <ChefHat size={24} className="text-orange-500" />
+                <div>
+                  <p className="font-medium">{t('chat.topics.recipeRecommendation')}</p>
+                  <p className="text-sm text-gray-500">{t('chat.topics.recipeRecommendationDesc')}</p>
+                </div>
+              </button>
+              <button
+                onClick={() => handleSelectTopic('expiry_check')}
+                className="w-full p-4 border rounded-lg hover:bg-gray-50 flex items-center gap-3 text-left"
+              >
+                <Clock size={24} className="text-yellow-500" />
+                <div>
+                  <p className="font-medium">{t('chat.topics.expiryCheck')}</p>
+                  <p className="text-sm text-gray-500">{t('chat.topics.expiryCheckDesc')}</p>
+                </div>
+              </button>
+            </div>
+            <Button
+              variant="outline"
+              className="w-full mt-4"
+              onClick={() => setShowTopicModal(false)}
+            >
+              {t('common.cancel')}
+            </Button>
+          </Card>
+        </div>
+      )}
     </div>
   );
 };

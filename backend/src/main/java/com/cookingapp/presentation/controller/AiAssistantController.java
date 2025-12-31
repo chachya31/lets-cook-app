@@ -42,8 +42,9 @@ public class AiAssistantController {
     public ResponseEntity<ChatResponse> chat(
             @RequestHeader("X-User-Id") String userId,
             @RequestBody ChatRequest request) {
-        log.info("POST /api/ai/chat - userId={}", userId);
-        ChatUseCase.ChatResponse result = chatUseCase.chat(userId, request.message());
+        log.info("POST /api/ai/chat - userId={}, conversationType={}", userId, request.conversationType());
+        String conversationType = request.conversationType() != null ? request.conversationType() : "general";
+        ChatUseCase.ChatResponse result = chatUseCase.chat(userId, request.message(), conversationType);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new ChatResponse(result.conversationId(), result.response()));
     }
@@ -104,7 +105,7 @@ public class AiAssistantController {
     }
 
     // Request/Response DTOs
-    public record ChatRequest(String message) {
+    public record ChatRequest(String message, String conversationType) {
     }
 
     public record ChatResponse(String conversationId, String response) {

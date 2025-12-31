@@ -36,11 +36,11 @@ public class ChatUseCase {
     /**
      * 新しい会話を開始してチャット
      */
-    public ChatResponse chat(String userId, String message) {
-        log.info("Starting new conversation for userId={}", userId);
+    public ChatResponse chat(String userId, String message, String conversationType) {
+        log.info("Starting new conversation for userId={}, type={}", userId, conversationType);
 
         String title = generateTitle(message);
-        ChatConversation conversation = ChatConversation.create(userId, title, "general");
+        ChatConversation conversation = ChatConversation.create(userId, title, conversationType);
         conversationRepository.save(conversation);
 
         return processChat(conversation, message);
