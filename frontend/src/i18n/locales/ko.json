@@ -28,6 +28,7 @@
     "passwordReset": "비밀번호 재설정",
     "passwordResetDescription": "비밀번호를 재설정합니다",
     "backToLogin": "로그인으로 돌아가기",
+    "sessionExpired": "세션이 만료되었습니다. 다시 로그인해 주세요.",
     "confirmEmail": {
       "title": "이메일 확인",
       "description": "{{email}}로 전송된 확인 코드를 입력하세요",

@@ -4,6 +4,37 @@
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
+/**
+ * セッション期限切れフラグ（リダイレクト重複防止用）
+ */
+let isSessionExpiredRedirecting = false;
+
+/**
+ * セッション期限切れ時の処理
+ * 注意: 循環参照を避けるため、storeを直接importせずlocalStorageのみクリア
+ * ページリダイレクト後にアプリが再読み込みされ、Redux状態も初期化される
+ */
+const handleSessionExpired = (): void => {
+  if (isSessionExpiredRedirecting) {
+    return;
+  }
+  isSessionExpiredRedirecting = true;
+
+  // localStorageから認証情報をクリア
+  localStorage.removeItem('accessToken');
+  localStorage.removeItem('refreshToken');
+  localStorage.removeItem('idToken');
+  localStorage.removeItem('userId');
+  localStorage.removeItem('user');
+  localStorage.removeItem('alert_dismissed_date');
+
+  // セッション期限切れフラグをlocalStorageに保存（ログインページで表示用）
+  localStorage.setItem('sessionExpired', 'true');
+
+  // ログインページにリダイレクト
+  window.location.href = '/login';
+};
+
 interface RequestOptions extends RequestInit {
   userId?: string;
 }
@@ -56,6 +87,12 @@ const handleNetworkError = (error: unknown): never => {
  * レスポンスエラーをハンドリング
  */
 const handleResponseError = async (response: Response): Promise<never> => {
+  // 401エラーの場合はセッション期限切れとして処理
+  if (response.status === 401) {
+    handleSessionExpired();
+    throw new Error('Session expired');
+  }
+
   const errorData: ErrorResponse = await response
     .json()
     .catch(() => createDefaultErrorResponse('UNKNOWN_ERROR', 'Unknown error occurred'));

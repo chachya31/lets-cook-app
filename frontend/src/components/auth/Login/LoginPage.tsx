@@ -1,14 +1,14 @@
 import { UserPlus } from 'lucide-react';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../hooks/useAuth';
 import { useForm } from '../../../hooks/useForm';
 import { FormField } from '../../common/FormField';
 import {
-  getLoginValidationRules,
-  loginFormFields,
-  loginFormInitialValues,
+    getLoginValidationRules,
+    loginFormFields,
+    loginFormInitialValues,
 } from './loginFormConfig';
 
 /**
@@ -18,12 +18,23 @@ export const LoginPage: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { login, error, clearError } = useAuth();
+  const [sessionExpiredMessage, setSessionExpiredMessage] = useState<string | null>(null);
+
+  // セッション期限切れメッセージの確認
+  useEffect(() => {
+    const sessionExpired = localStorage.getItem('sessionExpired');
+    if (sessionExpired === 'true') {
+      setSessionExpiredMessage(t('auth.sessionExpired'));
+      localStorage.removeItem('sessionExpired');
+    }
+  }, [t]);
 
   const { values, errors, isSubmitting, handleChange, handleSubmit } = useForm({
     initialValues: loginFormInitialValues,
     validationRules: getLoginValidationRules(t),
     onSubmit: async (formData) => {
       clearError();
+      setSessionExpiredMessage(null);
       try {
         await login(formData);
         navigate('/dashboard');
@@ -45,6 +56,12 @@ export const LoginPage: React.FC = () => {
           </h2>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          {sessionExpiredMessage && (
+            <div className="rounded-md bg-yellow-50 p-4 border border-yellow-200">
+              <p className="text-sm text-yellow-800">{sessionExpiredMessage}</p>
+            </div>
+          )}
+
           {error && (
             <div className="rounded-md bg-red-50 p-4">
               <p className="text-sm text-red-800">{error}</p>

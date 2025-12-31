@@ -28,6 +28,7 @@
     "passwordReset": "パスワードリセット",
     "passwordResetDescription": "パスワードをリセットします",
     "backToLogin": "ログインに戻る",
+    "sessionExpired": "セッションの有効期限が切れました。再度ログインしてください。",
     "confirmEmail": {
       "title": "メール確認",
       "description": "{{email}} に送信された確認コードを入力してください",
