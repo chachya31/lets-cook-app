@@ -216,6 +216,20 @@
     "purchased": "구매 완료",
     "empty": "장보기 목록이 비어 있습니다"
   },
+  "inventory": {
+    "title": "식재료 재고",
+    "description": "장보기 목록에서 체크한 식재료가 자동으로 추가됩니다. 유통기한을 설정하여 관리하세요.",
+    "empty": "재고가 없습니다. 장보기 목록에서 식재료를 체크하면 자동으로 추가됩니다.",
+    "sortByExpiry": "유통기한순",
+    "expiryDate": "유통기한",
+    "notSet": "미설정",
+    "expired": "기한 만료",
+    "expiringSoon": "기한 임박",
+    "confirmDelete": "이 식재료를 삭제하시겠습니까?",
+    "fetchError": "재고 조회에 실패했습니다",
+    "deleteError": "삭제에 실패했습니다",
+    "updateError": "업데이트에 실패했습니다"
+  },
   "profile": {
     "title": "프로필",
     "edit": {

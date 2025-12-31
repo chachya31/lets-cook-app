@@ -144,6 +144,24 @@ export class CookingAppStack extends cdk.Stack {
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       removalPolicy: stage === 'prod' ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY,
     });
+
+    // Inventory Table (Food inventory management)
+    // PK: UserId, SK: ItemId
+    this.tables.inventory = new dynamodb.Table(this, 'InventoryTable', {
+      tableName: `cooking-app-inventory-${stage}`,
+      partitionKey: { name: 'UserId', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'ItemId', type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: stage === 'prod' ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY,
+    });
+
+    // GSI for Inventory by ExpiryDate
+    this.tables.inventory.addGlobalSecondaryIndex({
+      indexName: 'GSI_ExpiryDate',
+      partitionKey: { name: 'UserId', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'ExpiryDate', type: dynamodb.AttributeType.STRING },
+      projectionType: dynamodb.ProjectionType.ALL,
+    });
   }
 
   private createS3Bucket(stage: string) {
@@ -282,6 +300,7 @@ export class CookingAppStack extends cdk.Stack {
         DYNAMODB_REVIEWS_TABLE: this.tables.reviews.tableName,
         DYNAMODB_CHAT_CONVERSATIONS_TABLE: this.tables.chatConversations.tableName,
         DYNAMODB_CHAT_MESSAGES_TABLE: this.tables.chatMessages.tableName,
+        DYNAMODB_INVENTORY_TABLE: this.tables.inventory.tableName,
         S3_BUCKET_NAME: this.imagesBucket.bucketName,
         AWS_COGNITO_USER_POOL_ID: this.userPool.userPoolId,
         AWS_COGNITO_CLIENT_ID: this.userPoolClient.userPoolClientId,

@@ -19,6 +19,7 @@ aws:
       shoppingLists: cooking-app-shopping-lists-local
       chatConversations: cooking-app-chat-conversations-local
       chatMessages: cooking-app-chat-messages-local
+      inventory: cooking-app-inventory-local
   s3:
     endpoint: http://localhost:4566
     bucket: cooking-app-images-local

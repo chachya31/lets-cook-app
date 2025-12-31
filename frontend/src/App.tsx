@@ -15,6 +15,7 @@ import Footer from './components/common/Footer';
 import Header from './components/common/Header';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import DashboardPage from './components/dashboard/DashboardPage';
+import InventoryPage from './components/inventory/InventoryPage';
 import ProfileEditPage from './components/profile/ProfileEditPage';
 import RecipeDetailPage from './components/recipe/RecipeDetailPage';
 import RecipeEditPage from './components/recipe/RecipeEdit/RecipeEditPage';
@@ -94,6 +95,14 @@ const App: React.FC = () => {
             element={
               <ProtectedRoute>
                 <ShoppingListPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/inventory"
+            element={
+              <ProtectedRoute>
+                <InventoryPage />
               </ProtectedRoute>
             }
           />

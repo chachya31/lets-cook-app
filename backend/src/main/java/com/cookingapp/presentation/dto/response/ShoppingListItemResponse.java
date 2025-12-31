@@ -3,6 +3,7 @@ package com.cookingapp.presentation.dto.response;
 import java.math.BigDecimal;
 
 import com.cookingapp.domain.entity.ShoppingListItem;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,6 +23,8 @@ public class ShoppingListItemResponse {
     private String name;
     private BigDecimal quantity;
     private String unit;
+
+    @JsonProperty("isChecked")
     private boolean isChecked;
     private String isCheckedAt;
     private String addedAt;

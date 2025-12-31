@@ -216,6 +216,20 @@
     "purchased": "購入済み",
     "empty": "買い物リストは空です"
   },
+  "inventory": {
+    "title": "食材在庫",
+    "description": "買い物リストでチェックした食材が自動的に追加されます。賞味期限を設定して管理しましょう。",
+    "empty": "在庫がありません。買い物リストで食材をチェックすると自動的に追加されます。",
+    "sortByExpiry": "賞味期限順",
+    "expiryDate": "賞味期限",
+    "notSet": "未設定",
+    "expired": "期限切れ",
+    "expiringSoon": "期限間近",
+    "confirmDelete": "この食材を削除しますか？",
+    "fetchError": "在庫の取得に失敗しました",
+    "deleteError": "削除に失敗しました",
+    "updateError": "更新に失敗しました"
+  },
   "profile": {
     "title": "プロフィール",
     "edit": {

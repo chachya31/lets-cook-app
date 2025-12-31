@@ -2,6 +2,7 @@ import {
     Bot,
     Calendar,
     LogOut,
+    Package,
     Search,
     Shield,
     ShoppingCart,
@@ -84,6 +85,15 @@ const Header: React.FC = () => {
               <ShoppingCart size={18} />
               <span>{t('shoppingList.title')}</span>
             </button>
+            {isLoggedIn && (
+              <button
+                onClick={() => navigate('/inventory')}
+                className="flex items-center space-x-1 text-gray-700 hover:text-blue-600 transition-colors"
+              >
+                <Package size={18} />
+                <span>{t('inventory.title')}</span>
+              </button>
+            )}
             {isLoggedIn && (
               <button
                 onClick={() => navigate('/chat')}

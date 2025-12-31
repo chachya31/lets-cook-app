@@ -14,6 +14,7 @@
 | Reviews           | レビュー情報           | RecipeId         | ReviewId         | GSI_User          |
 | Schedules         | スケジュール情報       | UserId           | DateRecipeId     | -                 |
 | ShoppingLists     | 買い物リスト           | UserId           | ItemId           | GSI_NormalizedKey |
+| Inventory         | 食材在庫               | UserId           | ItemId           | GSI_ExpiryDate    |
 | ChatConversations | AIチャット会話         | UserId           | ConversationId   | -                 |
 | ChatMessages      | AIチャットメッセージ   | ConversationId   | MessageId        | -                 |
 
@@ -316,7 +317,49 @@
 
 ---
 
-## 6. ChatConversations テーブル
+## 6. Inventory テーブル
+
+### 概要
+購入済み食材の在庫を管理するテーブル。買い物リストでチェックされたアイテムが自動的に登録される。
+
+### キー構造
+- **Partition Key**: `UserId` (String)
+- **Sort Key**: `ItemId` (String, UUID)
+
+### 属性
+
+| 属性名       | 型         | 必須 | 説明                                 | 例                                     |
+| ------------ | ---------- | ---- | ------------------------------------ | -------------------------------------- |
+| UserId       | String     | ✓    | ユーザーID                           | "550e8400-e29b-41d4-a716-446655440000" |
+| ItemId       | String     | ✓    | アイテムID（UUID）                   | "990e8400-e29b-41d4-a716-446655440004" |
+| Name         | String     | ✓    | 食材名（最大100文字）                | "玉ねぎ"                               |
+| Quantity     | Number     | ✓    | 数量（0.01-9999）                    | 2                                      |
+| Unit         | String     | ✓    | 単位                                 | "個"                                   |
+| ExpiryDate   | String     |      | 賞味期限（YYYY-MM-DD形式、任意）     | "2024-12-31"                           |
+| PurchasedAt  | String     | ✓    | 購入日時（ISO8601形式）              | "2024-12-25T10:00:00Z"                 |
+| CreatedAt    | String     | ✓    | 登録日時（ISO8601形式）              | "2024-12-25T10:00:00Z"                 |
+
+### インデックス
+
+#### GSI_ExpiryDate
+- **Partition Key**: `UserId` (String)
+- **Sort Key**: `ExpiryDate` (String)
+- **用途**: 賞味期限順での在庫検索（期限切れ間近の食材を優先表示）
+
+### アクセスパターン
+1. **ユーザー別在庫一覧**: `UserId` で検索（Query）
+2. **賞味期限順検索**: `GSI_ExpiryDate` を使用して `UserId` で検索、`ExpiryDate` でソート
+3. **特定アイテム取得**: `UserId` と `ItemId` で取得（GetItem）
+
+### 備考
+- 買い物リストでアイテムをチェックすると自動的に在庫に追加される
+- 賞味期限は任意入力（未設定の場合は期限なしとして扱う）
+- 同じ食材を追加した場合は数量を合算
+- 在庫を使い切った場合はユーザーが手動で削除
+
+---
+
+## 7. ChatConversations テーブル
 
 ### 概要
 AIチャットの会話セッションを管理するテーブル。ユーザーごとの会話履歴を保持。
@@ -359,7 +402,7 @@ AIチャットの会話セッションを管理するテーブル。ユーザー
 
 ---
 
-## 7. ChatMessages テーブル
+## 8. ChatMessages テーブル
 
 ### 概要
 AIチャットの個別メッセージを管理するテーブル。会話ごとのメッセージ履歴を保持。

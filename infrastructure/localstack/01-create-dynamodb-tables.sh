@@ -142,4 +142,29 @@ awslocal dynamodb create-table \
   --billing-mode PAY_PER_REQUEST \
   --region ap-northeast-1
 
+# Inventory Table (Food inventory management)
+awslocal dynamodb create-table \
+  --table-name cooking-app-inventory-local \
+  --region ap-northeast-1 \
+  --attribute-definitions \
+    AttributeName=UserId,AttributeType=S \
+    AttributeName=ItemId,AttributeType=S \
+    AttributeName=ExpiryDate,AttributeType=S \
+  --key-schema \
+    AttributeName=UserId,KeyType=HASH \
+    AttributeName=ItemId,KeyType=RANGE \
+  --global-secondary-indexes \
+    "[
+      {
+        \"IndexName\": \"GSI_ExpiryDate\",
+        \"KeySchema\": [
+          {\"AttributeName\":\"UserId\",\"KeyType\":\"HASH\"},
+          {\"AttributeName\":\"ExpiryDate\",\"KeyType\":\"RANGE\"}
+        ],
+        \"Projection\": {\"ProjectionType\":\"ALL\"}
+      }
+    ]" \
+  --billing-mode PAY_PER_REQUEST \
+  --region ap-northeast-1
+
 echo "DynamoDB tables created successfully!"
