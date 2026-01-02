@@ -172,23 +172,29 @@ const DashboardPage: React.FC = () => {
         </Card>
       </div>
 
-      {/* クイックアクションセクション */}
-      <div className="mt-8">
-        <h2 className="text-xl font-semibold mb-4">{t('dashboard.quickActions')}</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Button variant="outline" className="h-20" onClick={() => navigate('/recipes/new')}>
-            {t('dashboard.createRecipe')}
+      {/* AIチャット・食材在庫セクション */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+        {/* AIチャットセクション */}
+        <Card className="p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold">{t('dashboard.aiChat')}</h2>
+          </div>
+          <p className="text-gray-500 mb-4">{t('dashboard.aiChatDescription')}</p>
+          <Button className="w-full" onClick={() => navigate('/chat')}>
+            {t('dashboard.startChat')}
           </Button>
-          <Button variant="outline" className="h-20" onClick={() => navigate('/schedules')}>
-            {t('dashboard.addSchedule')}
+        </Card>
+
+        {/* 食材在庫セクション */}
+        <Card className="p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold">{t('dashboard.inventory')}</h2>
+          </div>
+          <p className="text-gray-500 mb-4">{t('dashboard.inventoryDescription')}</p>
+          <Button className="w-full" onClick={() => navigate('/inventory')}>
+            {t('dashboard.manageInventory')}
           </Button>
-          <Button variant="outline" className="h-20" onClick={() => navigate('/shopping-list')}>
-            {t('dashboard.addShoppingItem')}
-          </Button>
-          <Button variant="outline" className="h-20" onClick={() => navigate('/recipes')}>
-            {t('dashboard.searchRecipes')}
-          </Button>
-        </div>
+        </Card>
       </div>
     </div>
   );

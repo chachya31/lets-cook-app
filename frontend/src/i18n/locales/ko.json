@@ -294,7 +294,13 @@
     "addShoppingItem": "장보기 목록에 추가",
     "searchRecipes": "레시피 검색",
     "manageSchedules": "일정 관리",
-    "manageShoppingList": "장보기 목록 관리"
+    "manageShoppingList": "장보기 목록 관리",
+    "aiChat": "AI 채팅",
+    "aiChatDescription": "AI에게 요리 상담을 하거나 레시피를 추천받을 수 있어요",
+    "startChat": "채팅 시작",
+    "inventory": "식재료 재고",
+    "inventoryDescription": "구매한 식재료의 재고와 유통기한을 관리할 수 있어요",
+    "manageInventory": "재고 관리"
   },
   "admin": {
     "dashboard": {

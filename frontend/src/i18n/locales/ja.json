@@ -294,7 +294,13 @@
     "addShoppingItem": "買い物リストに追加",
     "searchRecipes": "レシピを検索",
     "manageSchedules": "スケジュールを管理",
-    "manageShoppingList": "買い物リストを管理"
+    "manageShoppingList": "買い物リストを管理",
+    "aiChat": "AIチャット",
+    "aiChatDescription": "AIに料理の相談をしたり、レシピを提案してもらえます",
+    "startChat": "チャットを開始",
+    "inventory": "食材在庫",
+    "inventoryDescription": "購入した食材の在庫と賞味期限を管理できます",
+    "manageInventory": "在庫を管理"
   },
   "admin": {
     "dashboard": {
