@@ -6,6 +6,7 @@ import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as s3 from 'aws-cdk-lib/aws-s3';
+import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
 
 interface CookingAppStackProps extends cdk.StackProps {
@@ -237,6 +238,13 @@ export class CookingAppStack extends cdk.Stack {
   }
 
   private createLambdaFunction(stage: string): lambda.Function {
+    // Gemini API Key Secret 참조
+    const geminiApiKeySecret = secretsmanager.Secret.fromSecretNameV2(
+      this,
+      'GeminiApiKeySecret',
+      'cooking-app/gemini-api-key'
+    );
+
     // Lambda実行ロール
     const lambdaRole = new iam.Role(this, 'LambdaExecutionRole', {
       assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
@@ -277,6 +285,9 @@ export class CookingAppStack extends cdk.Stack {
       })
     );
 
+    // Secrets Managerへのアクセス権限
+    geminiApiKeySecret.grantRead(lambdaRole);
+
     // Lambda関数
     // 注意: デプロイ前に backend/build/libs/backend-1.0.0.jar が存在することを確認してください
     const lambdaFunction = new lambda.Function(this, 'CookingAppFunction', {
@@ -304,6 +315,7 @@ export class CookingAppStack extends cdk.Stack {
         S3_BUCKET_NAME: this.imagesBucket.bucketName,
         AWS_COGNITO_USER_POOL_ID: this.userPool.userPoolId,
         AWS_COGNITO_CLIENT_ID: this.userPoolClient.userPoolClientId,
+        GEMINI_API_KEY_SECRET_ARN: geminiApiKeySecret.secretArn,
       },
     });
 

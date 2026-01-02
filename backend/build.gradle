@@ -48,6 +48,7 @@ dependencies {
     implementation 'software.amazon.awssdk:dynamodb'
     implementation 'software.amazon.awssdk:s3'
     implementation 'software.amazon.awssdk:cognitoidentityprovider'
+    implementation 'software.amazon.awssdk:secretsmanager'
     
     // AWS Lambda
     implementation 'com.amazonaws:aws-lambda-java-core:1.2.3'

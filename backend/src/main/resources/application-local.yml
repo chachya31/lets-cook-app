@@ -31,8 +31,5 @@ aws:
     clientId: 7e5mu77epiakek5jd9g6d5fvi
     # clientSecret: (アプリクライアントがシークレットなしで設定されている場合は不要)
 
-gemini:
-  apiKey: ${GEMINI_API_KEY:YOUR_GEMINI_API_KEY}
-
 server:
   port: 8080

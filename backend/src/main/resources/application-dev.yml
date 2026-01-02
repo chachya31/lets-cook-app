@@ -8,6 +8,9 @@ aws:
       schedules: ${DYNAMODB_SCHEDULES_TABLE}
       shoppingLists: ${DYNAMODB_SHOPPING_LISTS_TABLE}
       reviews: ${DYNAMODB_REVIEWS_TABLE}
+      chatConversations: ${DYNAMODB_CHAT_CONVERSATIONS_TABLE}
+      chatMessages: ${DYNAMODB_CHAT_MESSAGES_TABLE}
+      inventory: ${DYNAMODB_INVENTORY_TABLE}
   s3:
     bucket: ${S3_BUCKET_NAME}
   cognito:

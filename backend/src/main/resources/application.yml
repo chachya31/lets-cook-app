@@ -21,5 +21,9 @@ aws:
     userPoolId: ${AWS_COGNITO_USER_POOL_ID:}
     clientId: ${AWS_COGNITO_CLIENT_ID:}
 
+gemini:
+  apiKey: ${GEMINI_API_KEY:}
+  apiKeySecretArn: ${GEMINI_API_KEY_SECRET_ARN:}
+
 server:
   port: 8080
