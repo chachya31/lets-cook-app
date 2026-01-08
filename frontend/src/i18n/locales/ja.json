@@ -254,6 +254,14 @@
       "expiryCheckDesc": "食材の賞味期限をチェック"
     }
   },
+  "ollama": {
+    "title": "Ollama チャット",
+    "placeholder": "メッセージを入力してください",
+    "inputPlaceholder": "メッセージを入力...",
+    "thinking": "考え中...",
+    "error": "エラーが発生しました。Ollamaが起動しているか確認してください。",
+    "clear": "クリア"
+  },
   "profile": {
     "title": "プロフィール",
     "edit": {

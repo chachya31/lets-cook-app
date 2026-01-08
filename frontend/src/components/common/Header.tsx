@@ -1,13 +1,4 @@
-import {
-    Bot,
-    Calendar,
-    LogOut,
-    Package,
-    Search,
-    Shield,
-    ShoppingCart,
-    User
-} from 'lucide-react';
+import { Bot, Calendar, LogOut, Package, Search, Shield, ShoppingCart, User } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
@@ -101,6 +92,15 @@ const Header: React.FC = () => {
               >
                 <Bot size={18} />
                 <span>AI Chat</span>
+              </button>
+            )}
+            {isLoggedIn && (
+              <button
+                onClick={() => navigate('/ollama')}
+                className="flex items-center space-x-1 text-gray-700 hover:text-green-600 transition-colors"
+              >
+                <Bot size={18} />
+                <span>Ollama</span>
               </button>
             )}
             {isAdmin && (

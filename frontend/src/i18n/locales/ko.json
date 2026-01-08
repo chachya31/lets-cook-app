@@ -254,6 +254,14 @@
       "expiryCheckDesc": "식재료 유통기한 체크"
     }
   },
+  "ollama": {
+    "title": "Ollama 채팅",
+    "placeholder": "메시지를 입력해 주세요",
+    "inputPlaceholder": "메시지 입력...",
+    "thinking": "생각 중...",
+    "error": "오류가 발생했습니다. Ollama가 실행 중인지 확인해 주세요.",
+    "clear": "지우기"
+  },
   "profile": {
     "title": "프로필",
     "edit": {

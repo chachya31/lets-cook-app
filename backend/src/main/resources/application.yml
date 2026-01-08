@@ -25,5 +25,10 @@ gemini:
   apiKey: ${GEMINI_API_KEY:}
   apiKeySecretArn: ${GEMINI_API_KEY_SECRET_ARN:}
 
+ollama:
+  baseUrl: ${OLLAMA_BASE_URL:http://localhost:11434}
+  model: ${OLLAMA_MODEL:llama3.2}
+  enabled: ${OLLAMA_ENABLED:false}
+
 server:
   port: 8080
