@@ -1,20 +1,27 @@
 package com.cookingapp.infrastructure.external.s3;
 
-import com.cookingapp.domain.service.ImageStorageService;
+import java.io.InputStream;
+import java.time.Duration;
+import java.util.UUID;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import com.cookingapp.domain.service.ImageStorageService;
+
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.*;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
+import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
-
-import java.io.InputStream;
-import java.time.Duration;
-import java.util.UUID;
 
 /**
  * S3画像サービス
@@ -41,13 +48,13 @@ public class S3ImageService implements ImageStorageService {
     /**
      * 画像アップロード用のPre-signed URLを生成
      * 
-     * @param fileName ファイル名
+     * @param fileName    ファイル名
      * @param contentType コンテンツタイプ（image/jpeg, image/png）
      * @return Pre-signed URL
      */
     public String generateUploadUrl(String fileName, String contentType) {
         String key = generateKey(fileName);
-        
+
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(bucketName)
                 .key(key)
@@ -60,7 +67,7 @@ public class S3ImageService implements ImageStorageService {
                 .build();
 
         String presignedUrl = s3Presigner.presignPutObject(presignRequest).url().toString();
-        
+
         logger.info("Generated upload URL for key: {}", key);
         return presignedUrl;
     }
@@ -68,15 +75,16 @@ public class S3ImageService implements ImageStorageService {
     /**
      * 画像を直接アップロード
      * 
-     * @param fileName ファイル名
-     * @param contentType コンテンツタイプ
-     * @param inputStream 画像データ
+     * @param fileName      ファイル名
+     * @param contentType   コンテンツタイプ
+     * @param inputStream   画像データ
      * @param contentLength ファイルサイズ
-     * @return 画像URL
+     * @return S3キー（パス）- DBに保存用
      */
+    @Override
     public String uploadImage(String fileName, String contentType, InputStream inputStream, long contentLength) {
         String key = generateKey(fileName);
-        
+
         try {
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                     .bucket(bucketName)
@@ -86,9 +94,9 @@ public class S3ImageService implements ImageStorageService {
                     .build();
 
             s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(inputStream, contentLength));
-            
+
             logger.info("Uploaded image with key: {}", key);
-            return getImageUrl(key);
+            return key;
         } catch (S3Exception e) {
             logger.error("Failed to upload image: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to upload image", e);
@@ -116,34 +124,52 @@ public class S3ImageService implements ImageStorageService {
     }
 
     @Override
-    public String generateDownloadUrl(String imageUrl) {
-        if (imageUrl == null || imageUrl.isEmpty()) {
+    public String generateDownloadUrl(String imageKey) {
+        if (imageKey == null || imageKey.isEmpty()) {
             return null;
         }
-        String key = extractKeyFromUrl(imageUrl);
+        // S3キーから直接Presigned URLを生成
+        return getImageUrl(imageKey);
+    }
+
+    @Override
+    public String generatePresignedUrl(String imageUrlOrKey) {
+        if (imageUrlOrKey == null || imageUrlOrKey.isEmpty()) {
+            return null;
+        }
+        // URLの場合はキーを抽出、キーの場合はそのまま使用
+        String key = isUrl(imageUrlOrKey) ? extractKeyFromUrl(imageUrlOrKey) : imageUrlOrKey;
         return getImageUrl(key);
+    }
+
+    /**
+     * 文字列がURLかどうかを判定
+     */
+    private boolean isUrl(String value) {
+        return value.startsWith("http://") || value.startsWith("https://");
     }
 
     /**
      * 画像を削除
      * 
-     * @param imageUrl 画像URL
+     * @param imageKey S3キー（パス）またはURL
      */
-    public void deleteImage(String imageUrl) {
-        if (imageUrl == null || imageUrl.isEmpty()) {
+    @Override
+    public void deleteImage(String imageKey) {
+        if (imageKey == null || imageKey.isEmpty()) {
             return;
         }
 
         try {
-            String key = extractKeyFromUrl(imageUrl);
-            
+            String key = isUrl(imageKey) ? extractKeyFromUrl(imageKey) : imageKey;
+
             DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
                     .bucket(bucketName)
                     .key(key)
                     .build();
 
             s3Client.deleteObject(deleteObjectRequest);
-            
+
             logger.info("Deleted image with key: {}", key);
         } catch (S3Exception e) {
             logger.error("Failed to delete image: {}", e.getMessage(), e);
@@ -164,7 +190,7 @@ public class S3ImageService implements ImageStorageService {
 
         try {
             String key = extractKeyFromUrl(imageUrl);
-            
+
             HeadObjectRequest headObjectRequest = HeadObjectRequest.builder()
                     .bucket(bucketName)
                     .key(key)
@@ -216,12 +242,12 @@ public class S3ImageService implements ImageStorageService {
         // Pre-signed URLからキーを抽出
         // 例: https://bucket.s3.region.amazonaws.com/images/uuid.jpg?params...
         // または: http://localhost:4566/bucket/images/uuid.jpg
-        
+
         String[] parts = imageUrl.split("\\?")[0].split("/");
-        
+
         // LocalStackの場合: http://localhost:4566/bucket/images/uuid.jpg
         // AWS S3の場合: https://bucket.s3.region.amazonaws.com/images/uuid.jpg
-        
+
         if (imageUrl.contains("localhost")) {
             // LocalStack形式: バケット名の後からがキー
             int bucketIndex = -1;
@@ -255,7 +281,7 @@ public class S3ImageService implements ImageStorageService {
                 return key.toString();
             }
         }
-        
+
         throw new IllegalArgumentException("Invalid image URL format: " + imageUrl);
     }
 }

@@ -1,12 +1,19 @@
 package com.cookingapp.unit.usecase;
 
-import com.cookingapp.application.usecase.user.LoginUserUseCase;
-import com.cookingapp.domain.entity.User;
-import com.cookingapp.domain.exception.AuthenticationException;
-import com.cookingapp.domain.repository.UserRepository;
-import com.cookingapp.domain.service.AuthService;
-import com.cookingapp.domain.valueobject.Language;
-import com.cookingapp.infrastructure.external.cognito.dto.AuthTokens;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,16 +21,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import com.cookingapp.application.usecase.user.LoginUserUseCase;
+import com.cookingapp.domain.entity.User;
+import com.cookingapp.domain.exception.AuthenticationException;
+import com.cookingapp.domain.repository.UserRepository;
+import com.cookingapp.domain.service.AuthService;
+import com.cookingapp.domain.service.ImageStorageService;
+import com.cookingapp.domain.valueobject.Language;
+import com.cookingapp.infrastructure.external.cognito.dto.AuthTokens;
 
 /**
  * LoginUserUseCaseのユニットテスト
@@ -38,11 +43,14 @@ class LoginUserUseCaseTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private ImageStorageService imageStorageService;
+
     private LoginUserUseCase loginUserUseCase;
 
     @BeforeEach
     void setUp() {
-        loginUserUseCase = new LoginUserUseCase(authService, userRepository);
+        loginUserUseCase = new LoginUserUseCase(authService, userRepository, imageStorageService);
     }
 
     @Test
@@ -51,16 +59,15 @@ class LoginUserUseCaseTest {
         // Arrange
         String email = "test@example.com";
         String password = "Password123!";
-        
+
         AuthTokens tokens = new AuthTokens(
                 "access-token",
                 "refresh-token",
                 "id-token",
-                3600
-        );
-        
+                3600);
+
         User existingUser = new User(email, "testuser", Language.JA);
-        
+
         when(authService.signIn(email, password)).thenReturn(tokens);
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(existingUser));
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -106,11 +113,11 @@ class LoginUserUseCaseTest {
         // Arrange
         String email = "test@example.com";
         String password = "Password123!";
-        
+
         AuthTokens tokens = new AuthTokens("access-token", "refresh-token", "id-token", 3600);
         User existingUser = new User(email, "testuser", Language.JA);
         LocalDateTime beforeLogin = LocalDateTime.now();
-        
+
         when(authService.signIn(email, password)).thenReturn(tokens);
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(existingUser));
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -121,7 +128,7 @@ class LoginUserUseCaseTest {
         // Assert
         assertThat(result.getUser().getLastLoginDate()).isNotNull();
         assertThat(result.getUser().getLastLoginDate()).isAfterOrEqualTo(beforeLogin);
-        
+
         verify(userRepository).save(any(User.class));
     }
 
@@ -131,13 +138,13 @@ class LoginUserUseCaseTest {
         // Arrange
         String email = "newuser@example.com";
         String password = "Password123!";
-        
+
         AuthTokens tokens = new AuthTokens("access-token", "refresh-token", "id-token", 3600);
-        
+
         Map<String, String> attributes = new HashMap<>();
         attributes.put("nickname", "newuser");
         attributes.put("locale", "ja");
-        
+
         when(authService.signIn(email, password)).thenReturn(tokens);
         when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
         when(authService.getUserAttributes("access-token")).thenReturn(attributes);
@@ -151,7 +158,7 @@ class LoginUserUseCaseTest {
         assertThat(result.getUser()).isNotNull();
         assertThat(result.getUser().getEmail()).isEqualTo(email);
         assertThat(result.getUser().getNickname()).isEqualTo("newuser");
-        
+
         verify(authService).getUserAttributes("access-token");
         verify(userRepository, times(2)).save(any(User.class)); // 作成時と最終ログイン更新時
     }
@@ -162,9 +169,9 @@ class LoginUserUseCaseTest {
         // Arrange
         String email = "newuser@example.com";
         String password = "Password123!";
-        
+
         AuthTokens tokens = new AuthTokens("access-token", "refresh-token", "id-token", 3600);
-        
+
         when(authService.signIn(email, password)).thenReturn(tokens);
         when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
         when(authService.getUserAttributes("access-token"))

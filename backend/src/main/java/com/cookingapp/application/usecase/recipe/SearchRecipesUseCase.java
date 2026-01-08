@@ -73,7 +73,7 @@ public class SearchRecipesUseCase {
      */
     private Recipe refreshImageUrl(Recipe recipe) {
         if (recipe.getImageUrl() != null && !recipe.getImageUrl().isEmpty()) {
-            String presignedUrl = imageStorageService.generateDownloadUrl(recipe.getImageUrl());
+            String presignedUrl = imageStorageService.generatePresignedUrl(recipe.getImageUrl());
             recipe.updateImageUrl(presignedUrl);
         }
         return recipe;

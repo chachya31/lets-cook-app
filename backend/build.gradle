@@ -62,7 +62,9 @@ dependencies {
     // Testing
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'net.jqwik:jqwik:1.7.4'
-    testImplementation 'org.mockito:mockito-inline:5.2.0' // Java 21+対応
+    testImplementation 'org.mockito:mockito-core:5.14.2'
+    testImplementation 'net.bytebuddy:byte-buddy:1.15.10'
+    testImplementation 'net.bytebuddy:byte-buddy-agent:1.15.10'
     
     // JSON
     implementation 'com.fasterxml.jackson.core:jackson-databind'

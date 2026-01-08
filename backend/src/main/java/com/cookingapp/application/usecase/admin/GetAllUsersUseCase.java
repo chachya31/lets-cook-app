@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.cookingapp.domain.entity.User;
 import com.cookingapp.domain.repository.UserRepository;
+import com.cookingapp.domain.service.ImageStorageService;
 import com.cookingapp.infrastructure.external.cognito.CognitoAuthService;
 import com.cookingapp.presentation.dto.UserResponse;
 
@@ -22,10 +23,13 @@ public class GetAllUsersUseCase {
 
     private final UserRepository userRepository;
     private final CognitoAuthService cognitoAuthService;
+    private final ImageStorageService imageStorageService;
 
-    public GetAllUsersUseCase(UserRepository userRepository, CognitoAuthService cognitoAuthService) {
+    public GetAllUsersUseCase(UserRepository userRepository, CognitoAuthService cognitoAuthService,
+            ImageStorageService imageStorageService) {
         this.userRepository = userRepository;
         this.cognitoAuthService = cognitoAuthService;
+        this.imageStorageService = imageStorageService;
     }
 
     /**
@@ -39,13 +43,19 @@ public class GetAllUsersUseCase {
 
         return users.stream()
                 .map(user -> {
+                    // プロフィール画像のPresigned URLを生成
+                    if (user.getProfileImageUrl() != null && !user.getProfileImageUrl().isEmpty()) {
+                        String presignedUrl = imageStorageService.generatePresignedUrl(user.getProfileImageUrl());
+                        user.updateProfileImageUrl(presignedUrl);
+                    }
+
                     List<String> roles;
                     try {
                         roles = cognitoAuthService.getUserGroups(user.getEmail());
                     } catch (Exception e) {
                         log.warn("ユーザーのグループ取得に失敗しました: email={}, error={}",
                                 user.getEmail(), e.getMessage());
-                        roles = List.of(); // 空のリストを返す
+                        roles = List.of();
                     }
                     return UserResponse.from(user, roles);
                 })

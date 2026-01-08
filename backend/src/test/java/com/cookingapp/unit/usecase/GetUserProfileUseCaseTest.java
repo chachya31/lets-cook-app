@@ -1,9 +1,12 @@
 package com.cookingapp.unit.usecase;
 
-import com.cookingapp.application.usecase.user.GetUserProfileUseCase;
-import com.cookingapp.domain.entity.User;
-import com.cookingapp.domain.repository.UserRepository;
-import com.cookingapp.domain.valueobject.Language;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,12 +14,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import com.cookingapp.application.usecase.user.GetUserProfileUseCase;
+import com.cookingapp.domain.entity.User;
+import com.cookingapp.domain.repository.UserRepository;
+import com.cookingapp.domain.service.ImageStorageService;
+import com.cookingapp.domain.valueobject.Language;
 
 /**
  * GetUserProfileUseCaseのユニットテスト
@@ -28,11 +30,14 @@ class GetUserProfileUseCaseTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private ImageStorageService imageStorageService;
+
     private GetUserProfileUseCase getUserProfileUseCase;
 
     @BeforeEach
     void setUp() {
-        getUserProfileUseCase = new GetUserProfileUseCase(userRepository);
+        getUserProfileUseCase = new GetUserProfileUseCase(userRepository, imageStorageService);
     }
 
     @Test
@@ -42,9 +47,9 @@ class GetUserProfileUseCaseTest {
         String userId = "user-123";
         String email = "test@example.com";
         String nickname = "testuser";
-        
+
         User existingUser = new User(email, nickname, Language.JA);
-        
+
         when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));
 
         // Act
@@ -64,7 +69,7 @@ class GetUserProfileUseCaseTest {
     void testExecute_WithNonExistentUser_ThrowsException() {
         // Arrange
         String userId = "non-existent-user";
-        
+
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         // Act & Assert
@@ -76,22 +81,25 @@ class GetUserProfileUseCaseTest {
     }
 
     @Test
-    @DisplayName("プロフィール画像URLが含まれる")
-    void testExecute_ReturnsUserWithProfileImage() {
+    @DisplayName("プロフィール画像URLがPresigned URLに変換される")
+    void testExecute_ReturnsUserWithPresignedProfileImage() {
         // Arrange
         String userId = "user-123";
         String email = "test@example.com";
-        String profileImageUrl = "https://example.com/image.jpg";
-        
+        String imageKey = "images/uuid-123.jpg";
+        String presignedUrl = "https://bucket.s3.amazonaws.com/images/uuid-123.jpg?signature=xxx";
+
         User existingUser = new User(email, "testuser", Language.JA);
-        existingUser.updateProfileImageUrl(profileImageUrl);
-        
+        existingUser.updateProfileImageUrl(imageKey);
+
         when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));
+        when(imageStorageService.generatePresignedUrl(imageKey)).thenReturn(presignedUrl);
 
         // Act
         User result = getUserProfileUseCase.execute(userId);
 
         // Assert
-        assertThat(result.getProfileImageUrl()).isEqualTo(profileImageUrl);
+        assertThat(result.getProfileImageUrl()).isEqualTo(presignedUrl);
+        verify(imageStorageService).generatePresignedUrl(imageKey);
     }
 }
