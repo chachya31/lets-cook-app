@@ -100,9 +100,9 @@ const RecipeDetailPage: React.FC = () => {
     }
   };
 
-  const handleReviewEdit = (review: Review) => {
-    setEditingReview(review);
-    setShowReviewForm(true);
+  const handleReviewUpdate = async (reviewId: string, rating: number, comment: string) => {
+    if (!user) return;
+    await updateReview(reviewId, user.userId, { rating, comment });
   };
 
   const handleReviewDelete = async (reviewId: string) => {
@@ -257,9 +257,10 @@ const RecipeDetailPage: React.FC = () => {
           <ReviewList
             reviews={reviews}
             currentUserId={user?.userId}
-            onEdit={handleReviewEdit}
             onDelete={handleReviewDelete}
             onReport={handleReviewReport}
+            onUpdate={handleReviewUpdate}
+            loading={reviewLoading}
           />
         </CardContent>
       </Card>
