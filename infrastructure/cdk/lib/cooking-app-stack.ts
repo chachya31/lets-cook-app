@@ -237,7 +237,7 @@ export class CookingAppStack extends cdk.Stack {
     });
   }
 
-  private createLambdaFunction(stage: string): lambda.Function {
+  private createLambdaFunction(stage: string): lambda.IFunction {
     // Gemini API Key Secret 참조
     const geminiApiKeySecret = secretsmanager.Secret.fromSecretNameV2(
       this,
@@ -299,6 +299,8 @@ export class CookingAppStack extends cdk.Stack {
       memorySize: 1024,
       timeout: cdk.Duration.seconds(30),
       role: lambdaRole,
+      // SnapStart を有効化してコールドスタートを大幅に短縮
+      snapStart: lambda.SnapStartConf.ON_PUBLISHED_VERSIONS,
       environment: {
         SPRING_PROFILES_ACTIVE: stage,
         SPRING_MAIN_WEB_APPLICATION_TYPE: 'none',
@@ -319,15 +321,27 @@ export class CookingAppStack extends cdk.Stack {
       },
     });
 
+    // SnapStart を使用するためにバージョンとエイリアスを作成
+    const version = lambdaFunction.currentVersion;
+    const alias = new lambda.Alias(this, 'LambdaLiveAlias', {
+      aliasName: 'live',
+      version: version,
+    });
+
     new cdk.CfnOutput(this, 'LambdaFunctionArn', {
       value: lambdaFunction.functionArn,
       description: 'Lambda Function ARN',
     });
 
-    return lambdaFunction;
+    new cdk.CfnOutput(this, 'LambdaAliasArn', {
+      value: alias.functionArn,
+      description: 'Lambda Alias ARN (SnapStart enabled)',
+    });
+
+    return alias;
   }
 
-  private createApiGateway(stage: string, lambdaFunction: lambda.Function) {
+  private createApiGateway(stage: string, lambdaFunction: lambda.IFunction) {
     const api = new apigateway.RestApi(this, 'CookingAppApi', {
       restApiName: `cooking-app-api-${stage}`,
       description: 'Cooking Support App REST API',
