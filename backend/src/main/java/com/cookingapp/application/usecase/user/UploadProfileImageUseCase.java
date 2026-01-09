@@ -1,17 +1,18 @@
 package com.cookingapp.application.usecase.user;
 
+import java.io.IOException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.cookingapp.application.validation.ImageValidationException;
 import com.cookingapp.application.validation.ImageValidator;
 import com.cookingapp.domain.entity.User;
 import com.cookingapp.domain.exception.UserNotFoundException;
 import com.cookingapp.domain.repository.UserRepository;
 import com.cookingapp.domain.service.ImageStorageService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
 
 /**
  * プロフィール画像アップロードユースケース
@@ -38,9 +39,9 @@ public class UploadProfileImageUseCase {
      * プロフィール画像をアップロード
      * 
      * @param userId ユーザーID
-     * @param file 画像ファイル
+     * @param file   画像ファイル
      * @return 更新されたユーザー
-     * @throws UserNotFoundException ユーザーが見つからない場合
+     * @throws UserNotFoundException    ユーザーが見つからない場合
      * @throws ImageValidationException 画像バリデーションエラー
      */
     public User execute(String userId, MultipartFile file) {
@@ -66,16 +67,19 @@ public class UploadProfileImageUseCase {
             }
 
             // 新しい画像をアップロード
-            String imageUrl = imageStorageService.uploadImage(
+            String imageKey = imageStorageService.uploadImage(
                     file.getOriginalFilename(),
                     file.getContentType(),
                     file.getInputStream(),
-                    file.getSize()
-            );
+                    file.getSize());
 
-            // ユーザーのプロフィール画像URLを更新
-            user.updateProfileImageUrl(imageUrl);
+            // ユーザーのプロフィール画像URLを更新（S3キーを保存）
+            user.updateProfileImageUrl(imageKey);
             userRepository.save(user);
+
+            // レスポンス用にPresigned URLを生成
+            String presignedUrl = imageStorageService.generatePresignedUrl(imageKey);
+            user.updateProfileImageUrl(presignedUrl);
 
             logger.info("Successfully uploaded profile image for user: {}", userId);
             return user;

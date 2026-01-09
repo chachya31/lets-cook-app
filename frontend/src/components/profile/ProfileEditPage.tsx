@@ -1,12 +1,13 @@
 import { Save, User, X } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { updateProfile, uploadProfileImage } from '../../api/profileApi';
 import { getUserProfile } from '../../api/userApi';
 import { useScrollToMessage } from '../../hooks/useScrollToMessage';
-import { RootState } from '../../store/store';
+import { updateUser } from '../../store/slices/authSlice';
+import { AppDispatch, RootState } from '../../store/store';
 import { MessageDisplay } from '../common/MessageDisplay';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
@@ -21,6 +22,7 @@ import { LanguageSelector } from './LanguageSelector';
 const ProfileEditPage: React.FC = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
   const currentUser = useSelector((state: RootState) => state.auth.user);
   const { messageRef, scrollToMessage } = useScrollToMessage();
 
@@ -103,19 +105,26 @@ const ProfileEditPage: React.FC = () => {
       });
 
       // 画像が選択されている場合はアップロード
+      let newProfileImageUrl = profileImageUrl;
       if (selectedImageFile) {
         const userWithImage = await uploadProfileImage(currentUser.userId, selectedImageFile);
-        setProfileImageUrl(userWithImage.profileImageUrl);
+        newProfileImageUrl = userWithImage.profileImageUrl;
+        setProfileImageUrl(newProfileImageUrl);
         setSelectedImageFile(null);
+      } else {
+        // 画像をアップロードしない場合は、updatedUserのprofileImageUrlを使用
+        // updatedUserにprofileImageUrlが含まれている場合はそれを優先
+        newProfileImageUrl = updatedUser.profileImageUrl || profileImageUrl;
       }
 
-      // localStorageのユーザー情報を更新
-      const userJson = localStorage.getItem('user');
-      if (userJson) {
-        const user = JSON.parse(userJson);
-        const updatedUserData = { ...user, ...updatedUser, preferredLanguage: language };
-        localStorage.setItem('user', JSON.stringify(updatedUserData));
-      }
+      // Reduxストアを更新（ヘッダーに即時反映）
+      dispatch(
+        updateUser({
+          ...updatedUser,
+          preferredLanguage: language,
+          profileImageUrl: newProfileImageUrl,
+        })
+      );
 
       // 保存後に言語を切り替え
       await i18n.changeLanguage(language);
