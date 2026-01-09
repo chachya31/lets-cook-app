@@ -272,7 +272,8 @@ const GeminiChatPage: React.FC = () => {
               </div>
               <button
                 onClick={(e) => handleDeleteConversation(conv.conversationId, e)}
-                className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-100 rounded"
+                className="p-1 hover:bg-red-100 rounded transition-opacity md:opacity-0 md:group-hover:opacity-100"
+                aria-label={t('common.delete')}
               >
                 <Trash2 size={16} className="text-red-500" />
               </button>
