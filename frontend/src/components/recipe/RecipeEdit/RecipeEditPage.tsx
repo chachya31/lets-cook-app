@@ -1,3 +1,4 @@
+import { Trash2 } from 'lucide-react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useScrollToMessage } from '../../../hooks/useScrollToMessage';
@@ -108,55 +109,64 @@ const RecipeEditPage: React.FC = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             {ingredients.map((ingredient, index) => (
-              <div key={index} className="flex gap-2 items-end">
-                <div className="flex-1">
-                  <Label>
-                    {t('recipe.ingredientName')}
-                    <span className="text-red-500 ml-1">*</span>
-                  </Label>
-                  <Input
-                    value={ingredient.name}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      handleIngredientChange(index, 'name', e.target.value)
-                    }
-                    required
-                  />
+              <div key={index} className="space-y-2">
+                {/* PC: 1行横並び、スマホ: 2段組み */}
+                {/* 1段目: 食材名（スマホでは幅100%） */}
+                <div className="flex flex-col md:flex-row gap-2 md:items-end">
+                  <div className="flex-1">
+                    <Label>
+                      {t('recipe.ingredientName')}
+                      <span className="text-red-500 ml-1">*</span>
+                    </Label>
+                    <Input
+                      value={ingredient.name}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        handleIngredientChange(index, 'name', e.target.value)
+                      }
+                      required
+                    />
+                  </div>
+                  {/* 2段目（スマホ）/ 同じ行（PC）: 数量・単位・削除ボタン */}
+                  <div className="flex gap-2 items-end">
+                    <div className="w-20 md:w-24">
+                      <Label>{t('recipe.quantity')}</Label>
+                      <Input
+                        type="number"
+                        value={ingredient.quantity ?? ''}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                          handleIngredientChange(
+                            index,
+                            'quantity',
+                            e.target.value ? parseFloat(e.target.value) : undefined
+                          )
+                        }
+                        min={0}
+                        step="0.1"
+                        placeholder={t('recipe.quantityPlaceholder')}
+                      />
+                    </div>
+                    <div className="flex-1 md:w-32 md:flex-none">
+                      <Label>{t('recipe.unit')}</Label>
+                      <Input
+                        value={ingredient.unit ?? ''}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                          handleIngredientChange(index, 'unit', e.target.value)
+                        }
+                        placeholder={t('recipe.unitPlaceholder')}
+                      />
+                    </div>
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleRemoveIngredient(index)}
+                      disabled={ingredients.length === 1}
+                      className="shrink-0"
+                    >
+                      {t('common.remove')}
+                    </Button>
+                  </div>
                 </div>
-                <div className="w-24">
-                  <Label>{t('recipe.quantity')}</Label>
-                  <Input
-                    type="number"
-                    value={ingredient.quantity ?? ''}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      handleIngredientChange(
-                        index,
-                        'quantity',
-                        e.target.value ? parseFloat(e.target.value) : undefined
-                      )
-                    }
-                    min={0}
-                    step="0.1"
-                    placeholder={t('recipe.quantityPlaceholder')}
-                  />
-                </div>
-                <div className="w-32">
-                  <Label>{t('recipe.unit')}</Label>
-                  <Input
-                    value={ingredient.unit ?? ''}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      handleIngredientChange(index, 'unit', e.target.value)
-                    }
-                    placeholder={t('recipe.unitPlaceholder')}
-                  />
-                </div>
-                <Button
-                  type="button"
-                  variant="destructive"
-                  onClick={() => handleRemoveIngredient(index)}
-                  disabled={ingredients.length === 1}
-                >
-                  {t('common.remove')}
-                </Button>
               </div>
             ))}
             <Button type="button" variant="outline" onClick={handleAddIngredient}>
@@ -172,24 +182,38 @@ const RecipeEditPage: React.FC = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             {steps.map((step, index) => (
-              <div key={index} className="border rounded-lg p-4">
-                <div className="flex gap-4 items-start">
-                  {/* 左側: テキスト (75%) */}
-                  <div className="w-3/4 space-y-2">
-                    <div className="flex gap-2 items-start">
-                      <span className="font-bold mt-2">{index + 1}.</span>
-                      <Textarea
-                        value={step.description}
-                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                          handleStepChange(index, e.target.value)
-                        }
-                        required
-                        className="flex-1"
-                        rows={3}
-                      />
-                    </div>
+              <div key={index} className="border rounded-lg p-4 relative">
+                {/* 削除ボタン - 右上に絶対配置、アイコンのみ */}
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="icon"
+                  onClick={() => handleRemoveStep(index)}
+                  disabled={steps.length === 1}
+                  className="absolute top-2 right-2 h-8 w-8"
+                  aria-label={t('common.remove')}
+                >
+                  <Trash2 size={16} />
+                </Button>
+
+                {/* 手順番号 - 左上に配置 */}
+                <span className="font-bold text-lg mb-2 block">{index + 1}.</span>
+
+                {/* PC: 横並び（テキスト左、画像右）、スマホ: 縦積み */}
+                <div className="flex flex-col md:flex-row gap-4 md:gap-4 mt-2">
+                  {/* テキスト入力欄 - PC: flex-grow、スマホ: 幅100% */}
+                  <div className="flex-1 space-y-2 order-1">
+                    <Textarea
+                      value={step.description}
+                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                        handleStepChange(index, e.target.value)
+                      }
+                      required
+                      className="w-full"
+                      rows={4}
+                    />
                     {/* 動画URL入力 */}
-                    <div className="ml-6">
+                    <div>
                       <Label className="text-sm">{t('recipe.stepVideoUrl')}</Label>
                       <Input
                         type="url"
@@ -202,29 +226,21 @@ const RecipeEditPage: React.FC = () => {
                       />
                     </div>
                   </div>
-                  {/* 右側: 画像 (25%) */}
-                  <div className="w-1/4 space-y-2">
-                    <Label className="text-sm">{t('recipe.stepImage')}</Label>
-                    <ImageUploader
-                      currentImageUrl={stepImagePreviews[index] || undefined}
-                      onImageSelect={(file) => handleStepImageChange(index, file)}
-                      onImageRemove={() => handleStepImageChange(index, null)}
-                      shape="rectangle"
-                      height="h-24"
-                      enableCompression={true}
-                      compressionOptions={{ maxWidthOrHeight: 1280, maxSizeMB: 0.5 }}
-                    />
+
+                  {/* 画像アップロード欄 - PC: 固定サイズ右側、スマホ: 幅100%下段（余白追加） */}
+                  <div className="order-2 w-full md:w-[130px] md:flex-shrink-0 md:mt-0">
+                    <Label className="text-sm mb-1 block">{t('recipe.stepImage')}</Label>
+                    <div className="md:h-[120px]">
+                      <ImageUploader
+                        currentImageUrl={stepImagePreviews[index] || undefined}
+                        onImageSelect={(file) => handleStepImageChange(index, file)}
+                        onImageRemove={() => handleStepImageChange(index, null)}
+                        shape="rectangle"
+                        enableCompression={true}
+                        compressionOptions={{ maxWidthOrHeight: 1280, maxSizeMB: 0.5 }}
+                      />
+                    </div>
                   </div>
-                  {/* 削除ボタン */}
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    onClick={() => handleRemoveStep(index)}
-                    disabled={steps.length === 1}
-                    className="shrink-0"
-                  >
-                    {t('common.remove')}
-                  </Button>
                 </div>
               </div>
             ))}

@@ -245,6 +245,7 @@
     "currentInventory": "현재 재고 (클릭하여 추가)",
     "noInventory": "재고가 없습니다",
     "addAllToInput": "모두 추가",
+    "conversationHistory": "대화 기록",
     "topics": {
       "general": "일반 채팅",
       "generalDesc": "요리에 관한 질문이나 상담",

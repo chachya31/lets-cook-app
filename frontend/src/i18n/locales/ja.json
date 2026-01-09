@@ -245,6 +245,7 @@
     "currentInventory": "現在の在庫（クリックで追加）",
     "noInventory": "在庫がありません",
     "addAllToInput": "すべて追加",
+    "conversationHistory": "会話履歴",
     "topics": {
       "general": "一般チャット",
       "generalDesc": "料理に関する質問や相談",

@@ -1,15 +1,27 @@
-import { Bot, ChefHat, Clock, MessageCircle, MessageSquarePlus, Package, Send, Trash2, User } from 'lucide-react';
+import {
+  Bot,
+  ChefHat,
+  Clock,
+  Menu,
+  MessageCircle,
+  MessageSquarePlus,
+  Package,
+  Send,
+  Trash2,
+  User,
+  X,
+} from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-    ConversationResponse,
-    ConversationType,
-    deleteConversation,
-    getConversations,
-    getMessages,
-    MessageResponse,
-    sendMessage,
-    startChat,
+  ConversationResponse,
+  ConversationType,
+  deleteConversation,
+  getConversations,
+  getMessages,
+  MessageResponse,
+  sendMessage,
+  startChat,
 } from '../../api/geminiApi';
 import { getInventory, InventoryItem } from '../../api/inventoryApi';
 import { Button } from '../ui/button';
@@ -24,7 +36,8 @@ const GeminiChatPage: React.FC = () => {
   const { t } = useTranslation();
   const [conversations, setConversations] = useState<ConversationResponse[]>([]);
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
-  const [currentConversationType, setCurrentConversationType] = useState<ConversationType>('general');
+  const [currentConversationType, setCurrentConversationType] =
+    useState<ConversationType>('general');
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -32,6 +45,9 @@ const GeminiChatPage: React.FC = () => {
 
   // 主題選択モーダル
   const [showTopicModal, setShowTopicModal] = useState(false);
+
+  // モバイル用サイドバー表示状態
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // 在庫データ
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
@@ -91,9 +107,15 @@ const GeminiChatPage: React.FC = () => {
     await loadMessages(conv.conversationId);
 
     // 在庫関連の会話タイプなら在庫を読み込む
-    if (conv.conversationType === 'recipe_recommendation' || conv.conversationType === 'expiry_check') {
+    if (
+      conv.conversationType === 'recipe_recommendation' ||
+      conv.conversationType === 'expiry_check'
+    ) {
       loadInventory();
     }
+
+    // モバイルではサイドバーを閉じる
+    setIsSidebarOpen(false);
   };
 
   // 新しい会話ボタンクリック
@@ -143,7 +165,9 @@ const GeminiChatPage: React.FC = () => {
   const handleAddAllInventory = () => {
     if (inventory.length === 0) return;
 
-    const itemsText = inventory.map((item) => `${item.name} ${item.quantity}${item.unit}`).join(', ');
+    const itemsText = inventory
+      .map((item) => `${item.name} ${item.quantity}${item.unit}`)
+      .join(', ');
     setInput(itemsText);
   };
 
@@ -167,10 +191,7 @@ const GeminiChatPage: React.FC = () => {
       }
       setMessages((prev) => [...prev, { role: 'assistant', content: result.response }]);
     } catch {
-      setMessages((prev) => [
-        ...prev,
-        { role: 'assistant', content: t('chat.error') },
-      ]);
+      setMessages((prev) => [...prev, { role: 'assistant', content: t('chat.error') }]);
     } finally {
       setLoading(false);
     }
@@ -216,55 +237,103 @@ const GeminiChatPage: React.FC = () => {
   };
 
   const showInventoryPanel =
-    currentConversationType === 'recipe_recommendation' || currentConversationType === 'expiry_check';
+    currentConversationType === 'recipe_recommendation' ||
+    currentConversationType === 'expiry_check';
+
+  // サイドバーコンテンツ（PC・モバイル共通）
+  const sidebarContent = (
+    <>
+      <div className="p-3 border-b">
+        <Button onClick={handleNewConversationClick} className="w-full flex items-center gap-2">
+          <MessageSquarePlus size={18} />
+          {t('chat.newConversation')}
+        </Button>
+      </div>
+      <div className="flex-1 overflow-y-auto">
+        {loadingConversations ? (
+          <p className="text-gray-400 text-center mt-4">{t('common.loading')}</p>
+        ) : conversations.length === 0 ? (
+          <p className="text-gray-400 text-center mt-4 text-sm">{t('chat.noHistory')}</p>
+        ) : (
+          conversations.map((conv) => (
+            <div
+              key={conv.conversationId}
+              onClick={() => handleSelectConversation(conv)}
+              className={`p-3 border-b cursor-pointer hover:bg-gray-50 flex items-center justify-between group ${
+                currentConversationId === conv.conversationId ? 'bg-purple-50' : ''
+              }`}
+            >
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1 mb-1">
+                  {getTopicIcon(conv.conversationType)}
+                  <p className="text-sm font-medium truncate">{conv.title}</p>
+                </div>
+                <p className="text-xs text-gray-400">{formatDate(conv.updatedAt)}</p>
+              </div>
+              <button
+                onClick={(e) => handleDeleteConversation(conv.conversationId, e)}
+                className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-100 rounded"
+              >
+                <Trash2 size={16} className="text-red-500" />
+              </button>
+            </div>
+          ))
+        )}
+      </div>
+    </>
+  );
 
   return (
     <div className="container mx-auto px-4 py-8">
+      {/* ヘッダー */}
       <div className="flex items-center space-x-3 mb-6">
+        {/* モバイル用ハンバーガーメニュー */}
+        <button
+          onClick={() => setIsSidebarOpen(true)}
+          className="md:hidden p-2 hover:bg-gray-100 rounded-lg"
+          aria-label="メニューを開く"
+        >
+          <Menu size={24} className="text-gray-600" />
+        </button>
         <Bot size={32} className="text-purple-600" />
         <h1 className="text-2xl font-bold">{t('chat.title')}</h1>
       </div>
 
       <div className="flex gap-4 h-[600px]">
-        {/* 会話一覧サイドバー */}
-        <Card className="w-72 flex flex-col">
-          <div className="p-3 border-b">
-            <Button onClick={handleNewConversationClick} className="w-full flex items-center gap-2">
-              <MessageSquarePlus size={18} />
-              {t('chat.newConversation')}
-            </Button>
+        {/* モバイル用ドロワーオーバーレイ */}
+        {isSidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+        )}
+
+        {/* 会話一覧サイドバー（PC: 常時表示、モバイル: ドロワー） */}
+        <Card
+          className={`
+            w-72 flex flex-col
+            fixed md:relative
+            inset-y-0 left-0
+            z-50 md:z-auto
+            transform transition-transform duration-300 ease-in-out
+            ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+            md:transform-none
+            h-full md:h-auto
+            rounded-none md:rounded-lg
+          `}
+        >
+          {/* モバイル用閉じるボタン */}
+          <div className="md:hidden flex items-center justify-between p-3 border-b">
+            <span className="font-medium">{t('chat.conversationHistory')}</span>
+            <button
+              onClick={() => setIsSidebarOpen(false)}
+              className="p-1 hover:bg-gray-100 rounded"
+              aria-label="メニューを閉じる"
+            >
+              <X size={20} className="text-gray-600" />
+            </button>
           </div>
-          <div className="flex-1 overflow-y-auto">
-            {loadingConversations ? (
-              <p className="text-gray-400 text-center mt-4">{t('common.loading')}</p>
-            ) : conversations.length === 0 ? (
-              <p className="text-gray-400 text-center mt-4 text-sm">{t('chat.noHistory')}</p>
-            ) : (
-              conversations.map((conv) => (
-                <div
-                  key={conv.conversationId}
-                  onClick={() => handleSelectConversation(conv)}
-                  className={`p-3 border-b cursor-pointer hover:bg-gray-50 flex items-center justify-between group ${
-                    currentConversationId === conv.conversationId ? 'bg-purple-50' : ''
-                  }`}
-                >
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1 mb-1">
-                      {getTopicIcon(conv.conversationType)}
-                      <p className="text-sm font-medium truncate">{conv.title}</p>
-                    </div>
-                    <p className="text-xs text-gray-400">{formatDate(conv.updatedAt)}</p>
-                  </div>
-                  <button
-                    onClick={(e) => handleDeleteConversation(conv.conversationId, e)}
-                    className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-100 rounded"
-                  >
-                    <Trash2 size={16} className="text-red-500" />
-                  </button>
-                </div>
-              ))
-            )}
-          </div>
+          {sidebarContent}
         </Card>
 
         {/* チャットエリア */}
@@ -283,7 +352,9 @@ const GeminiChatPage: React.FC = () => {
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
                   <Package size={16} className="text-blue-600" />
-                  <span className="text-sm font-medium text-blue-800">{t('chat.currentInventory')}</span>
+                  <span className="text-sm font-medium text-blue-800">
+                    {t('chat.currentInventory')}
+                  </span>
                 </div>
                 {inventory.length > 0 && (
                   <button
@@ -308,11 +379,12 @@ const GeminiChatPage: React.FC = () => {
                         item.isExpired
                           ? 'bg-red-100 border-red-300 text-red-700 hover:bg-red-200'
                           : item.isExpiringSoon
-                            ? 'bg-yellow-100 border-yellow-300 text-yellow-700 hover:bg-yellow-200'
-                            : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-100'
+                          ? 'bg-yellow-100 border-yellow-300 text-yellow-700 hover:bg-yellow-200'
+                          : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-100'
                       }`}
                     >
-                      {item.name} {item.quantity}{item.unit}
+                      {item.name} {item.quantity}
+                      {item.unit}
                     </button>
                   ))}
                 </div>
@@ -327,10 +399,14 @@ const GeminiChatPage: React.FC = () => {
             {messages.map((msg, idx) => (
               <div
                 key={idx}
-                className={`flex items-start gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}
+                className={`flex items-start gap-3 ${
+                  msg.role === 'user' ? 'flex-row-reverse' : ''
+                }`}
               >
                 <div
-                  className={`p-2 rounded-full ${msg.role === 'user' ? 'bg-blue-100' : 'bg-purple-100'}`}
+                  className={`p-2 rounded-full ${
+                    msg.role === 'user' ? 'bg-blue-100' : 'bg-purple-100'
+                  }`}
                 >
                   {msg.role === 'user' ? <User size={20} /> : <Bot size={20} />}
                 </div>
@@ -397,7 +473,9 @@ const GeminiChatPage: React.FC = () => {
                 <ChefHat size={24} className="text-orange-500" />
                 <div>
                   <p className="font-medium">{t('chat.topics.recipeRecommendation')}</p>
-                  <p className="text-sm text-gray-500">{t('chat.topics.recipeRecommendationDesc')}</p>
+                  <p className="text-sm text-gray-500">
+                    {t('chat.topics.recipeRecommendationDesc')}
+                  </p>
                 </div>
               </button>
               <button
