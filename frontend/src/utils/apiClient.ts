@@ -87,10 +87,14 @@ const handleNetworkError = (error: unknown): never => {
  * レスポンスエラーをハンドリング
  */
 const handleResponseError = async (response: Response): Promise<never> => {
-  // 401エラーの場合はセッション期限切れとして処理
-  if (response.status === 401) {
+  // 401または403エラーの場合はセッション期限切れとして処理
+  // Spring Securityはトークン期限切れ時に403を返すことがある
+  // リダイレクト中はPromiseを永続的にpendingにしてUIにエラーを表示させない
+  if (response.status === 401 || response.status === 403) {
     handleSessionExpired();
-    throw new Error('Session expired');
+    // リダイレクト中は永続的にpendingのPromiseを返す
+    // これによりUIにエラーメッセージが表示されることを防ぐ
+    return new Promise<never>(() => {});
   }
 
   const errorData: ErrorResponse = await response
