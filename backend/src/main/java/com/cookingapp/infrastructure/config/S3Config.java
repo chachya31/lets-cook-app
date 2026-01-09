@@ -19,46 +19,46 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 @Configuration
 public class S3Config {
 
-        @Value("${aws.region:ap-northeast-1}")
-        private String region;
+    @Value("${aws.region:ap-northeast-1}")
+    private String region;
 
-        @Value("${aws.s3.endpoint:}")
-        private String s3Endpoint;
+    @Value("${aws.s3.endpoint:}")
+    private String s3Endpoint;
 
-        @Bean
-        public S3Client s3Client() {
-                var builder = S3Client.builder()
-                                .region(Region.of(region));
+    @Bean
+    public S3Client s3Client() {
+        var builder = S3Client.builder()
+                .region(Region.of(region));
 
-                if (s3Endpoint != null && !s3Endpoint.isEmpty()) {
-                        // LocalStackを使用する場合は、テスト用の認証情報を使用
-                        builder.endpointOverride(URI.create(s3Endpoint))
-                                        .credentialsProvider(StaticCredentialsProvider.create(
-                                                        AwsBasicCredentials.create("test", "test")))
-                                        .forcePathStyle(true);
-                }
-                // それ以外はデフォルトの認証情報チェーン（Lambda IAMロール等）を使用
-
-                return builder.build();
+        if (s3Endpoint != null && !s3Endpoint.isEmpty()) {
+            // LocalStackを使用する場合は、テスト用の認証情報を使用
+            builder.endpointOverride(URI.create(s3Endpoint))
+                    .credentialsProvider(StaticCredentialsProvider.create(
+                            AwsBasicCredentials.create("test", "test")))
+                    .forcePathStyle(true);
         }
+        // それ以外はデフォルトの認証情報チェーン（Lambda IAMロール等）を使用
 
-        @Bean
-        public S3Presigner s3Presigner() {
-                var builder = S3Presigner.builder()
-                                .region(Region.of(region));
+        return builder.build();
+    }
 
-                if (s3Endpoint != null && !s3Endpoint.isEmpty()) {
-                        // LocalStackを使用する場合は、テスト用の認証情報とパススタイルを使用
-                        builder.endpointOverride(URI.create(s3Endpoint))
-                                        .credentialsProvider(StaticCredentialsProvider.create(
-                                                        AwsBasicCredentials.create("test", "test")))
-                                        .serviceConfiguration(
-                                                        S3Configuration.builder()
-                                                                        .pathStyleAccessEnabled(true)
-                                                                        .build());
-                }
-                // それ以外はデフォルトの認証情報チェーン（Lambda IAMロール等）を使用
+    @Bean
+    public S3Presigner s3Presigner() {
+        var builder = S3Presigner.builder()
+                .region(Region.of(region));
 
-                return builder.build();
+        if (s3Endpoint != null && !s3Endpoint.isEmpty()) {
+            // LocalStackを使用する場合は、テスト用の認証情報とパススタイルを使用
+            builder.endpointOverride(URI.create(s3Endpoint))
+                    .credentialsProvider(StaticCredentialsProvider.create(
+                            AwsBasicCredentials.create("test", "test")))
+                    .serviceConfiguration(
+                            S3Configuration.builder()
+                                    .pathStyleAccessEnabled(true)
+                                    .build());
         }
+        // それ以外はデフォルトの認証情報チェーン（Lambda IAMロール等）を使用
+
+        return builder.build();
+    }
 }

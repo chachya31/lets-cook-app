@@ -17,25 +17,25 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 @Configuration
 public class DynamoDBConfig {
 
-        @Value("${aws.region:ap-northeast-1}")
-        private String region;
+    @Value("${aws.region:ap-northeast-1}")
+    private String region;
 
-        @Value("${aws.dynamodb.endpoint:}")
-        private String dynamodbEndpoint;
+    @Value("${aws.dynamodb.endpoint:}")
+    private String dynamodbEndpoint;
 
-        @Bean
-        public DynamoDbClient dynamoDbClient() {
-                var builder = DynamoDbClient.builder()
-                                .region(Region.of(region));
+    @Bean
+    public DynamoDbClient dynamoDbClient() {
+        var builder = DynamoDbClient.builder()
+                .region(Region.of(region));
 
-                if (dynamodbEndpoint != null && !dynamodbEndpoint.isEmpty()) {
-                        // LocalStackを使用する場合は、テスト用の認証情報を使用
-                        builder.endpointOverride(URI.create(dynamodbEndpoint))
-                                        .credentialsProvider(StaticCredentialsProvider.create(
-                                                        AwsBasicCredentials.create("test", "test")));
-                }
-                // それ以外はデフォルトの認証情報チェーン（Lambda IAMロール等）を使用
-
-                return builder.build();
+        if (dynamodbEndpoint != null && !dynamodbEndpoint.isEmpty()) {
+            // LocalStackを使用する場合は、テスト用の認証情報を使用
+            builder.endpointOverride(URI.create(dynamodbEndpoint))
+                    .credentialsProvider(StaticCredentialsProvider.create(
+                            AwsBasicCredentials.create("test", "test")));
         }
+        // それ以外はデフォルトの認証情報チェーン（Lambda IAMロール等）を使用
+
+        return builder.build();
+    }
 }
