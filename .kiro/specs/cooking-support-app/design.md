@@ -103,7 +103,7 @@
   - RegisterUserUseCase: ユーザー登録ユースケース（実装済み）
   - LoginUserUseCase: ログインユースケース（実装済み）
   - GetUserProfileUseCase: プロフィール取得（実装済み）
-  - UpdateUserProfileUseCase: プロフィール更新（実装済み）
+  - UpdateUserProfileUseCase: プロフィール更新（実装済み、更新後にPresigned URL生成）
   - DeleteUserAccountUseCase: アカウント削除（実装済み）
 - Infrastructure Layer:
   - CognitoAuthService: Cognito認証サービス（実装済み）
@@ -117,7 +117,7 @@
   - S3ImageService: 画像アップロード、取得、削除（実装済み）
 - Application Layer:
   - ImageValidator: 画像バリデーション（サイズ、フォーマット）（実装済み）
-  - UploadProfileImageUseCase: プロフィール画像アップロード（実装済み）
+  - UploadProfileImageUseCase: プロフィール画像アップロード（実装済み、アップロード後にPresigned URL生成）
 - Presentation Layer:
   - UserController: 画像アップロードエンドポイント追加（実装済み）
 
@@ -203,6 +203,9 @@
   - CreateReviewRequest DTO: レビュー作成リクエスト（実装済み）
   - UpdateReviewRequest DTO: レビュー更新リクエスト（実装済み）
   - ReviewResponse DTO: レビューレスポンス（実装済み）
+- Frontend:
+  - ReviewList: レビュー一覧コンポーネント（インライン編集機能付き）（実装済み）
+  - ReviewForm: レビュー投稿フォームコンポーネント（実装済み）
 
 **7. Alert Module（実装済み）**
 - Application Layer:
@@ -214,10 +217,51 @@
   - AlertController: アラート判定エンドポイント（実装済み）
     - GET /api/alerts/check: アラート表示判定
 
-**8. AI Advisor Module（未実装）**
-- AIAdvisorController: AIアドバイス取得
-- AIAdvisorService: Gemini API呼び出し、キャッシュ管理
-- CacheService: 24時間キャッシュ
+**8. AI Assistant Module（実装済み）**
+- Application Layer:
+  - ChatUseCase: AIチャットユースケース（実装済み）
+    - 新規会話開始
+    - 既存会話へのメッセージ送信
+    - 会話一覧取得
+    - メッセージ一覧取得
+    - 会話削除
+- Infrastructure Layer:
+  - GeminiService: Gemini API統合（実装済み）
+  - DynamoDBChatConversationRepository: 会話リポジトリ（実装済み）
+  - DynamoDBChatMessageRepository: メッセージリポジトリ（実装済み）
+- Presentation Layer:
+  - AiAssistantController: AIチャットエンドポイント（実装済み）
+    - POST /api/ai/chat: 新規会話開始
+    - GET /api/ai/conversations: 会話一覧取得
+    - GET /api/ai/conversations/{conversationId}/messages: メッセージ一覧取得
+    - POST /api/ai/conversations/{conversationId}/messages: メッセージ送信
+    - DELETE /api/ai/conversations/{conversationId}: 会話削除
+- 会話タイプ:
+  - general: 一般的なチャット
+  - recipe_recommendation: レシピ推薦（在庫連携）
+  - expiry_check: 賞味期限確認（在庫連携）
+
+**9. Inventory Module（実装済み）**
+- Domain Layer:
+  - InventoryItem Entity: 在庫アイテムドメインエンティティ（実装済み）
+    - 賞味期限管理
+    - 期限切れ判定（isExpired）
+    - 期限間近判定（isExpiringSoon: 3日以内）
+- Application Layer:
+  - InventoryUseCase: 在庫管理ユースケース（実装済み）
+    - 在庫一覧取得（賞味期限順ソート対応）
+    - アイテム追加
+    - アイテム更新（数量、賞味期限）
+    - アイテム削除
+- Infrastructure Layer:
+  - DynamoDBInventoryRepository: DynamoDBリポジトリ（実装済み）
+  - GSI_ExpiryDate: 賞味期限順検索
+- Presentation Layer:
+  - InventoryController: 在庫管理REST APIコントローラー（実装済み）
+    - GET /api/inventory: 在庫一覧取得
+    - POST /api/inventory: アイテム追加
+    - PUT /api/inventory/{itemId}: アイテム更新
+    - DELETE /api/inventory/{itemId}: アイテム削除
 
 **9. Admin Module（実装済み）**
 - Application Layer:
@@ -269,6 +313,16 @@
   - アニメーション付きのスケルトン表示
   - カスタマイズ可能（行数、クラス名）
 - ErrorBanner: エラーバナーコンポーネント（実装済み）
+- MessageDisplay: メッセージ表示コンポーネント（実装済み）
+  - エラーメッセージと成功メッセージの表示
+  - スクロール位置への自動移動（useScrollToMessage連携）
+- ProtectedRoute: 認証保護ルートコンポーネント（実装済み）
+  - 未認証ユーザーのログイン画面リダイレクト
+  - 認証済みユーザーのみアクセス許可
+- ImageUploader: 画像アップロードコンポーネント（実装済み）
+  - ドラッグ&ドロップ対応
+  - プレビュー表示
+  - ファイルサイズ・フォーマットバリデーション
 
 **3. Dashboard Components（実装済み）**
 - DashboardPage: ホーム画面（実装済み）
@@ -303,6 +357,10 @@
 
 **5. Schedule Components（実装済み）**
 - SchedulePage: スケジュール管理画面（実装済み）
+- RecipeSelectModal: レシピ選択モーダル（実装済み）
+  - レシピ検索機能
+  - レシピ一覧表示
+  - レシピ選択時のコールバック
 - scheduleSlice: Redux状態管理（実装済み）
 - scheduleApi: API呼び出し関数（実装済み）
 - Schedule型定義: TypeScript型定義（実装済み）
@@ -320,10 +378,14 @@
 - ShoppingListItem型定義: TypeScript型定義（実装済み）
 - 多言語対応（日本語・韓国語）（実装済み）
 
-**7. Profile Components（一部実装済み）**
-- ProfilePage: プロフィール編集画面（未実装）
+**7. Profile Components（実装済み）**
+- ProfileEditPage: プロフィール編集画面（実装済み）
+  - プロフィール画像アップロード（ImageUploader使用）
+  - 基本情報編集（ニックネーム、表示名、言語、マーケティングオプトアウト）
+  - プロフィール更新後のReduxストア即時更新（ヘッダーに即時反映）
+  - 画像変更後のPresigned URL取得とヘッダー即時反映
 - ImageUploader: 画像アップロードコンポーネント（実装済み）
-- LanguageSelector: 言語選択（未実装）
+- LanguageSelector: 言語選択（実装済み）
 
 **8. Admin Components（実装済み）**
 - AdminDashboardPage: 管理者ダッシュボード（実装済み）
@@ -365,6 +427,40 @@
   - AdminState: 管理者状態
 - App.tsxルーティング追加（/admin、/admin/users、/admin/recipes）（実装済み）
 - Headerに管理者メニュー追加（実装済み）
+
+**9. Inventory Components（実装済み）**
+- InventoryPage: 在庫管理画面（実装済み）
+  - 在庫一覧表示（賞味期限順ソート対応）
+  - 賞味期限切れ・期限間近の視覚的表示（バッジ、背景色）
+  - 賞味期限のインライン編集
+  - アイテム削除機能
+  - 多言語対応（日本語・韓国語）
+- inventoryApi: API呼び出し関数（実装済み）
+  - getInventory: 在庫一覧取得
+  - addInventoryItem: アイテム追加
+  - updateInventoryItem: アイテム更新
+  - deleteInventoryItem: アイテム削除
+- InventoryItem型定義: TypeScript型定義（実装済み）
+
+**10. Chat Components（実装済み）**
+- GeminiChatPage: AIチャット画面（実装済み）
+  - 会話一覧サイドバー（作成日時順）
+  - チャットエリア（メッセージ表示、入力）
+  - 会話タイプ選択モーダル（一般、レシピ推薦、賞味期限確認）
+  - 在庫パネル（レシピ推薦・賞味期限確認時に表示）
+  - 在庫アイテムクリックで入力欄に追加
+  - 会話削除機能
+  - 多言語対応（日本語・韓国語）
+- geminiApi: API呼び出し関数（実装済み）
+  - startChat: 新規会話開始
+  - getConversations: 会話一覧取得
+  - getMessages: メッセージ一覧取得
+  - sendMessage: メッセージ送信
+  - deleteConversation: 会話削除
+- ConversationType型定義: TypeScript型定義（実装済み）
+  - general: 一般的なチャット
+  - recipe_recommendation: レシピ推薦
+  - expiry_check: 賞味期限確認
 
 ### API Endpoints
 
@@ -509,9 +605,51 @@
   - メッセージはランダムに選択（警告/励まし）
   - Status: ✅ 実装済み
 
-**AI Advisor（未実装）**
-- POST /api/ai-advisor/advice - AIアドバイス取得
-- Status: ⏳ 未実装
+**AI Assistant（実装済み）**
+- POST /api/ai/chat - 新規会話開始
+  - Request: ChatRequest (message, conversationType)
+  - Header: X-User-Id
+  - Response: ChatResponse (conversationId, response)
+  - conversationType: "general" | "recipe_recommendation" | "expiry_check"
+  - Status: ✅ 実装済み
+- GET /api/ai/conversations - 会話一覧取得
+  - Header: X-User-Id
+  - Response: List<ConversationResponse>
+  - Status: ✅ 実装済み
+- GET /api/ai/conversations/{conversationId}/messages - メッセージ一覧取得
+  - Header: X-User-Id
+  - Response: List<MessageResponse>
+  - Status: ✅ 実装済み
+- POST /api/ai/conversations/{conversationId}/messages - メッセージ送信
+  - Request: ChatRequest (message)
+  - Header: X-User-Id
+  - Response: ChatResponse
+  - Status: ✅ 実装済み
+- DELETE /api/ai/conversations/{conversationId} - 会話削除
+  - Header: X-User-Id
+  - Response: 204 No Content
+  - Status: ✅ 実装済み
+
+**Inventory（実装済み）**
+- GET /api/inventory - 在庫一覧取得
+  - Query Parameters: sortByExpiry (optional, default: false)
+  - Header: X-User-Id
+  - Response: List<InventoryItemResponse>
+  - Status: ✅ 実装済み
+- POST /api/inventory - アイテム追加
+  - Request: AddInventoryItemRequest (name, quantity, unit, expiryDate)
+  - Header: X-User-Id
+  - Response: InventoryItemResponse
+  - Status: ✅ 実装済み
+- PUT /api/inventory/{itemId} - アイテム更新
+  - Request: UpdateInventoryItemRequest (quantity, expiryDate)
+  - Header: X-User-Id
+  - Response: InventoryItemResponse
+  - Status: ✅ 実装済み
+- DELETE /api/inventory/{itemId} - アイテム削除
+  - Header: X-User-Id
+  - Response: 204 No Content
+  - Status: ✅ 実装済み
 
 **Admin（実装済み）**
 - GET /api/admin/dashboard - ダッシュボード統計取得
@@ -1344,8 +1482,8 @@ frontend/
 │   │   ├── shopping/                          # 買い物リスト（未実装）
 │   │   │   ├── ShoppingListPage.tsx
 │   │   │   └── ShoppingListItem.tsx
-│   │   ├── profile/                           # プロフィール（一部実装済み）
-│   │   │   ├── ProfilePage.tsx                # （未実装）
+│   │   ├── profile/                           # プロフィール（実装済み）
+│   │   │   ├── ProfileEditPage.tsx            # プロフィール編集画面（実装済み）
 │   │   │   ├── ImageUploader.tsx              # （実装済み）
 │   │   │   └── LanguageSelector.tsx           # （実装済み）
 │   │   └── admin/                             # 管理者機能（実装済み）
@@ -1354,7 +1492,7 @@ frontend/
 │   │       └── RecipeManagementPage.tsx       # レシピ管理（実装済み）
 │   ├── store/                                 # Redux状態管理（実装済み）
 │   │   ├── slices/                            # Reduxスライス
-│   │   │   ├── authSlice.ts                   # 認証状態管理（実装済み）
+│   │   │   ├── authSlice.ts                   # 認証状態管理（実装済み、updateUserアクション追加）
 │   │   │   ├── reviewSlice.ts                 # レビュー状態管理（実装済み）
 │   │   │   ├── scheduleSlice.ts               # スケジュール状態管理（実装済み）
 │   │   │   ├── shoppingListSlice.ts           # 買い物リスト状態管理（実装済み）
@@ -1492,6 +1630,7 @@ frontend/
   - Accept-Languageヘッダーを自動追加
   - ステータスコード別の詳細なエラーメッセージ
   - ネットワークエラーの適切なハンドリング
+  - 401/403エラー時のセッション期限切れ処理（自動ログイン画面リダイレクト）
 - **useError カスタムフック**：
   - エラーハンドリングのロジックを集約
   - ネットワークエラーの検出と適切なメッセージ表示
@@ -1735,7 +1874,11 @@ npm test
   - DynamoDB統合（Reviews テーブル、GSI_User）
   - バリデーション（Jakarta Validation）
 - フロントエンド：
-  - ReviewList: レビュー一覧コンポーネント（星評価表示、編集・削除・通報ボタン）
+  - ReviewList: レビュー一覧コンポーネント（星評価表示、編集・削除・通報ボタン、インライン編集機能）
+    - インライン編集モード（モーダルではなくカード内で直接編集）
+    - 編集時の星評価選択（ホバーエフェクト付き）
+    - コメント編集（文字数カウント表示、300文字制限）
+    - 保存・キャンセルボタン
   - ReviewForm: レビュー投稿フォームコンポーネント（星評価選択、コメント入力）
   - Redux状態管理（reviewSlice）
   - API呼び出し（reviewApi）
@@ -1752,6 +1895,8 @@ npm test
 - メール確認機能
 - 確認コード再送信
 - プロフィール画像アップロード（S3）
+- プロフィール更新後のPresigned URL生成（ヘッダー即時反映用）
+- Redux authSlice updateUserアクション（プロフィール変更のヘッダー即時反映）
 
 **4. 画像管理機能（✅ 完了）**
 - S3統合（LocalStack対応）
@@ -1885,12 +2030,37 @@ npm test
   - Headerに管理者メニュー追加
   - 多言語対応（日本語・韓国語）
 
-### 未実装機能
+**13. 在庫管理機能（✅ 完了）**
+- バックエンド：
+  - InventoryItem Entity: 在庫アイテムドメインエンティティ
+  - InventoryUseCase: 在庫管理ユースケース
+  - DynamoDBInventoryRepository: DynamoDBリポジトリ
+  - InventoryController: REST APIコントローラー
+  - 賞味期限管理（期限切れ判定、期限間近判定）
+- フロントエンド：
+  - InventoryPage: 在庫管理画面
+  - 賞味期限順ソート
+  - 期限切れ・期限間近の視覚的表示
+  - 賞味期限のインライン編集
+  - inventoryApi: API呼び出し関数
+  - 多言語対応（日本語・韓国語）
 
-**1. AIアドバイザー機能**
-- Gemini API統合
-- キャッシュ管理
-- レート制限処理
+**14. AIチャット機能（✅ 完了）**
+- バックエンド：
+  - ChatConversation Entity: 会話ドメインエンティティ
+  - ChatMessage Entity: メッセージドメインエンティティ
+  - ChatUseCase: AIチャットユースケース
+  - GeminiService: Gemini API統合
+  - DynamoDBChatConversationRepository: 会話リポジトリ
+  - DynamoDBChatMessageRepository: メッセージリポジトリ
+  - AiAssistantController: REST APIコントローラー
+- フロントエンド：
+  - GeminiChatPage: AIチャット画面
+  - 会話一覧サイドバー
+  - 会話タイプ選択（一般、レシピ推薦、賞味期限確認）
+  - 在庫連携パネル（レシピ推薦・賞味期限確認時）
+  - geminiApi: API呼び出し関数
+  - 多言語対応（日本語・韓国語）
 
 ### 技術スタック
 
@@ -1950,7 +2120,6 @@ npm test
 
 ### 次のステップ
 
-1. AIアドバイザー機能の実装（タスク6）
-2. 管理者機能の実装（タスク12）
-3. Property-Based Testingの実装（各機能のテストタスク）
+1. Property-Based Testingの実装（各機能のテストタスク）
+2. 最終チェックポイント - すべてのテストが合格することを確認
 4. 最終チェックポイント - すべてのテストが合格することを確認（タスク15）

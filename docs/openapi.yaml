@@ -48,6 +48,10 @@ tags:
     description: スケジュール管理
   - name: Shopping Lists
     description: 買い物リスト管理
+  - name: Inventory
+    description: 在庫管理
+  - name: AI Assistant
+    description: AIアシスタント（Gemini Chat）
   - name: Alerts
     description: アラート機能
   - name: Admin
@@ -739,6 +743,197 @@ paths:
           $ref: '#/components/responses/NotFound'
 
   # ========================================
+  # Inventory API
+  # ========================================
+  /api/inventory:
+    get:
+      tags: [Inventory]
+      summary: 在庫一覧取得
+      description: 在庫一覧を取得します。賞味期限順でソート可能です。
+      operationId: getInventory
+      parameters:
+        - $ref: '#/components/parameters/XUserId'
+        - name: sortByExpiry
+          in: query
+          description: 賞味期限順でソートするかどうか
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: 取得成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InventoryItemResponse'
+    post:
+      tags: [Inventory]
+      summary: 在庫アイテム追加
+      description: 在庫にアイテムを追加します。
+      operationId: addInventoryItem
+      parameters:
+        - $ref: '#/components/parameters/XUserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddInventoryItemRequest'
+      responses:
+        '201':
+          description: 追加成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryItemResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /api/inventory/{itemId}:
+    put:
+      tags: [Inventory]
+      summary: 在庫アイテム更新
+      description: 在庫アイテムの数量や賞味期限を更新します。
+      operationId: updateInventoryItem
+      parameters:
+        - $ref: '#/components/parameters/InventoryItemIdPath'
+        - $ref: '#/components/parameters/XUserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateInventoryItemRequest'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InventoryItemResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Inventory]
+      summary: 在庫アイテム削除
+      description: 在庫からアイテムを削除します。
+      operationId: deleteInventoryItem
+      parameters:
+        - $ref: '#/components/parameters/InventoryItemIdPath'
+        - $ref: '#/components/parameters/XUserId'
+      responses:
+        '204':
+          description: 削除成功
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ========================================
+  # AI Assistant API
+  # ========================================
+  /api/ai/chat:
+    post:
+      tags: [AI Assistant]
+      summary: 新規会話開始
+      description: 新しい会話を開始してAIとチャットします。
+      operationId: startChat
+      parameters:
+        - $ref: '#/components/parameters/XUserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+      responses:
+        '201':
+          description: 会話開始成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponseDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /api/ai/conversations:
+    get:
+      tags: [AI Assistant]
+      summary: 会話一覧取得
+      description: ユーザーの会話一覧を取得します。
+      operationId: getConversations
+      parameters:
+        - $ref: '#/components/parameters/XUserId'
+      responses:
+        '200':
+          description: 取得成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConversationResponseDto'
+
+  /api/ai/conversations/{conversationId}/messages:
+    get:
+      tags: [AI Assistant]
+      summary: メッセージ一覧取得
+      description: 会話のメッセージ一覧を取得します。
+      operationId: getMessages
+      parameters:
+        - $ref: '#/components/parameters/ConversationIdPath'
+        - $ref: '#/components/parameters/XUserId'
+      responses:
+        '200':
+          description: 取得成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MessageResponseDto'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      tags: [AI Assistant]
+      summary: メッセージ送信
+      description: 既存の会話にメッセージを送信します。
+      operationId: sendMessage
+      parameters:
+        - $ref: '#/components/parameters/ConversationIdPath'
+        - $ref: '#/components/parameters/XUserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendMessageRequest'
+      responses:
+        '201':
+          description: 送信成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponseDto'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/ai/conversations/{conversationId}:
+    delete:
+      tags: [AI Assistant]
+      summary: 会話削除
+      description: 会話を削除します。
+      operationId: deleteConversation
+      parameters:
+        - $ref: '#/components/parameters/ConversationIdPath'
+        - $ref: '#/components/parameters/XUserId'
+      responses:
+        '204':
+          description: 削除成功
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ========================================
   # Alerts API
   # ========================================
   /api/alerts/check:
@@ -944,6 +1139,24 @@ components:
       in: path
       required: true
       description: レシピID
+      schema:
+        type: string
+        format: uuid
+
+    InventoryItemIdPath:
+      name: itemId
+      in: path
+      required: true
+      description: 在庫アイテムID
+      schema:
+        type: string
+        format: uuid
+
+    ConversationIdPath:
+      name: conversationId
+      in: path
+      required: true
+      description: 会話ID
       schema:
         type: string
         format: uuid
@@ -1473,6 +1686,141 @@ components:
       properties:
         isPublic:
           type: boolean
+
+    # ----------------------------------------
+    # Inventory Schemas
+    # ----------------------------------------
+    AddInventoryItemRequest:
+      type: object
+      required: [name, quantity, unit]
+      properties:
+        name:
+          type: string
+          maxLength: 100
+          example: 玉ねぎ
+        quantity:
+          type: number
+          minimum: 0.01
+          maximum: 9999
+          example: 2
+        unit:
+          type: string
+          example: 個
+        expiryDate:
+          type: string
+          format: date
+          example: "2024-12-31"
+
+    UpdateInventoryItemRequest:
+      type: object
+      properties:
+        quantity:
+          type: number
+          minimum: 0.01
+          maximum: 9999
+        expiryDate:
+          type: string
+          format: date
+
+    InventoryItemResponse:
+      type: object
+      properties:
+        itemId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        quantity:
+          type: number
+        unit:
+          type: string
+        expiryDate:
+          type: string
+          format: date
+          nullable: true
+        isExpired:
+          type: boolean
+          description: 賞味期限切れかどうか
+        isExpiringSoon:
+          type: boolean
+          description: 賞味期限が3日以内かどうか
+        purchasedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+
+    # ----------------------------------------
+    # AI Assistant Schemas
+    # ----------------------------------------
+    ChatRequest:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+          example: カレーの作り方を教えて
+        conversationType:
+          type: string
+          enum: [general, recipe_recommendation, expiry_check]
+          default: general
+          description: |
+            会話タイプ:
+            - general: 一般的なチャット
+            - recipe_recommendation: レシピ推薦（在庫連携）
+            - expiry_check: 賞味期限確認（在庫連携）
+
+    SendMessageRequest:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+          example: もっと簡単なレシピはありますか？
+
+    ChatResponseDto:
+      type: object
+      properties:
+        conversationId:
+          type: string
+          format: uuid
+        response:
+          type: string
+          description: AIからの応答
+
+    ConversationResponseDto:
+      type: object
+      properties:
+        conversationId:
+          type: string
+          format: uuid
+        title:
+          type: string
+          example: カレーのレシピについて
+        conversationType:
+          type: string
+          enum: [general, recipe_recommendation, expiry_check]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    MessageResponseDto:
+      type: object
+      properties:
+        messageId:
+          type: string
+        role:
+          type: string
+          enum: [user, assistant]
+        content:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
 
     # ----------------------------------------
     # Error Schema
