@@ -137,7 +137,7 @@ const SchedulePage: React.FC = () => {
 
       {/* 検索フォーム */}
       <Card className="p-4 mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="space-y-4">
           <div>
             <Label htmlFor="startDate">{t('schedule.startDate')}</Label>
             <Input
@@ -156,8 +156,8 @@ const SchedulePage: React.FC = () => {
               onChange={(e) => setEndDate(e.target.value)}
             />
           </div>
-          <div className="flex items-end">
-            <Button onClick={handleSearch} disabled={loading}>
+          <div>
+            <Button onClick={handleSearch} disabled={loading} className="w-full">
               {t('schedule.search')}
             </Button>
           </div>
