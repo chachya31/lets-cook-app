@@ -1,14 +1,11 @@
 package com.cookingapp.presentation.exception;
 
-import com.cookingapp.application.validation.ImageValidationException;
-import com.cookingapp.domain.exception.AuthenticationException;
-import com.cookingapp.domain.exception.RecipeNotFoundException;
-import com.cookingapp.domain.exception.ReviewNotFoundException;
-import com.cookingapp.domain.exception.ScheduleNotFoundException;
-import com.cookingapp.domain.exception.ShoppingListItemNotFoundException;
-import com.cookingapp.domain.exception.UnauthorizedException;
-import com.cookingapp.domain.exception.UserAlreadyExistsException;
-import com.cookingapp.domain.exception.UserNotFoundException;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
@@ -19,20 +16,27 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import com.cookingapp.application.validation.ImageValidationException;
+import com.cookingapp.domain.exception.AuthenticationException;
+import com.cookingapp.domain.exception.QuotaExceededException;
+import com.cookingapp.domain.exception.RecipeNotFoundException;
+import com.cookingapp.domain.exception.ReviewNotFoundException;
+import com.cookingapp.domain.exception.ScheduleNotFoundException;
+import com.cookingapp.domain.exception.ShoppingListItemNotFoundException;
+import com.cookingapp.domain.exception.UnauthorizedException;
+import com.cookingapp.domain.exception.UserAlreadyExistsException;
+import com.cookingapp.domain.exception.UserNotFoundException;
+
 import software.amazon.awssdk.services.dynamodb.model.DynamoDbException;
 import software.amazon.awssdk.services.dynamodb.model.ResourceNotFoundException;
-
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
 
 /**
  * グローバル例外ハンドラー
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
     private final MessageSource messageSource;
 
@@ -65,7 +69,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex) {
         logger.info("Validation error occurred: {}", ex.getMessage());
-        
+
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getAllErrors().forEach(error -> {
             String fieldName = ((FieldError) error).getField();
@@ -78,8 +82,7 @@ public class GlobalExceptionHandler {
                 "VALIDATION_ERROR",
                 getMessage("error.bad_request"),
                 errors,
-                LocalDateTime.now()
-        );
+                LocalDateTime.now());
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
@@ -90,13 +93,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException ex) {
         logger.info("Authentication error: {}", ex.getMessage());
-        
+
         ErrorResponse response = new ErrorResponse(
                 "AUTHENTICATION_ERROR",
                 getMessage("error.auth.unauthorized"),
                 null,
-                LocalDateTime.now()
-        );
+                LocalDateTime.now());
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
@@ -107,13 +109,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UserAlreadyExistsException.class)
     public ResponseEntity<ErrorResponse> handleUserAlreadyExistsException(UserAlreadyExistsException ex) {
         logger.info("User already exists: {}", ex.getMessage());
-        
+
         ErrorResponse response = new ErrorResponse(
                 "USER_ALREADY_EXISTS",
                 getMessage("error.auth.user_already_exists"),
                 null,
-                LocalDateTime.now()
-        );
+                LocalDateTime.now());
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
@@ -124,16 +125,15 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ImageValidationException.class)
     public ResponseEntity<ErrorResponse> handleImageValidationException(ImageValidationException ex) {
         logger.info("Image validation error: {}", ex.getMessage());
-        
-        String messageKey = ex.getMessage().contains("size") ? 
-                "validation.image.size.exceeded" : "validation.image.format.invalid";
-        
+
+        String messageKey = ex.getMessage().contains("size") ? "validation.image.size.exceeded"
+                : "validation.image.format.invalid";
+
         ErrorResponse response = new ErrorResponse(
                 "IMAGE_VALIDATION_ERROR",
                 getMessage(messageKey),
                 null,
-                LocalDateTime.now()
-        );
+                LocalDateTime.now());
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
@@ -144,13 +144,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleUserNotFoundException(UserNotFoundException ex) {
         logger.info("User not found: {}", ex.getMessage());
-        
+
         ErrorResponse response = new ErrorResponse(
                 "USER_NOT_FOUND",
                 getMessage("error.auth.user_not_found"),
                 null,
-                LocalDateTime.now()
-        );
+                LocalDateTime.now());
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
@@ -161,13 +160,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RecipeNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleRecipeNotFoundException(RecipeNotFoundException ex) {
         logger.info("Recipe not found: {}", ex.getMessage());
-        
+
         ErrorResponse response = new ErrorResponse(
                 "RECIPE_NOT_FOUND",
                 getMessage("error.recipe.not_found"),
                 null,
-                LocalDateTime.now()
-        );
+                LocalDateTime.now());
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
@@ -178,13 +176,38 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<ErrorResponse> handleUnauthorizedException(UnauthorizedException ex) {
         logger.info("Unauthorized access attempt: {}", ex.getMessage());
-        
+
         ErrorResponse response = new ErrorResponse(
                 "UNAUTHORIZED",
                 getMessage("error.forbidden"),
                 null,
-                LocalDateTime.now()
-        );
+                LocalDateTime.now());
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
+
+    /**
+     * クレジット上限超過エラー（403）
+     */
+    @ExceptionHandler(QuotaExceededException.class)
+    public ResponseEntity<QuotaExceededResponse> handleQuotaExceededException(QuotaExceededException ex) {
+        logger.info("Quota exceeded for user {}: plan={}, limit={}",
+                ex.getUserId(), ex.getPlanType(), ex.getLimit());
+
+        String message = getMessage("error.quota.exceeded");
+        if (message.equals("error.quota.exceeded")) {
+            message = "今月の利用上限に達しました。有料プランならすぐに使えます！";
+        }
+
+        QuotaExceededResponse response = new QuotaExceededResponse(
+                "QUOTA_EXCEEDED",
+                message,
+                ex.getPlanType().getCode(),
+                ex.getLimit(),
+                0,
+                ex.getResetDate() != null ? ex.getResetDate().toString() : null,
+                ex.getUpgradeOptions(),
+                LocalDateTime.now());
 
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
@@ -195,13 +218,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ReviewNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleReviewNotFoundException(ReviewNotFoundException ex) {
         logger.info("Review not found: {}", ex.getMessage());
-        
+
         ErrorResponse response = new ErrorResponse(
                 "REVIEW_NOT_FOUND",
                 getMessage("error.review.not_found"),
                 null,
-                LocalDateTime.now()
-        );
+                LocalDateTime.now());
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
@@ -212,13 +234,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ScheduleNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleScheduleNotFoundException(ScheduleNotFoundException ex) {
         logger.info("Schedule not found: {}", ex.getMessage());
-        
+
         ErrorResponse response = new ErrorResponse(
                 "SCHEDULE_NOT_FOUND",
                 getMessage("error.schedule.not_found"),
                 null,
-                LocalDateTime.now()
-        );
+                LocalDateTime.now());
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
@@ -229,13 +250,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ShoppingListItemNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleShoppingListItemNotFoundException(ShoppingListItemNotFoundException ex) {
         logger.info("Shopping list item not found: {}", ex.getMessage());
-        
+
         ErrorResponse response = new ErrorResponse(
                 "SHOPPING_LIST_ITEM_NOT_FOUND",
                 getMessage("error.shoppingList.not_found"),
                 null,
-                LocalDateTime.now()
-        );
+                LocalDateTime.now());
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
@@ -246,13 +266,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex) {
         logger.info("Invalid argument: {}", ex.getMessage());
-        
+
         ErrorResponse response = new ErrorResponse(
                 "INVALID_ARGUMENT",
                 getMessage("error.bad_request"),
                 null,
-                LocalDateTime.now()
-        );
+                LocalDateTime.now());
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
@@ -263,13 +282,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<ErrorResponse> handleIllegalStateException(IllegalStateException ex) {
         logger.info("Invalid state: {}", ex.getMessage());
-        
+
         ErrorResponse response = new ErrorResponse(
                 "INVALID_STATE",
                 getMessage("error.bad_request"),
                 null,
-                LocalDateTime.now()
-        );
+                LocalDateTime.now());
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
@@ -280,20 +298,19 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ResourceNotFoundException ex) {
         logger.error("DynamoDB table not found: {}", ex.getMessage(), ex);
-        
+
         Map<String, String> details = new HashMap<>();
         details.put("error", "DynamoDB table does not exist");
         details.put("suggestion", "Please ensure LocalStack is running and tables are created");
         details.put("awsErrorCode", ex.awsErrorDetails().errorCode());
         details.put("awsErrorMessage", ex.awsErrorDetails().errorMessage());
         details.put("stackTrace", getStackTraceAsString(ex));
-        
+
         ErrorResponse response = new ErrorResponse(
                 "DYNAMODB_TABLE_NOT_FOUND",
                 "Database table not found: " + ex.getMessage(),
                 details,
-                LocalDateTime.now()
-        );
+                LocalDateTime.now());
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
@@ -304,19 +321,18 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DynamoDbException.class)
     public ResponseEntity<ErrorResponse> handleDynamoDbException(DynamoDbException ex) {
         logger.error("DynamoDB error: {}", ex.getMessage(), ex);
-        
+
         Map<String, String> details = new HashMap<>();
         details.put("awsErrorCode", ex.awsErrorDetails().errorCode());
         details.put("awsErrorMessage", ex.awsErrorDetails().errorMessage());
         details.put("statusCode", String.valueOf(ex.statusCode()));
         details.put("stackTrace", getStackTraceAsString(ex));
-        
+
         ErrorResponse response = new ErrorResponse(
                 "DYNAMODB_ERROR",
                 "Database error: " + ex.getMessage(),
                 details,
-                LocalDateTime.now()
-        );
+                LocalDateTime.now());
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
@@ -327,39 +343,38 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(Exception ex) {
         logger.error("Unexpected error occurred: {}", ex.getMessage(), ex);
-        
+
         Map<String, String> details = new HashMap<>();
         details.put("exceptionType", ex.getClass().getName());
         details.put("message", ex.getMessage());
         details.put("stackTrace", getStackTraceAsString(ex));
-        
+
         ErrorResponse response = new ErrorResponse(
                 "INTERNAL_SERVER_ERROR",
                 getMessage("error.internal_server"),
                 details,
-                LocalDateTime.now()
-        );
+                LocalDateTime.now());
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
-    
+
     /**
      * スタックトレースを文字列として取得
      */
     private String getStackTraceAsString(Exception ex) {
         StringBuilder sb = new StringBuilder();
         sb.append(ex.getClass().getName()).append(": ").append(ex.getMessage()).append("\n");
-        
+
         StackTraceElement[] elements = ex.getStackTrace();
         int limit = Math.min(10, elements.length); // 最初の10行のみ
         for (int i = 0; i < limit; i++) {
             sb.append("  at ").append(elements[i].toString()).append("\n");
         }
-        
+
         if (elements.length > limit) {
             sb.append("  ... ").append(elements.length - limit).append(" more\n");
         }
-        
+
         return sb.toString();
     }
 
@@ -370,6 +385,20 @@ public class GlobalExceptionHandler {
             String code,
             String message,
             Map<String, String> details,
-            LocalDateTime timestamp
-    ) {}
+            LocalDateTime timestamp) {
+    }
+
+    /**
+     * クレジット上限超過レスポンス
+     */
+    public record QuotaExceededResponse(
+            String error,
+            String message,
+            String planType,
+            int limit,
+            int used,
+            String resetDate,
+            List<String> upgradeOptions,
+            LocalDateTime timestamp) {
+    }
 }

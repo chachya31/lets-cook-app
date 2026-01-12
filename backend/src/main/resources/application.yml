@@ -15,6 +15,7 @@ aws:
     table:
       users: ${AWS_DYNAMODB_TABLE_USERS:Users}
       recipes: ${AWS_DYNAMODB_TABLE_RECIPES:Recipes}
+      user-subscription: ${DYNAMODB_USER_SUBSCRIPTION_TABLE:UserSubscription}
   s3:
     bucket: ${AWS_S3_BUCKET:cooking-app-images}
   cognito:

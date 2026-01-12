@@ -8,8 +8,10 @@ import org.springframework.stereotype.Service;
 
 import com.cookingapp.domain.entity.ChatConversation;
 import com.cookingapp.domain.entity.ChatMessage;
+import com.cookingapp.domain.entity.User;
 import com.cookingapp.domain.repository.ChatConversationRepository;
 import com.cookingapp.domain.repository.ChatMessageRepository;
+import com.cookingapp.domain.repository.UserRepository;
 import com.cookingapp.infrastructure.external.gemini.GeminiService;
 
 /**
@@ -23,14 +25,17 @@ public class ChatUseCase {
     private final GeminiService geminiService;
     private final ChatConversationRepository conversationRepository;
     private final ChatMessageRepository messageRepository;
+    private final UserRepository userRepository;
 
     public ChatUseCase(
             GeminiService geminiService,
             ChatConversationRepository conversationRepository,
-            ChatMessageRepository messageRepository) {
+            ChatMessageRepository messageRepository,
+            UserRepository userRepository) {
         this.geminiService = geminiService;
         this.conversationRepository = conversationRepository;
         this.messageRepository = messageRepository;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -100,10 +105,18 @@ public class ChatUseCase {
     }
 
     private ChatResponse processChat(ChatConversation conversation, String message) {
+        String userId = conversation.getUserId();
+
         ChatMessage userMessage = ChatMessage.createUserMessage(conversation.getConversationId(), message);
         messageRepository.save(userMessage);
 
-        String response = geminiService.generateContent(message);
+        // ユーザーの優先言語を取得
+        String preferredLanguage = userRepository.findById(userId)
+                .map(User::getPreferredLanguage)
+                .map(lang -> lang.getCode())
+                .orElse("ja");
+
+        String response = geminiService.generateContent(message, userId, preferredLanguage);
 
         ChatMessage assistantMessage = ChatMessage.createAssistantMessage(
                 conversation.getConversationId(), response, null);

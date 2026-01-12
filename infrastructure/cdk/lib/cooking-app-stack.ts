@@ -163,6 +163,16 @@ export class CookingAppStack extends cdk.Stack {
       sortKey: { name: 'ExpiryDate', type: dynamodb.AttributeType.STRING },
       projectionType: dynamodb.ProjectionType.ALL,
     });
+
+    // UserSubscription Table (Subscription and credit management)
+    // PK: UserId
+    this.tables.userSubscription = new dynamodb.Table(this, 'UserSubscriptionTable', {
+      tableName: `cooking-app-user-subscription-${stage}`,
+      partitionKey: { name: 'UserId', type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: stage === 'prod' ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY,
+      pointInTimeRecovery: stage === 'prod',
+    });
   }
 
   private createS3Bucket(stage: string) {
@@ -314,6 +324,7 @@ export class CookingAppStack extends cdk.Stack {
         DYNAMODB_CHAT_CONVERSATIONS_TABLE: this.tables.chatConversations.tableName,
         DYNAMODB_CHAT_MESSAGES_TABLE: this.tables.chatMessages.tableName,
         DYNAMODB_INVENTORY_TABLE: this.tables.inventory.tableName,
+        DYNAMODB_USER_SUBSCRIPTION_TABLE: this.tables.userSubscription.tableName,
         S3_BUCKET_NAME: this.imagesBucket.bucketName,
         AWS_COGNITO_USER_POOL_ID: this.userPool.userPoolId,
         AWS_COGNITO_CLIENT_ID: this.userPoolClient.userPoolClientId,
