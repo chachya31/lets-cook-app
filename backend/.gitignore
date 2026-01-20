@@ -1,0 +1,16 @@
+# Gradle
+.gradle/
+build/
+
+# IDE (Eclipse/VS Code)
+bin/
+
+# Java
+*.class
+*.log
+
+# Spring Boot
+HELP.md
+
+# Local
+application-local.yml
