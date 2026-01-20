@@ -13,12 +13,8 @@ aws:
   dynamodb:
     endpoint: ${AWS_DYNAMODB_ENDPOINT:}
     table:
-      users: ${DYNAMODB_TABLE_USERS:Users}
-      recipes: ${DYNAMODB_TABLE_RECIPES:Recipes}
-      schedules: ${DYNAMODB_TABLE_SCHEDULES:Schedules}
-      shopping-lists: ${DYNAMODB_TABLE_SHOPPING_LISTS:ShoppingLists}
-      inventory: ${DYNAMODB_TABLE_INVENTORY:Inventory}
-      reviews: ${DYNAMODB_TABLE_REVIEWS:Reviews}
+      users: ${AWS_DYNAMODB_TABLE_USERS:Users}
+      recipes: ${AWS_DYNAMODB_TABLE_RECIPES:Recipes}
 
   # Cognito Configuration
   cognito:
