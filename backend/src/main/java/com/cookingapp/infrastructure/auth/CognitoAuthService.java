@@ -24,7 +24,7 @@ public class CognitoAuthService {
 
     public CognitoAuthService(
             CognitoIdentityProviderClient cognitoClient,
-            @Value("${aws.cognito.user-pool-client-id}") String userPoolClientId) {
+            @Value("${aws.cognito.client-id}") String userPoolClientId) {
         this.cognitoClient = cognitoClient;
         this.userPoolClientId = userPoolClientId;
     }
