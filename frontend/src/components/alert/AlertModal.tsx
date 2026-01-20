@@ -1,11 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '../ui/dialog';
-import { Button } from '../ui/button';
 import { checkAlert } from '../../api/alertApi';
-import { RootState } from '../../store/store';
+import { useAuthStore } from '../../store/authStore';
+import { Button } from '../ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '../ui/dialog';
 
 const ALERT_STORAGE_KEY = 'alert_dismissed_date';
 
@@ -18,7 +24,7 @@ export const AlertModal: React.FC = () => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState<string>('');
-  const { user } = useSelector((state: RootState) => state.auth);
+  const user = useAuthStore((state) => state.user);
   const userId = user?.userId;
 
   useEffect(() => {
@@ -28,14 +34,14 @@ export const AlertModal: React.FC = () => {
       // 同日の再表示を防止
       const dismissedDate = localStorage.getItem(ALERT_STORAGE_KEY);
       const today = new Date().toISOString().split('T')[0];
-      
+
       if (dismissedDate === today) {
         return;
       }
 
       try {
         const response = await checkAlert(userId);
-        
+
         if (response.shouldShow && response.message) {
           setMessage(response.message);
           setIsOpen(true);
@@ -72,17 +78,13 @@ export const AlertModal: React.FC = () => {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{t('alert.title')}</DialogTitle>
-          <DialogDescription>
-            {message}
-          </DialogDescription>
+          <DialogDescription>{message}</DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <Button variant="outline" onClick={handleClose}>
             {t('alert.dismiss')}
           </Button>
-          <Button onClick={handleQuickRegister}>
-            {t('alert.quickRegister')}
-          </Button>
+          <Button onClick={handleQuickRegister}>{t('alert.quickRegister')}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

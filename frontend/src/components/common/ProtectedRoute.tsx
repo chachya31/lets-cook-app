@@ -1,7 +1,6 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
 import { Navigate, useLocation } from 'react-router-dom';
-import { RootState } from '../../store/store';
+import { useAuthStore } from '../../store/authStore';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -14,7 +13,7 @@ interface ProtectedRouteProps {
  */
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin = false }) => {
   const location = useLocation();
-  const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
+  const { isAuthenticated, user } = useAuthStore();
 
   // 未認証の場合はログインページへ
   if (!isAuthenticated) {

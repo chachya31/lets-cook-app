@@ -1,13 +1,11 @@
 import { Save, User, X } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { updateProfile, uploadProfileImage } from '../../api/profileApi';
 import { getUserProfile } from '../../api/userApi';
 import { useScrollToMessage } from '../../hooks/useScrollToMessage';
-import { updateUser } from '../../store/slices/authSlice';
-import { AppDispatch, RootState } from '../../store/store';
+import { useAuthStore } from '../../store/authStore';
 import { MessageDisplay } from '../common/MessageDisplay';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
@@ -22,8 +20,8 @@ import { LanguageSelector } from './LanguageSelector';
 const ProfileEditPage: React.FC = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-  const dispatch = useDispatch<AppDispatch>();
-  const currentUser = useSelector((state: RootState) => state.auth.user);
+  const currentUser = useAuthStore((state) => state.user);
+  const updateUser = useAuthStore((state) => state.updateUser);
   const { messageRef, scrollToMessage } = useScrollToMessage();
 
   const [loading, setLoading] = useState(false);
@@ -117,14 +115,12 @@ const ProfileEditPage: React.FC = () => {
         newProfileImageUrl = updatedUser.profileImageUrl || profileImageUrl;
       }
 
-      // Reduxストアを更新（ヘッダーに即時反映）
-      dispatch(
-        updateUser({
-          ...updatedUser,
-          preferredLanguage: language,
-          profileImageUrl: newProfileImageUrl,
-        })
-      );
+      // Zustandストアを更新（ヘッダーに即時反映）
+      updateUser({
+        ...updatedUser,
+        preferredLanguage: language,
+        profileImageUrl: newProfileImageUrl,
+      });
 
       // 保存後に言語を切り替え
       await i18n.changeLanguage(language);

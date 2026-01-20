@@ -6,9 +6,9 @@ import { useAuth } from '../../../hooks/useAuth';
 import { useForm } from '../../../hooks/useForm';
 import { FormField } from '../../common/FormField';
 import {
-    getLoginValidationRules,
-    loginFormFields,
-    loginFormInitialValues,
+  getLoginValidationRules,
+  loginFormFields,
+  loginFormInitialValues,
 } from './loginFormConfig';
 
 /**
@@ -39,7 +39,7 @@ export const LoginPage: React.FC = () => {
         await login(formData);
         navigate('/dashboard');
       } catch (err) {
-        // Error is handled by Redux
+        // Error is handled by Zustand store
       }
     },
   });

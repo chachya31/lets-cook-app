@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../../store/authStore';
 import { fetchAdminDashboardStats } from '../../store/slices/adminSlice';
 import { AppDispatch, RootState } from '../../store/store';
 import LoadingSkeleton from '../common/LoadingSkeleton';
@@ -17,7 +18,7 @@ const AdminDashboardPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { stats, loading, error } = useSelector((state: RootState) => state.admin);
-  const currentUser = useSelector((state: RootState) => state.auth.user);
+  const currentUser = useAuthStore((state) => state.user);
   const isAdmin = currentUser?.roles?.includes('Admins') ?? false;
 
   useEffect(() => {

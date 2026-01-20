@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useScrollToMessage } from '../../hooks/useScrollToMessage';
+import { useAuthStore } from '../../store/authStore';
 import { deleteUserByAdmin, fetchAllUsers, suspendUser } from '../../store/slices/adminSlice';
 import { AppDispatch, RootState } from '../../store/store';
 import LoadingSkeleton from '../common/LoadingSkeleton';
@@ -20,7 +21,7 @@ const UserManagementPage: React.FC = () => {
   const navigate = useNavigate();
   const { messageRef, scrollToMessage } = useScrollToMessage();
   const { users, loading, error } = useSelector((state: RootState) => state.admin);
-  const currentUser = useSelector((state: RootState) => state.auth.user);
+  const currentUser = useAuthStore((state) => state.user);
   const isAdmin = currentUser?.roles?.includes('Admins') ?? false;
 
   const [actionResult, setActionResult] = useState<string | null>(null);

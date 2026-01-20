@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSelector } from 'react-redux';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import AdminDashboardPage from './components/admin/AdminDashboardPage';
 import RecipeManagementPage from './components/admin/RecipeManagementPage';
@@ -22,12 +21,12 @@ import RecipeEditPage from './components/recipe/RecipeEdit/RecipeEditPage';
 import RecipeSearchPage from './components/recipe/RecipeSearchPage';
 import SchedulePage from './components/schedule/SchedulePage';
 import ShoppingListPage from './components/shopping/ShoppingListPage';
-import { RootState } from './store/store';
+import { useAuthStore } from './store/authStore';
 
 const App: React.FC = () => {
   const location = useLocation();
   const { i18n } = useTranslation();
-  const currentUser = useSelector((state: RootState) => state.auth.user);
+  const currentUser = useAuthStore((state) => state.user);
 
   // ログインユーザーの優先言語に切り替え
   useEffect(() => {

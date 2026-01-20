@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { useScrollToMessage } from '../../hooks/useScrollToMessage';
+import { useAuthStore } from '../../store/authStore';
 import {
   addShoppingListItem,
   deleteShoppingListItem,
@@ -23,7 +24,7 @@ const ShoppingListPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { messageRef, scrollToMessage } = useScrollToMessage();
   const { items, loading, error } = useSelector((state: RootState) => state.shoppingList);
-  const { user } = useSelector((state: RootState) => state.auth);
+  const user = useAuthStore((state) => state.user);
 
   // エラー発生時にスクロール
   useEffect(() => {

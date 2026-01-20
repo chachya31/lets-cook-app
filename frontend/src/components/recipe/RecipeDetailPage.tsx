@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useReview } from '../../hooks/useReview';
+import { useAuthStore } from '../../store/authStore';
 import { clearCurrentRecipe, deleteRecipe, fetchRecipe } from '../../store/recipeSlice';
 import { AppDispatch, RootState } from '../../store/store';
 import { Review } from '../../types/review';
@@ -22,7 +23,7 @@ const RecipeDetailPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { currentRecipe, loading, error } = useSelector((state: RootState) => state.recipe);
-  const { user } = useSelector((state: RootState) => state.auth);
+  const user = useAuthStore((state) => state.user);
   const {
     reviews,
     loading: reviewLoading,

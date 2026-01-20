@@ -1,36 +1,33 @@
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '../store/store';
-import { login, register, logout, clearError } from '../store/slices/authSlice';
-import { LoginRequest, RegisterRequest } from '../types/user';
+import { useAuthStore } from '../store/authStore';
 
 /**
- * 認証用カスタムフック
+ * 認証用カスタムフック（Zustand版）
+ * セレクター関数を使用して再レンダリングを最適化
  */
 export const useAuth = () => {
-  const dispatch = useDispatch<AppDispatch>();
-  const auth = useSelector((state: RootState) => state.auth);
-
-  const handleLogin = async (data: LoginRequest) => {
-    return dispatch(login(data)).unwrap();
-  };
-
-  const handleRegister = async (data: RegisterRequest) => {
-    return dispatch(register(data)).unwrap();
-  };
-
-  const handleLogout = () => {
-    dispatch(logout());
-  };
-
-  const handleClearError = () => {
-    dispatch(clearError());
-  };
+  const user = useAuthStore((state) => state.user);
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const refreshToken = useAuthStore((state) => state.refreshToken);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const isLoading = useAuthStore((state) => state.isLoading);
+  const error = useAuthStore((state) => state.error);
+  const login = useAuthStore((state) => state.login);
+  const register = useAuthStore((state) => state.register);
+  const logout = useAuthStore((state) => state.logout);
+  const clearError = useAuthStore((state) => state.clearError);
+  const updateUser = useAuthStore((state) => state.updateUser);
 
   return {
-    ...auth,
-    login: handleLogin,
-    register: handleRegister,
-    logout: handleLogout,
-    clearError: handleClearError,
+    user,
+    accessToken,
+    refreshToken,
+    isAuthenticated,
+    isLoading,
+    error,
+    login,
+    register,
+    logout,
+    clearError,
+    updateUser,
   };
 };

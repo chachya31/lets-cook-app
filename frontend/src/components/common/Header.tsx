@@ -1,19 +1,8 @@
-import {
-    Bot,
-    Calendar,
-    LogOut,
-    Package,
-    Search,
-    Shield,
-    ShoppingCart,
-    User
-} from 'lucide-react';
+import { Bot, Calendar, LogOut, Package, Search, Shield, ShoppingCart, User } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { logout } from '../../store/slices/authSlice';
-import { AppDispatch, RootState } from '../../store/store';
+import { useAuthStore } from '../../store/authStore';
 import { Button } from '../ui/button';
 
 /**
@@ -23,15 +12,15 @@ import { Button } from '../ui/button';
 const Header: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const dispatch = useDispatch<AppDispatch>();
-  const currentUser = useSelector((state: RootState) => state.auth.user);
+  const currentUser = useAuthStore((state) => state.user);
+  const logout = useAuthStore((state) => state.logout);
   const isLoggedIn = !!currentUser;
   const isAdmin = currentUser?.roles?.includes('Admins') ?? false;
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement>(null);
 
   const handleLogout = () => {
-    dispatch(logout());
+    logout();
     navigate('/login');
   };
 

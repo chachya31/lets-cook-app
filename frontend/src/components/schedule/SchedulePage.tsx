@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { useScrollToMessage } from '../../hooks/useScrollToMessage';
+import { useAuthStore } from '../../store/authStore';
 import {
   createSchedule,
   deleteSchedule,
@@ -28,7 +29,7 @@ const SchedulePage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { messageRef, scrollToMessage } = useScrollToMessage();
   const { schedules, loading, error } = useSelector((state: RootState) => state.schedule);
-  const { user } = useSelector((state: RootState) => state.auth);
+  const user = useAuthStore((state) => state.user);
 
   // エラー発生時にスクロール
   useEffect(() => {

@@ -1,12 +1,10 @@
 import { Clock, RefreshCw } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useDispatch } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { confirmSignUp, resendConfirmationCode } from '../../../api/userApi';
+import { useAuth } from '../../../hooks/useAuth';
 import { useForm } from '../../../hooks/useForm';
-import { login } from '../../../store/slices/authSlice';
-import { AppDispatch } from '../../../store/store';
 import { FormField } from '../../common/FormField';
 import { Button } from '../../ui/button';
 import { Card } from '../../ui/card';
@@ -23,7 +21,7 @@ export const ConfirmEmailPage: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
-  const dispatch = useDispatch<AppDispatch>();
+  const { login } = useAuth();
   const email = location.state?.email || '';
   const password = location.state?.password || '';
 
@@ -83,7 +81,7 @@ export const ConfirmEmailPage: React.FC = () => {
 
       // パスワードがある場合は自動ログイン
       if (password) {
-        await dispatch(login({ email, password })).unwrap();
+        await login({ email, password });
         navigate('/dashboard');
       } else {
         // パスワードがない場合はログイン画面へ
@@ -91,8 +89,8 @@ export const ConfirmEmailPage: React.FC = () => {
           state: { message: t('auth.confirmEmail.success') },
         });
       }
-    } catch (err: any) {
-      setError(err.message || t('auth.confirmEmail.error'));
+    } catch (err: unknown) {
+      setError((err as Error).message || t('auth.confirmEmail.error'));
     }
   };
 
@@ -111,8 +109,9 @@ export const ConfirmEmailPage: React.FC = () => {
       await resendConfirmationCode(email);
       setResendMessage(t('auth.confirmEmail.resendSuccess'));
       resetTimer();
-    } catch (err: any) {
-      setError(err.response?.data?.message || t('auth.confirmEmail.resendError'));
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      setError(error.response?.data?.message || t('auth.confirmEmail.resendError'));
     } finally {
       setIsResending(false);
     }

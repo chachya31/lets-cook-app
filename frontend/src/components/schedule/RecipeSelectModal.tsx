@@ -2,6 +2,7 @@ import { Search } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
+import { useAuthStore } from '../../store/authStore';
 import { searchRecipes } from '../../store/recipeSlice';
 import { AppDispatch, RootState } from '../../store/store';
 import { Recipe } from '../../types/recipe';
@@ -23,7 +24,7 @@ const RecipeSelectModal: React.FC<RecipeSelectModalProps> = ({ open, onClose, on
   const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
   const { recipes, loading } = useSelector((state: RootState) => state.recipe);
-  const { user } = useSelector((state: RootState) => state.auth);
+  const user = useAuthStore((state) => state.user);
 
   const [searchKeyword, setSearchKeyword] = useState('');
   const [filteredRecipes, setFilteredRecipes] = useState<Recipe[]>([]);
