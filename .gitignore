@@ -26,8 +26,8 @@ infrastructure/cdk/.cdk.staging/
 
 # IDE
 .idea/
+.vscode/
 *.iml
-# VS Code/Kiro IDE 설정은 팀과 공유 (.vscode/ 제외하지 않음)
 
 # OS
 .DS_Store
