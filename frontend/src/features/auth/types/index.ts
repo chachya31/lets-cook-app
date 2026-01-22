@@ -15,6 +15,7 @@ export interface UserProfile {
   profileImageUrl: string | null
   preferredLanguage: string | null
   timezone: string | null
+  roles: string[]
 }
 
 // POST /api/auth/login のレスポンス型

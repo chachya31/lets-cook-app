@@ -29,6 +29,7 @@ const mockLoginResponse: LoginResponse = {
     profileImageUrl: null,
     preferredLanguage: 'ja',
     timezone: 'Asia/Tokyo',
+    roles: [],
   },
 }
 
