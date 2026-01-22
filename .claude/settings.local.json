@@ -5,7 +5,9 @@
       "Bash(./gradlew.bat build -x test)",
       "Bash(./gradlew.bat build:*)",
       "Bash(./gradlew.bat test --info)",
-      "Bash(./gradlew.bat test:*)"
+      "Bash(./gradlew.bat test:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run test:run:*)"
     ],
     "deny": [],
     "ask": []

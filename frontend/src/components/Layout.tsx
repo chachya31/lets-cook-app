@@ -1,28 +1,30 @@
-import type { ReactNode } from 'react';
-import { Link } from 'react-router-dom';
-import { useAuthStore } from '../features/auth/stores/useAuthStore';
-import { Button } from '@/components/ui/button';
+import type { ReactNode } from 'react'
+import { Link } from 'react-router-dom'
+import { useAuthStore } from '../features/auth/stores/useAuthStore'
+import { Button } from '@/components/ui/button'
 
 interface LayoutProps {
-  children: ReactNode;
+  children: ReactNode
 }
 
 export const Layout = ({ children }: LayoutProps) => {
-  const { isAuthenticated, user, logout } = useAuthStore();
+  const { isAuthenticated, user, logout } = useAuthStore()
+
+  const displayName = user?.displayName || user?.nickname || user?.email
 
   return (
     <div className="min-h-screen bg-background">
       <nav className="border-b bg-card">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-14 sm:h-16 items-center">
-            <Link to="/" className="text-lg sm:text-xl font-bold text-foreground">
-              Cooking App
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex h-14 items-center justify-between sm:h-16">
+            <Link to="/" className="text-lg font-bold text-foreground sm:text-xl">
+              Let&apos;s Cook
             </Link>
             <div className="flex items-center gap-2 sm:gap-4">
               {isAuthenticated ? (
                 <>
-                  <span className="hidden sm:inline text-sm text-muted-foreground">
-                    Welcome, {user?.name}
+                  <span className="hidden text-sm text-muted-foreground sm:inline">
+                    Welcome, {displayName}
                   </span>
                   <Button variant="secondary" size="sm" onClick={logout}>
                     Logout
@@ -37,9 +39,9 @@ export const Layout = ({ children }: LayoutProps) => {
           </div>
         </div>
       </nav>
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
         {children}
       </main>
     </div>
-  );
-};
+  )
+}
