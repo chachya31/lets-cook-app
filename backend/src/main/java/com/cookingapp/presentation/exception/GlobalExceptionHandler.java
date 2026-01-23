@@ -1,5 +1,8 @@
 package com.cookingapp.presentation.exception;
 
+import com.cookingapp.application.exception.RecipeNotFoundException;
+import com.cookingapp.application.exception.UnauthorizedRecipeAccessException;
+import com.cookingapp.application.exception.UserNotAuthenticatedException;
 import com.cookingapp.infrastructure.auth.AuthenticationException;
 import com.cookingapp.presentation.dto.ErrorResponse;
 import org.slf4j.Logger;
@@ -23,6 +26,36 @@ public class GlobalExceptionHandler {
                 .code("AUTHENTICATION_FAILED")
                 .build();
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
+
+    @ExceptionHandler(UserNotAuthenticatedException.class)
+    public ResponseEntity<ErrorResponse> handleUserNotAuthenticatedException(UserNotAuthenticatedException e) {
+        logger.warn("User not authenticated: {}", e.getMessage());
+        ErrorResponse response = ErrorResponse.builder()
+                .message(e.getMessage())
+                .code("USER_NOT_AUTHENTICATED")
+                .build();
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
+
+    @ExceptionHandler(RecipeNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleRecipeNotFoundException(RecipeNotFoundException e) {
+        logger.warn("Recipe not found: {}", e.getMessage());
+        ErrorResponse response = ErrorResponse.builder()
+                .message(e.getMessage())
+                .code("RECIPE_NOT_FOUND")
+                .build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @ExceptionHandler(UnauthorizedRecipeAccessException.class)
+    public ResponseEntity<ErrorResponse> handleUnauthorizedRecipeAccessException(UnauthorizedRecipeAccessException e) {
+        logger.warn("Unauthorized recipe access: {}", e.getMessage());
+        ErrorResponse response = ErrorResponse.builder()
+                .message(e.getMessage())
+                .code("UNAUTHORIZED_RECIPE_ACCESS")
+                .build();
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

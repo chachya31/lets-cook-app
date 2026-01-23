@@ -13,8 +13,15 @@ aws:
   dynamodb:
     endpoint: ${AWS_DYNAMODB_ENDPOINT:}
     table:
-      users: ${AWS_DYNAMODB_TABLE_USERS:Users}
-      recipes: ${AWS_DYNAMODB_TABLE_RECIPES:Recipes}
+      users: ${DYNAMODB_USERS_TABLE}
+      recipes: ${DYNAMODB_RECIPES_TABLE}
+      recipe-ingredients: ${DYNAMODB_RECIPE_INGREDIENTS_TABLE}
+      schedules: ${DYNAMODB_SCHEDULES_TABLE}
+      shoppingLists: ${DYNAMODB_SHOPPING_LISTS_TABLE}
+      reviews: ${DYNAMODB_REVIEWS_TABLE}
+      chatConversations: ${DYNAMODB_CHAT_CONVERSATIONS_TABLE}
+      chatMessages: ${DYNAMODB_CHAT_MESSAGES_TABLE}
+      inventory: ${DYNAMODB_INVENTORY_TABLE}
 
   # Cognito Configuration
   cognito:
@@ -26,6 +33,8 @@ aws:
   s3:
     bucket-name: ${AWS_S3_BUCKET_NAME:cookingapp-storage}
     region: ${AWS_S3_REGION:ap-northeast-1}
+    endpoint: ${AWS_S3_ENDPOINT:}
+    presigned-url-expiration-minutes: ${AWS_S3_PRESIGNED_URL_EXPIRATION:60}
 
 # Logging Configuration
 logging:

@@ -22,6 +22,10 @@
 - Lombok: `@Builder`, `@Getter`, `@AllArgsConstructor` のみ使用可。`@Data` は使用禁止
 - テスト: ドメインロジックとユースケースには単体テスト必須
 
+### Gradleコマンド実行
+- Windows環境でのGradle実行: `./gradlew.bat <command>` を使用すること
+  - 例: `./gradlew.bat test`, `./gradlew.bat build`
+
 ---
 
 ## フロントエンド開発ルール
