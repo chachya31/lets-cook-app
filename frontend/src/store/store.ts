@@ -1,16 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit';
-import authReducer from './slices/authSlice';
 import recipeReducer from './recipeSlice';
-import reviewReducer from './slices/reviewSlice';
+import adminReducer from './slices/adminSlice';
 import scheduleReducer from './slices/scheduleSlice';
 import shoppingListReducer from './slices/shoppingListSlice';
-import adminReducer from './slices/adminSlice';
 
 export const store = configureStore({
   reducer: {
-    auth: authReducer,
     recipe: recipeReducer,
-    review: reviewReducer,
     schedule: scheduleReducer,
     shoppingList: shoppingListReducer,
     admin: adminReducer,

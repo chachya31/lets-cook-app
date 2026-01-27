@@ -1,0 +1,36 @@
+# AWS Configuration
+aws:
+  region: ap-northeast-1
+
+  # DynamoDB Configuration
+  dynamodb:
+    endpoint: http://localhost:4566
+    table:
+      users: cooking-app-users-local
+      recipes: cooking-app-recipes-local
+      recipe-ingredients: cooking-app-recipe-ingredients-local
+      reviews: cooking-app-reviews-local
+      schedules: cooking-app-schedules-local
+      shoppingLists: cooking-app-shopping-lists-local
+      chatConversations: cooking-app-chat-conversations-local
+      chatMessages: cooking-app-chat-messages-local
+      inventory: cooking-app-inventory-local
+
+  # Cognito Configuration
+  cognito:
+    user-pool-id: ap-northeast-1_aJ4JxScOo
+    client-id: 7e5mu77epiakek5jd9g6d5fvi
+    region: ap-northeast-1
+
+  # S3 Configuration
+  s3:
+    endpoint: http://localhost:4566
+    bucket-name: cooking-app-images-local
+    region: ${AWS_S3_REGION:ap-northeast-1}
+
+# Logging Configuration
+logging:
+  level:
+    root: INFO
+    com.cookingapp: DEBUG
+    software.amazon.awssdk: WARN

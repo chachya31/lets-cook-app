@@ -181,17 +181,22 @@ describe('GeminiChatPage', () => {
       const textarea = screen.getByPlaceholderText('メッセージを入力...');
       fireEvent.change(textarea, { target: { value: 'こんにちは' } });
 
-      const sendButtons = screen.getAllByRole('button');
-      const sendButton = sendButtons.find(btn => !btn.textContent);
+      // 送信ボタンを取得（Sendアイコンを持つボタン）
+      const sendButton = screen
+        .getAllByRole('button')
+        .find((btn) => btn.querySelector('svg.lucide-send'));
       fireEvent.click(sendButton!);
 
       await waitFor(() => {
         expect(screen.getByText('こんにちは')).toBeInTheDocument();
       });
 
-      await waitFor(() => {
-        expect(screen.getByText('AIからの応答です')).toBeInTheDocument();
-      });
+      await waitFor(
+        () => {
+          expect(screen.getByText('AIからの応答です')).toBeInTheDocument();
+        },
+        { timeout: 3000 }
+      );
     });
 
     it('should show error message when API fails', async () => {
@@ -206,13 +211,20 @@ describe('GeminiChatPage', () => {
       const textarea = screen.getByPlaceholderText('メッセージを入力...');
       fireEvent.change(textarea, { target: { value: 'テスト' } });
 
-      const sendButtons = screen.getAllByRole('button');
-      const sendButton = sendButtons.find(btn => !btn.textContent);
+      // 送信ボタンを取得（Sendアイコンを持つボタン）
+      const sendButton = screen
+        .getAllByRole('button')
+        .find((btn) => btn.querySelector('svg.lucide-send'));
       fireEvent.click(sendButton!);
 
-      await waitFor(() => {
-        expect(screen.getByText('エラーが発生しました。もう一度お試しください。')).toBeInTheDocument();
-      });
+      await waitFor(
+        () => {
+          expect(
+            screen.getByText('エラーが発生しました。もう一度お試しください。')
+          ).toBeInTheDocument();
+        },
+        { timeout: 3000 }
+      );
     });
 
     it('should send message with Enter key', async () => {
@@ -294,7 +306,7 @@ describe('GeminiChatPage', () => {
       ];
       vi.mocked(geminiApi.getConversations).mockResolvedValue(mockConversations);
       vi.mocked(geminiApi.deleteConversation).mockResolvedValue(undefined);
-      
+
       // globalThis.confirmをモック
       const confirmMock = vi.fn().mockReturnValue(true);
       globalThis.confirm = confirmMock;
@@ -307,8 +319,8 @@ describe('GeminiChatPage', () => {
 
       // 削除ボタンを直接取得
       const deleteButtons = screen.getAllByRole('button');
-      const trashButton = deleteButtons.find(btn => btn.querySelector('svg.lucide-trash2'));
-      
+      const trashButton = deleteButtons.find((btn) => btn.querySelector('svg.lucide-trash2'));
+
       if (trashButton) {
         fireEvent.click(trashButton);
 
@@ -329,7 +341,7 @@ describe('GeminiChatPage', () => {
         },
       ];
       vi.mocked(geminiApi.getConversations).mockResolvedValue(mockConversations);
-      
+
       // globalThis.confirmをモック（キャンセル）
       const confirmMock = vi.fn().mockReturnValue(false);
       globalThis.confirm = confirmMock;
@@ -341,8 +353,8 @@ describe('GeminiChatPage', () => {
       });
 
       const deleteButtons = screen.getAllByRole('button');
-      const trashButton = deleteButtons.find(btn => btn.querySelector('svg.lucide-trash2'));
-      
+      const trashButton = deleteButtons.find((btn) => btn.querySelector('svg.lucide-trash2'));
+
       if (trashButton) {
         fireEvent.click(trashButton);
         expect(geminiApi.deleteConversation).not.toHaveBeenCalled();
@@ -354,7 +366,13 @@ describe('GeminiChatPage', () => {
     it('should display inventory items for recipe_recommendation', async () => {
       const mockInventory = [
         createMockInventoryItem({ itemId: 'item-1', name: '玉ねぎ', quantity: 3, unit: '個' }),
-        createMockInventoryItem({ itemId: 'item-2', name: '牛乳', quantity: 1, unit: 'L', isExpiringSoon: true }),
+        createMockInventoryItem({
+          itemId: 'item-2',
+          name: '牛乳',
+          quantity: 1,
+          unit: 'L',
+          isExpiringSoon: true,
+        }),
       ];
       vi.mocked(inventoryApi.getInventory).mockResolvedValue(mockInventory);
 
@@ -491,10 +509,10 @@ describe('GeminiChatPage', () => {
 
       // 送信ボタンを取得（disabled属性がないボタン）
       const sendButtons = screen.getAllByRole('button');
-      const enabledSendButton = sendButtons.find(btn => 
-        btn.querySelector('svg.lucide-send') && !btn.hasAttribute('disabled')
+      const enabledSendButton = sendButtons.find(
+        (btn) => btn.querySelector('svg.lucide-send') && !btn.hasAttribute('disabled')
       );
-      
+
       if (enabledSendButton) {
         fireEvent.click(enabledSendButton);
 

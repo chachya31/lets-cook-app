@@ -7,6 +7,7 @@ import {
   uploadRecipeImage,
   uploadStepImage,
 } from '../../../api/recipeApi';
+import { useAuthStore } from '../../../store/authStore';
 import { clearCurrentRecipe, fetchRecipe } from '../../../store/recipeSlice';
 import { AppDispatch, RootState } from '../../../store/store';
 import { Ingredient, Step } from '../../../types/recipe';
@@ -25,7 +26,7 @@ export const useRecipeEditHandlers = (scrollToMessage?: () => void) => {
     loading: recipeLoading,
     error,
   } = useSelector((state: RootState) => state.recipe);
-  const { user } = useSelector((state: RootState) => state.auth);
+  const user = useAuthStore((state) => state.user);
 
   const [title, setTitle] = useState(initialFormState.title);
   const [cookingTime, setCookingTime] = useState(initialFormState.cookingTime);

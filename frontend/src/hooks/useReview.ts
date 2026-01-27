@@ -1,59 +1,51 @@
 /**
  * useReview Hook
- * レビュー管理カスタムフック
+ * レビュー管理カスタムフック（Zustand版）
  */
 
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '../store/store';
-import {
-  fetchReviewsByRecipe,
-  createReview as createReviewAction,
-  updateReview as updateReviewAction,
-  deleteReview as deleteReviewAction,
-  reportReview as reportReviewAction,
-  clearReviews,
-  clearError,
-} from '../store/slices/reviewSlice';
+import { useReviewStore } from '../store/reviewStore';
 import { CreateReviewRequest, UpdateReviewRequest } from '../types/review';
 
 export const useReview = () => {
-  const dispatch = useDispatch<AppDispatch>();
-  const { reviews, loading, error } = useSelector((state: RootState) => state.review);
+  const {
+    reviews,
+    loading,
+    error,
+    fetchReviews: fetchReviewsAction,
+    createReview: createReviewAction,
+    updateReview: updateReviewAction,
+    deleteReview: deleteReviewAction,
+    reportReview: reportReviewAction,
+    clearReviews,
+    clearError,
+  } = useReviewStore();
 
   const fetchReviews = async (recipeId: string) => {
-    await dispatch(fetchReviewsByRecipe(recipeId));
+    await fetchReviewsAction(recipeId);
   };
 
-  const createReview = async (
-    recipeId: string,
-    userId: string,
-    request: CreateReviewRequest
-  ) => {
-    await dispatch(createReviewAction({ recipeId, userId, request }));
+  const createReview = async (recipeId: string, userId: string, request: CreateReviewRequest) => {
+    await createReviewAction(recipeId, userId, request);
   };
 
-  const updateReview = async (
-    reviewId: string,
-    userId: string,
-    request: UpdateReviewRequest
-  ) => {
-    await dispatch(updateReviewAction({ reviewId, userId, request }));
+  const updateReview = async (reviewId: string, userId: string, request: UpdateReviewRequest) => {
+    await updateReviewAction(reviewId, userId, request);
   };
 
   const deleteReview = async (reviewId: string, userId: string) => {
-    await dispatch(deleteReviewAction({ reviewId, userId }));
+    await deleteReviewAction(reviewId, userId);
   };
 
   const reportReview = async (reviewId: string) => {
-    await dispatch(reportReviewAction(reviewId));
+    await reportReviewAction(reviewId);
   };
 
   const clear = () => {
-    dispatch(clearReviews());
+    clearReviews();
   };
 
   const clearErrorMessage = () => {
-    dispatch(clearError());
+    clearError();
   };
 
   return {
