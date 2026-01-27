@@ -113,9 +113,9 @@ describe('useAuthStore', () => {
     it('ログイン失敗時にError以外の例外の場合はデフォルトメッセージがセットされること', async () => {
       vi.mocked(loginApi).mockRejectedValue('Unknown error')
 
-      await expect(
-        useAuthStore.getState().login('test@example.com', 'wrongpassword')
-      ).rejects.toBe('Unknown error')
+      await expect(useAuthStore.getState().login('test@example.com', 'wrongpassword')).rejects.toBe(
+        'Unknown error'
+      )
 
       const state = useAuthStore.getState()
       expect(state.error).toBe(

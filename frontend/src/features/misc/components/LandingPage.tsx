@@ -1,13 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Layout } from '@/components/Layout'
 import { Button } from '@/components/ui/button'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { useAuthStore } from '../../auth/stores/useAuthStore'
 
@@ -29,7 +23,11 @@ export const LandingPage = () => {
           </p>
 
           {!isAuthenticated && (
-            <Button asChild size="lg" className="bg-emerald-600 px-6 text-base hover:bg-emerald-700 sm:px-8 sm:text-lg">
+            <Button
+              asChild
+              size="lg"
+              className="bg-emerald-600 px-6 text-base hover:bg-emerald-700 sm:px-8 sm:text-lg"
+            >
               <Link to="/login">Get Started</Link>
             </Button>
           )}

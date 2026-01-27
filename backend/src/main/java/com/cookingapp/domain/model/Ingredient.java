@@ -19,7 +19,7 @@ public class Ingredient {
     public Ingredient() {
     }
 
-    @DynamoDbAttribute("Name")
+    @DynamoDbAttribute("name")
     public String getName() {
         return name;
     }
@@ -28,7 +28,7 @@ public class Ingredient {
         this.name = name;
     }
 
-    @DynamoDbAttribute("Quantity")
+    @DynamoDbAttribute("quantity")
     public String getQuantity() {
         return quantity;
     }
@@ -37,7 +37,7 @@ public class Ingredient {
         this.quantity = quantity;
     }
 
-    @DynamoDbAttribute("Unit")
+    @DynamoDbAttribute("unit")
     public String getUnit() {
         return unit;
     }

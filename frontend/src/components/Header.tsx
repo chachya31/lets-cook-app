@@ -23,13 +23,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@/components/ui/sheet'
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 
 interface NavItem {
   label: string
@@ -43,8 +37,18 @@ const navItems: NavItem[] = [
   { label: 'レシピ検索', href: '/recipes', icon: <Search className="h-4 w-4" /> },
   { label: 'スケジュール', href: '/schedule', icon: <Calendar className="h-4 w-4" /> },
   { label: '買い物リスト', href: '/shopping', icon: <ShoppingCart className="h-4 w-4" /> },
-  { label: '在庫管理', href: '/inventory', icon: <Package className="h-4 w-4" />, authRequired: true },
-  { label: 'AIチャット', href: '/chat', icon: <MessageSquare className="h-4 w-4" />, authRequired: true },
+  {
+    label: '在庫管理',
+    href: '/inventory',
+    icon: <Package className="h-4 w-4" />,
+    authRequired: true,
+  },
+  {
+    label: 'AIチャット',
+    href: '/chat',
+    icon: <MessageSquare className="h-4 w-4" />,
+    authRequired: true,
+  },
   { label: '管理画面', href: '/admin', icon: <Settings className="h-4 w-4" />, adminOnly: true },
 ]
 
@@ -72,7 +76,8 @@ export const Header = () => {
   }
 
   const handleCreateRecipe = () => {
-    console.log('レシピ作成ボタンがクリックされました')
+    navigate('/recipes/new')
+    setMobileMenuOpen(false)
   }
 
   const handleRegister = () => {
@@ -131,7 +136,10 @@ export const Header = () => {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                     <Avatar className="h-9 w-9">
-                      <AvatarImage src={user?.profileImageUrl || undefined} alt={getDisplayName()} />
+                      <AvatarImage
+                        src={user?.profileImageUrl || undefined}
+                        alt={getDisplayName()}
+                      />
                       <AvatarFallback className="bg-primary text-primary-foreground">
                         {getInitials()}
                       </AvatarFallback>
@@ -198,7 +206,10 @@ export const Header = () => {
                 <>
                   <div className="flex items-center gap-3 px-3">
                     <Avatar className="h-10 w-10">
-                      <AvatarImage src={user?.profileImageUrl || undefined} alt={getDisplayName()} />
+                      <AvatarImage
+                        src={user?.profileImageUrl || undefined}
+                        alt={getDisplayName()}
+                      />
                       <AvatarFallback className="bg-primary text-primary-foreground">
                         {getInitials()}
                       </AvatarFallback>
@@ -220,7 +231,11 @@ export const Header = () => {
                     <User className="h-4 w-4" />
                     プロフィール編集
                   </Button>
-                  <Button variant="ghost" className="justify-start gap-2 text-destructive" onClick={handleLogout}>
+                  <Button
+                    variant="ghost"
+                    className="justify-start gap-2 text-destructive"
+                    onClick={handleLogout}
+                  >
                     <LogOut className="h-4 w-4" />
                     ログアウト
                   </Button>

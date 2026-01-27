@@ -4,13 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useAuthStore } from '../stores/useAuthStore'
 
@@ -73,17 +67,11 @@ export const LoginPage = () => {
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="space-y-4 p-8 pb-0">
           <div className="flex justify-center">
-            <img
-              src="/logo.svg"
-              alt="Let's Cook"
-              className="mx-auto h-16 w-16"
-            />
+            <img src="/logo.svg" alt="Let's Cook" className="mx-auto h-16 w-16" />
           </div>
           <div className="text-center">
             <CardTitle className="text-2xl font-bold">Let&apos;s Cook</CardTitle>
-            <CardDescription className="mt-2">
-              アカウントにログインしてください
-            </CardDescription>
+            <CardDescription className="mt-2">アカウントにログインしてください</CardDescription>
           </div>
         </CardHeader>
 
@@ -108,7 +96,9 @@ export const LoginPage = () => {
                   }
                 }}
                 placeholder="example@email.com"
-                className={validationErrors.email ? 'border-red-500 focus-visible:ring-red-500' : ''}
+                className={
+                  validationErrors.email ? 'border-red-500 focus-visible:ring-red-500' : ''
+                }
                 disabled={isLoading}
               />
               {validationErrors.email && (
@@ -129,7 +119,9 @@ export const LoginPage = () => {
                   }
                 }}
                 placeholder="パスワードを入力"
-                className={validationErrors.password ? 'border-red-500 focus-visible:ring-red-500' : ''}
+                className={
+                  validationErrors.password ? 'border-red-500 focus-visible:ring-red-500' : ''
+                }
                 disabled={isLoading}
               />
               {validationErrors.password && (
@@ -144,11 +136,7 @@ export const LoginPage = () => {
             >
               {isLoading ? (
                 <span className="flex items-center justify-center gap-2">
-                  <svg
-                    className="h-4 w-4 animate-spin"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
+                  <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
                     <circle
                       className="opacity-25"
                       cx="12"
