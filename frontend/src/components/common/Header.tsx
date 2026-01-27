@@ -1,9 +1,38 @@
-import { Bot, Calendar, LogOut, Package, Search, Shield, ShoppingCart, User } from 'lucide-react';
-import React, { useEffect, useRef, useState } from 'react';
+import {
+  Bot,
+  Calendar,
+  LogOut,
+  Menu,
+  Package,
+  Plus,
+  Search,
+  Shield,
+  ShoppingCart,
+  User,
+} from 'lucide-react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Button } from '../ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '../ui/sheet';
+
+interface NavItem {
+  label: string;
+  href: string;
+  icon: React.ReactNode;
+  authRequired?: boolean;
+  adminOnly?: boolean;
+}
 
 /**
  * ヘッダーコンポーネント
@@ -16,162 +45,235 @@ const Header: React.FC = () => {
   const logout = useAuthStore((state) => state.logout);
   const isLoggedIn = !!currentUser;
   const isAdmin = currentUser?.roles?.includes('Admins') ?? false;
-  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-  const profileMenuRef = useRef<HTMLDivElement>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const navItems: NavItem[] = [
+    { label: t('recipe.search.title'), href: '/recipes', icon: <Search className="h-4 w-4" /> },
+    { label: t('schedule.title'), href: '/schedules', icon: <Calendar className="h-4 w-4" /> },
+    {
+      label: t('shoppingList.title'),
+      href: '/shopping-list',
+      icon: <ShoppingCart className="h-4 w-4" />,
+    },
+    {
+      label: t('inventory.title'),
+      href: '/inventory',
+      icon: <Package className="h-4 w-4" />,
+      authRequired: true,
+    },
+    {
+      label: 'AI Chat',
+      href: '/chat',
+      icon: <Bot className="h-4 w-4" />,
+      authRequired: true,
+    },
+    {
+      label: t('admin.dashboard.title'),
+      href: '/admin',
+      icon: <Shield className="h-4 w-4" />,
+      adminOnly: true,
+    },
+  ];
+
+  const getDisplayName = () => {
+    return currentUser?.displayName || currentUser?.nickname || currentUser?.email || 'ユーザー';
+  };
+
+  const getInitials = () => {
+    const name = currentUser?.displayName || currentUser?.nickname || currentUser?.email || '';
+    if (!name) return 'U';
+    return name.charAt(0).toUpperCase();
+  };
 
   const handleLogout = () => {
     logout();
     navigate('/login');
+    setMobileMenuOpen(false);
   };
 
-  // メニュー外クリックで閉じる
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
-        setIsProfileMenuOpen(false);
-      }
-    };
+  const handleCreateRecipe = () => {
+    navigate('/recipes/new');
+    setMobileMenuOpen(false);
+  };
 
-    if (isProfileMenuOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
+  const filteredNavItems = navItems.filter((item) => {
+    if (item.adminOnly) return isAdmin;
+    if (item.authRequired) return isLoggedIn;
+    return true;
+  });
 
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isProfileMenuOpen]);
+  const NavLinks = ({ mobile = false }: { mobile?: boolean }) => (
+    <>
+      {filteredNavItems.map((item) => (
+        <Link
+          key={item.href}
+          to={item.href}
+          className={
+            mobile
+              ? 'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground'
+              : 'flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-primary'
+          }
+          onClick={() => setMobileMenuOpen(false)}
+        >
+          {item.icon}
+          {item.label}
+        </Link>
+      ))}
+    </>
+  );
 
   return (
-    <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          {/* ロゴ */}
-          <div className="flex items-center space-x-3 cursor-pointer" onClick={() => navigate('/')}>
-            <img src="/logo.svg" alt="Logo" className="h-12 w-auto" />
-            <span className="text-xl font-bold text-orange-500">{t('app.title')}</span>
-          </div>
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        {/* Logo */}
+        <Link to="/" className="flex items-center gap-2">
+          <img src="/logo.svg" alt="Let's Cook" className="h-12 w-auto" />
+          <span className="text-xl font-bold text-primary">{t('app.title')}</span>
+        </Link>
 
-          {/* ナビゲーションメニュー */}
-          <nav className="hidden md:flex items-center space-x-6">
-            <button
-              onClick={() => navigate('/recipes')}
-              className="flex items-center space-x-1 text-gray-700 hover:text-green-600 transition-colors"
-            >
-              <Search size={18} />
-              <span>{t('recipe.search.title')}</span>
-            </button>
-            <button
-              onClick={() => navigate('/schedules')}
-              className="flex items-center space-x-1 text-gray-700 hover:text-green-600 transition-colors"
-            >
-              <Calendar size={18} />
-              <span>{t('schedule.title')}</span>
-            </button>
-            <button
-              onClick={() => navigate('/shopping-list')}
-              className="flex items-center space-x-1 text-gray-700 hover:text-green-600 transition-colors"
-            >
-              <ShoppingCart size={18} />
-              <span>{t('shoppingList.title')}</span>
-            </button>
-            {isLoggedIn && (
-              <button
-                onClick={() => navigate('/inventory')}
-                className="flex items-center space-x-1 text-gray-700 hover:text-blue-600 transition-colors"
-              >
-                <Package size={18} />
-                <span>{t('inventory.title')}</span>
-              </button>
-            )}
-            {isLoggedIn && (
-              <button
-                onClick={() => navigate('/chat')}
-                className="flex items-center space-x-1 text-gray-700 hover:text-purple-600 transition-colors"
-              >
-                <Bot size={18} />
-                <span>AI Chat</span>
-              </button>
-            )}
-            {isAdmin && (
-              <button
-                onClick={() => navigate('/admin')}
-                className="flex items-center space-x-1 text-gray-700 hover:text-green-600 transition-colors"
-              >
-                <Shield size={18} />
-                <span>{t('admin.dashboard.title')}</span>
-              </button>
-            )}
-          </nav>
+        {/* Desktop Navigation */}
+        <nav className="hidden items-center gap-6 lg:flex">
+          <NavLinks />
+        </nav>
 
-          {/* ユーザーアクション */}
-          <div className="flex items-center space-x-4">
-            {isLoggedIn ? (
-              <>
-                <Button variant="outline" size="sm" onClick={() => navigate('/recipes/new')}>
-                  {t('recipe.create.button')}
-                </Button>
-                {/* プロフィールメニュー */}
-                <div className="relative" ref={profileMenuRef}>
-                  <button
-                    onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                    className="flex items-center space-x-2 focus:outline-none"
-                  >
-                    {currentUser.profileImageUrl ? (
-                      <img
-                        src={currentUser.profileImageUrl}
-                        alt={currentUser.nickname}
-                        className="h-10 w-10 rounded-full object-cover border-2 border-gray-200 hover:border-orange-500 transition-colors"
+        {/* Desktop Actions */}
+        <div className="hidden items-center gap-3 lg:flex">
+          {isLoggedIn ? (
+            <>
+              <Button onClick={handleCreateRecipe} size="sm" className="gap-1.5">
+                <Plus className="h-4 w-4" />
+                {t('recipe.create.button')}
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage
+                        src={currentUser?.profileImageUrl || undefined}
+                        alt={getDisplayName()}
                       />
-                    ) : (
-                      <div className="h-10 w-10 rounded-full bg-orange-500 flex items-center justify-center border-2 border-gray-200 hover:border-orange-600 transition-colors">
-                        <span className="text-white font-semibold text-lg">
-                          {currentUser.nickname.charAt(0).toUpperCase()}
-                        </span>
-                      </div>
-                    )}
-                  </button>
-                  {isProfileMenuOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
-                      <div className="px-4 py-2 border-b border-gray-200">
-                        <p className="text-sm font-medium text-gray-900">{currentUser.nickname}</p>
-                        <p className="text-xs text-gray-500">{currentUser.email}</p>
-                      </div>
-                      <button
-                        onClick={() => {
-                          setIsProfileMenuOpen(false);
-                          navigate('/profile/edit');
-                        }}
-                        className="flex items-center space-x-2 w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      >
-                        <User size={16} />
-                        <span>{t('profile.title')}</span>
-                      </button>
-                      <button
-                        onClick={() => {
-                          setIsProfileMenuOpen(false);
-                          handleLogout();
-                        }}
-                        className="flex items-center space-x-2 w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      >
-                        <LogOut size={16} />
-                        <span>{t('auth.logout')}</span>
-                      </button>
+                      <AvatarFallback className="bg-orange-500 text-white">
+                        {getInitials()}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">{getDisplayName()}</p>
+                      <p className="text-xs leading-none text-muted-foreground">
+                        {currentUser?.email}
+                      </p>
                     </div>
-                  )}
-                </div>
-              </>
-            ) : (
-              <>
-                <Button variant="ghost" size="sm" onClick={() => navigate('/login')}>
-                  {t('auth.login')}
-                </Button>
-                <Button variant="default" size="sm" onClick={() => navigate('/register')}>
-                  {t('auth.register')}
-                </Button>
-              </>
-            )}
-          </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate('/profile/edit')}>
+                    <User className="mr-2 h-4 w-4" />
+                    {t('profile.title')}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    {t('auth.logout')}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
+          ) : (
+            <>
+              <Button asChild variant="ghost" size="sm">
+                <Link to="/login">{t('auth.login')}</Link>
+              </Button>
+              <Button asChild variant="outline" size="sm">
+                <Link to="/register">{t('auth.register')}</Link>
+              </Button>
+            </>
+          )}
         </div>
+
+        {/* Mobile Menu Button */}
+        <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+          <SheetTrigger asChild className="lg:hidden">
+            <Button variant="ghost" size="icon">
+              <Menu className="h-5 w-5" />
+              <span className="sr-only">メニューを開く</span>
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="right" className="w-72">
+            <SheetHeader>
+              <SheetTitle className="flex items-center gap-2">
+                <img src="/logo.svg" alt="Let's Cook" className="h-6 w-6" />
+                {t('app.title')}
+              </SheetTitle>
+            </SheetHeader>
+            <div className="mt-6 flex flex-col gap-4">
+              {/* Mobile Navigation */}
+              <nav className="flex flex-col gap-1">
+                <NavLinks mobile />
+              </nav>
+
+              <div className="my-2 h-px bg-border" />
+
+              {/* Mobile Actions */}
+              {isLoggedIn ? (
+                <>
+                  <div className="flex items-center gap-3 px-3">
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage
+                        src={currentUser?.profileImageUrl || undefined}
+                        alt={getDisplayName()}
+                      />
+                      <AvatarFallback className="bg-orange-500 text-white">
+                        {getInitials()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium">{getDisplayName()}</span>
+                      <span className="text-xs text-muted-foreground">{currentUser?.email}</span>
+                    </div>
+                  </div>
+                  <Button onClick={handleCreateRecipe} className="gap-1.5">
+                    <Plus className="h-4 w-4" />
+                    {t('recipe.create.button')}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="justify-start gap-2"
+                    onClick={() => {
+                      navigate('/profile/edit');
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    <User className="h-4 w-4" />
+                    {t('profile.title')}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="justify-start gap-2 text-destructive"
+                    onClick={handleLogout}
+                  >
+                    <LogOut className="h-4 w-4" />
+                    {t('auth.logout')}
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button asChild className="w-full">
+                    <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
+                      {t('auth.login')}
+                    </Link>
+                  </Button>
+                  <Button asChild variant="outline" className="w-full">
+                    <Link to="/register" onClick={() => setMobileMenuOpen(false)}>
+                      {t('auth.register')}
+                    </Link>
+                  </Button>
+                </>
+              )}
+            </div>
+          </SheetContent>
+        </Sheet>
       </div>
     </header>
   );
