@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   createRecipeWithImages,
@@ -8,8 +7,7 @@ import {
   uploadStepImage,
 } from '../../../api/recipeApi';
 import { useAuthStore } from '../../../store/authStore';
-import { clearCurrentRecipe, fetchRecipe } from '../../../store/recipeSlice';
-import { AppDispatch, RootState } from '../../../store/store';
+import { useRecipeStore } from '../../../store/recipeStore';
 import { Ingredient, Step } from '../../../types/recipe';
 import { initialFormState } from './recipeEditConfig';
 
@@ -19,13 +17,14 @@ import { initialFormState } from './recipeEditConfig';
  */
 export const useRecipeEditHandlers = (scrollToMessage?: () => void) => {
   const { id } = useParams<{ id: string }>();
-  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const {
     currentRecipe,
     loading: recipeLoading,
     error,
-  } = useSelector((state: RootState) => state.recipe);
+    fetchRecipe,
+    clearCurrentRecipe,
+  } = useRecipeStore();
   const user = useAuthStore((state) => state.user);
 
   const [title, setTitle] = useState(initialFormState.title);
@@ -43,12 +42,12 @@ export const useRecipeEditHandlers = (scrollToMessage?: () => void) => {
   // レシピデータの取得
   useEffect(() => {
     if (isEditMode && id) {
-      dispatch(fetchRecipe(id));
+      fetchRecipe(id);
     }
     return () => {
-      dispatch(clearCurrentRecipe());
+      clearCurrentRecipe();
     };
-  }, [dispatch, id, isEditMode]);
+  }, [id, isEditMode, fetchRecipe, clearCurrentRecipe]);
 
   // エラー発生時にスクロール
   useEffect(() => {

@@ -1,10 +1,8 @@
 import { Search } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useDispatch, useSelector } from 'react-redux';
 import { useAuthStore } from '../../store/authStore';
-import { searchRecipes } from '../../store/recipeSlice';
-import { AppDispatch, RootState } from '../../store/store';
+import { useRecipeStore } from '../../store/recipeStore';
 import { Recipe } from '../../types/recipe';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
@@ -22,8 +20,7 @@ interface RecipeSelectModalProps {
  */
 const RecipeSelectModal: React.FC<RecipeSelectModalProps> = ({ open, onClose, onSelect }) => {
   const { t } = useTranslation();
-  const dispatch = useDispatch<AppDispatch>();
-  const { recipes, loading } = useSelector((state: RootState) => state.recipe);
+  const { recipes, loading, searchRecipes } = useRecipeStore();
   const user = useAuthStore((state) => state.user);
 
   const [searchKeyword, setSearchKeyword] = useState('');
@@ -32,9 +29,9 @@ const RecipeSelectModal: React.FC<RecipeSelectModalProps> = ({ open, onClose, on
   // モーダルが開いたときにレシピを取得
   useEffect(() => {
     if (open && user?.userId) {
-      dispatch(searchRecipes({ authorId: user.userId }));
+      searchRecipes({ authorId: user.userId });
     }
-  }, [open, user, dispatch]);
+  }, [open, user, searchRecipes]);
 
   // レシピが更新されたらフィルタリング
   useEffect(() => {

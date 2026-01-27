@@ -1,12 +1,10 @@
 import { Loader2, Plus, Search, UtensilsCrossed, X } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { searchRecipesByIngredients } from '../../api/recipeApi';
 import { useScrollToMessage } from '../../hooks/useScrollToMessage';
-import { searchRecipes } from '../../store/recipeSlice';
-import { AppDispatch, RootState } from '../../store/store';
+import { useRecipeStore } from '../../store/recipeStore';
 import { RecipeSummary } from '../../types/recipe';
 import { MessageDisplay } from '../common/MessageDisplay';
 import { Badge } from '../ui/badge';
@@ -21,10 +19,9 @@ type SearchMode = 'keyword' | 'ingredients';
  */
 const RecipeSearchPage: React.FC = () => {
   const { t } = useTranslation();
-  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { messageRef, scrollToMessage } = useScrollToMessage();
-  const { recipes, loading: keywordLoading, error } = useSelector((state: RootState) => state.recipe);
+  const { recipes, loading: keywordLoading, error, searchRecipes } = useRecipeStore();
 
   // 検索モード
   const [searchMode, setSearchMode] = useState<SearchMode>('keyword');
@@ -50,13 +47,13 @@ const RecipeSearchPage: React.FC = () => {
 
   // 初回ロード時にキーワード検索を実行
   useEffect(() => {
-    dispatch(searchRecipes({}));
-  }, [dispatch]);
+    searchRecipes({});
+  }, [searchRecipes]);
 
   // キーワード検索
   const handleKeywordSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    dispatch(searchRecipes({ keyword }));
+    searchRecipes({ keyword });
   };
 
   // 食材追加
@@ -320,10 +317,13 @@ const RecipeSearchPage: React.FC = () => {
                 <>
                   <div className="mb-4">
                     <h2 className="text-xl font-semibold">
-                      {t('recipe.searchByIngredients.resultsTitle', { count: ingredientResults.length })}
+                      {t('recipe.searchByIngredients.resultsTitle', {
+                        count: ingredientResults.length,
+                      })}
                     </h2>
                     <p className="text-sm text-gray-500">
-                      {t('recipe.searchByIngredients.searchedIngredients')}: {ingredients.join(', ')}
+                      {t('recipe.searchByIngredients.searchedIngredients')}:{' '}
+                      {ingredients.join(', ')}
                     </p>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

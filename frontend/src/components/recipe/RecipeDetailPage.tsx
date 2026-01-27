@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useReview } from '../../hooks/useReview';
 import { useAuthStore } from '../../store/authStore';
-import { clearCurrentRecipe, deleteRecipe, fetchRecipe } from '../../store/recipeSlice';
-import { AppDispatch, RootState } from '../../store/store';
+import { useRecipeStore } from '../../store/recipeStore';
 import { Review } from '../../types/review';
 import { formatUnit } from '../../utils/unitHelper';
 import { getYouTubeEmbedUrl } from '../../utils/videoHelper';
@@ -20,9 +18,9 @@ import { ReviewList } from './ReviewList';
 const RecipeDetailPage: React.FC = () => {
   const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
-  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const { currentRecipe, loading, error } = useSelector((state: RootState) => state.recipe);
+  const { currentRecipe, loading, error, fetchRecipe, deleteRecipe, clearCurrentRecipe } =
+    useRecipeStore();
   const user = useAuthStore((state) => state.user);
   const {
     reviews,
@@ -38,13 +36,13 @@ const RecipeDetailPage: React.FC = () => {
 
   useEffect(() => {
     if (id) {
-      dispatch(fetchRecipe(id));
+      fetchRecipe(id);
       fetchReviews(id);
     }
     return () => {
-      dispatch(clearCurrentRecipe());
+      clearCurrentRecipe();
     };
-  }, [dispatch, id]);
+  }, [id, fetchRecipe, clearCurrentRecipe]);
 
   const handleEdit = () => {
     navigate(`/recipes/${id}/edit`);
@@ -53,7 +51,7 @@ const RecipeDetailPage: React.FC = () => {
   const handleDelete = async () => {
     if (!id || !user) return;
     if (window.confirm(t('recipe.delete.confirm'))) {
-      await dispatch(deleteRecipe({ recipeId: id, userId: user.userId }));
+      await deleteRecipe(id, user.userId);
       navigate('/recipes');
     }
   };
