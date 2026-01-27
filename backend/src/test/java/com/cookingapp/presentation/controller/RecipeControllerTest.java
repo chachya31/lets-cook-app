@@ -398,8 +398,8 @@ class RecipeControllerTest {
 
     private List<StepDto> createSteps() {
         return List.of(
-                StepDto.builder().stepNumber(1).instruction("Mix ingredients").build(),
-                StepDto.builder().stepNumber(2).instruction("Bake for 30 minutes").build()
+                StepDto.builder().stepNumber(1).description("Mix ingredients").build(),
+                StepDto.builder().stepNumber(2).description("Bake for 30 minutes").build()
         );
     }
 
@@ -409,8 +409,8 @@ class RecipeControllerTest {
                 RecipeOutput.IngredientOutput.builder().name("Sugar").quantity("100").unit("g").build()
         );
         List<RecipeOutput.StepOutput> steps = List.of(
-                RecipeOutput.StepOutput.builder().stepNumber(1).instruction("Mix ingredients").build(),
-                RecipeOutput.StepOutput.builder().stepNumber(2).instruction("Bake for 30 minutes").build()
+                RecipeOutput.StepOutput.builder().stepNumber(1).description("Mix ingredients").build(),
+                RecipeOutput.StepOutput.builder().stepNumber(2).description("Bake for 30 minutes").build()
         );
 
         return RecipeOutput.builder()

@@ -8,14 +8,16 @@ import lombok.Getter;
 @Builder
 public class StepInput {
     private final Integer stepNumber;
-    private final String instruction;
+    private final String description;
     private final String imageUrl;
+    private final String videoUrl;
 
     public Step toEntity() {
         return Step.builder()
                 .stepNumber(stepNumber)
-                .instruction(instruction)
+                .description(description)
                 .imageUrl(imageUrl)
+                .videoUrl(videoUrl)
                 .build();
     }
 }

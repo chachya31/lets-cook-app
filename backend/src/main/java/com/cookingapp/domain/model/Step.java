@@ -13,13 +13,14 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 public class Step {
 
     private Integer stepNumber;
-    private String instruction;
+    private String description;
     private String imageUrl;
+    private String videoUrl;
 
     public Step() {
     }
 
-    @DynamoDbAttribute("StepNumber")
+    @DynamoDbAttribute("stepNumber")
     public Integer getStepNumber() {
         return stepNumber;
     }
@@ -28,21 +29,30 @@ public class Step {
         this.stepNumber = stepNumber;
     }
 
-    @DynamoDbAttribute("Instruction")
-    public String getInstruction() {
-        return instruction;
+    @DynamoDbAttribute("description")
+    public String getDescription() {
+        return description;
     }
 
-    public void setInstruction(String instruction) {
-        this.instruction = instruction;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    @DynamoDbAttribute("ImageUrl")
+    @DynamoDbAttribute("imageUrl")
     public String getImageUrl() {
         return imageUrl;
     }
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    @DynamoDbAttribute("videoUrl")
+    public String getVideoUrl() {
+        return videoUrl;
+    }
+
+    public void setVideoUrl(String videoUrl) {
+        this.videoUrl = videoUrl;
     }
 }

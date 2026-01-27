@@ -71,14 +71,16 @@ public class RecipeOutput {
     @Builder
     public static class StepOutput {
         private final Integer stepNumber;
-        private final String instruction;
+        private final String description;
         private final String imageUrl;
+        private final String videoUrl;
 
         public static StepOutput from(Step step) {
             return StepOutput.builder()
                     .stepNumber(step.getStepNumber())
-                    .instruction(step.getInstruction())
+                    .description(step.getDescription())
                     .imageUrl(step.getImageUrl())
+                    .videoUrl(step.getVideoUrl())
                     .build();
         }
     }
