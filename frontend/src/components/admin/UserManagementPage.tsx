@@ -1,12 +1,10 @@
 import { Users } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useScrollToMessage } from '../../hooks/useScrollToMessage';
+import { useAdminStore } from '../../store/adminStore';
 import { useAuthStore } from '../../store/authStore';
-import { deleteUserByAdmin, fetchAllUsers, suspendUser } from '../../store/slices/adminSlice';
-import { AppDispatch, RootState } from '../../store/store';
 import LoadingSkeleton from '../common/LoadingSkeleton';
 import { MessageDisplay } from '../common/MessageDisplay';
 import { Button } from '../ui/button';
@@ -17,10 +15,9 @@ import { Card } from '../ui/card';
  */
 const UserManagementPage: React.FC = () => {
   const { t } = useTranslation();
-  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { messageRef, scrollToMessage } = useScrollToMessage();
-  const { users, loading, error } = useSelector((state: RootState) => state.admin);
+  const { users, loading, error, fetchAllUsers, suspendUser, deleteUser } = useAdminStore();
   const currentUser = useAuthStore((state) => state.user);
   const isAdmin = currentUser?.roles?.includes('Admins') ?? false;
 
@@ -38,17 +35,17 @@ const UserManagementPage: React.FC = () => {
       navigate('/dashboard');
       return;
     }
-    dispatch(fetchAllUsers());
-  }, [dispatch, isAdmin, navigate]);
+    fetchAllUsers();
+  }, [fetchAllUsers, isAdmin, navigate]);
 
   const handleSuspendUser = async (userId: string) => {
     if (!window.confirm(t('admin.users.confirm.suspend'))) {
       return;
     }
     try {
-      await dispatch(suspendUser(userId)).unwrap();
+      await suspendUser(userId);
       setActionResult(t('admin.users.success.suspended'));
-      dispatch(fetchAllUsers());
+      fetchAllUsers();
     } catch {
       setActionResult(t('admin.users.error.suspendFailed'));
     }
@@ -59,9 +56,9 @@ const UserManagementPage: React.FC = () => {
       return;
     }
     try {
-      await dispatch(deleteUserByAdmin(userId)).unwrap();
+      await deleteUser(userId);
       setActionResult(t('admin.users.success.deleted'));
-      dispatch(fetchAllUsers());
+      fetchAllUsers();
     } catch {
       setActionResult(t('admin.users.error.deleteFailed'));
     }

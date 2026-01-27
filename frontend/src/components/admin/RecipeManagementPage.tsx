@@ -1,14 +1,8 @@
 import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useScrollToMessage } from '../../hooks/useScrollToMessage';
-import {
-  deleteRecipeByAdmin,
-  fetchAllRecipesForAdmin,
-  setRecipeStatus,
-} from '../../store/slices/adminSlice';
-import { AppDispatch, RootState } from '../../store/store';
+import { useAdminStore } from '../../store/adminStore';
 import LoadingSkeleton from '../common/LoadingSkeleton';
 import { MessageDisplay } from '../common/MessageDisplay';
 import { Button } from '../ui/button';
@@ -19,14 +13,14 @@ import { Card } from '../ui/card';
  */
 const RecipeManagementPage: React.FC = () => {
   const { t } = useTranslation();
-  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { messageRef, scrollToMessage } = useScrollToMessage();
-  const { recipes, loading, error } = useSelector((state: RootState) => state.admin);
+  const { recipes, loading, error, fetchAllRecipes, setRecipeStatus, deleteRecipe } =
+    useAdminStore();
 
   useEffect(() => {
-    dispatch(fetchAllRecipesForAdmin());
-  }, [dispatch]);
+    fetchAllRecipes();
+  }, [fetchAllRecipes]);
 
   // エラー発生時にスクロール
   useEffect(() => {
@@ -37,14 +31,9 @@ const RecipeManagementPage: React.FC = () => {
 
   const handleToggleStatus = async (recipeId: string, currentStatus: boolean) => {
     try {
-      await dispatch(
-        setRecipeStatus({
-          recipeId,
-          request: { isPublic: !currentStatus },
-        })
-      ).unwrap();
-    } catch (err) {
-      console.error('Failed to toggle recipe status:', err);
+      await setRecipeStatus(recipeId, { isPublic: !currentStatus });
+    } catch {
+      // エラーはstoreで管理
     }
   };
 
@@ -54,9 +43,9 @@ const RecipeManagementPage: React.FC = () => {
     }
 
     try {
-      await dispatch(deleteRecipeByAdmin(recipeId)).unwrap();
-    } catch (err) {
-      console.error('Failed to delete recipe:', err);
+      await deleteRecipe(recipeId);
+    } catch {
+      // エラーはstoreで管理
     }
   };
 
@@ -81,7 +70,7 @@ const RecipeManagementPage: React.FC = () => {
         </Card>
       ) : (
         <div className="space-y-4">
-          {recipes.map((recipe: any) => (
+          {recipes.map((recipe) => (
             <Card key={recipe.recipeId} className="p-6">
               <div className="flex items-start justify-between">
                 <div className="flex-1">

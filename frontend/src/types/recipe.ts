@@ -25,6 +25,7 @@ export interface Recipe {
   cookingTime: number;
   imageUrl?: string;
   isPublic: boolean;
+  isDeleted?: boolean;
   createdAt: string;
   updatedAt: string;
 }

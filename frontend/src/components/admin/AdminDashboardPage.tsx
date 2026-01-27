@@ -1,11 +1,9 @@
 import { Shield } from 'lucide-react';
 import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { useAdminStore } from '../../store/adminStore';
 import { useAuthStore } from '../../store/authStore';
-import { fetchAdminDashboardStats } from '../../store/slices/adminSlice';
-import { AppDispatch, RootState } from '../../store/store';
 import LoadingSkeleton from '../common/LoadingSkeleton';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
@@ -15,9 +13,8 @@ import { Card } from '../ui/card';
  */
 const AdminDashboardPage: React.FC = () => {
   const { t } = useTranslation();
-  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const { stats, loading, error } = useSelector((state: RootState) => state.admin);
+  const { stats, loading, error, fetchDashboardStats } = useAdminStore();
   const currentUser = useAuthStore((state) => state.user);
   const isAdmin = currentUser?.roles?.includes('Admins') ?? false;
 
@@ -27,8 +24,8 @@ const AdminDashboardPage: React.FC = () => {
       navigate('/dashboard');
       return;
     }
-    dispatch(fetchAdminDashboardStats());
-  }, [dispatch, isAdmin, navigate]);
+    fetchDashboardStats();
+  }, [fetchDashboardStats, isAdmin, navigate]);
 
   if (loading) {
     return (
