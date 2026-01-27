@@ -1,17 +1,9 @@
 import { Calendar } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useDispatch, useSelector } from 'react-redux';
 import { useScrollToMessage } from '../../hooks/useScrollToMessage';
 import { useAuthStore } from '../../store/authStore';
-import {
-  createSchedule,
-  deleteSchedule,
-  fetchSchedules,
-  markAsDone,
-  updateSchedule,
-} from '../../store/slices/scheduleSlice';
-import { AppDispatch, RootState } from '../../store/store';
+import { useScheduleStore } from '../../store/scheduleStore';
 import { Recipe } from '../../types/recipe';
 import { Schedule } from '../../types/schedule';
 import { MessageDisplay } from '../common/MessageDisplay';
@@ -26,9 +18,17 @@ import RecipeSelectModal from './RecipeSelectModal';
  */
 const SchedulePage: React.FC = () => {
   const { t } = useTranslation();
-  const dispatch = useDispatch<AppDispatch>();
   const { messageRef, scrollToMessage } = useScrollToMessage();
-  const { schedules, loading, error } = useSelector((state: RootState) => state.schedule);
+  const {
+    schedules,
+    loading,
+    error,
+    fetchSchedules,
+    createSchedule,
+    updateSchedule,
+    deleteSchedule,
+    markAsDone,
+  } = useScheduleStore();
   const user = useAuthStore((state) => state.user);
 
   // エラー発生時にスクロール
@@ -63,30 +63,25 @@ const SchedulePage: React.FC = () => {
     setEndDate(end);
 
     if (user?.userId) {
-      dispatch(fetchSchedules({ userId: user.userId, params: { startDate: start, endDate: end } }));
+      fetchSchedules(user.userId, { startDate: start, endDate: end });
     }
-  }, [dispatch, user]);
+  }, [fetchSchedules, user]);
 
   const handleSearch = () => {
     if (user?.userId && startDate && endDate) {
-      dispatch(fetchSchedules({ userId: user.userId, params: { startDate, endDate } }));
+      fetchSchedules(user.userId, { startDate, endDate });
     }
   };
 
   const handleCreate = async () => {
     if (!user?.userId) return;
 
-    await dispatch(
-      createSchedule({
-        userId: user.userId,
-        request: {
-          date: formData.date,
-          recipeId: formData.recipeId,
-          recipeTitle: formData.recipeTitle,
-          memo: formData.memo || undefined,
-        },
-      })
-    );
+    await createSchedule(user.userId, {
+      date: formData.date,
+      recipeId: formData.recipeId,
+      recipeTitle: formData.recipeTitle,
+      memo: formData.memo || undefined,
+    });
 
     setShowForm(false);
     setFormData({ date: '', recipeId: '', recipeTitle: '', memo: '' });
@@ -95,14 +90,7 @@ const SchedulePage: React.FC = () => {
   const handleUpdate = async (scheduleId: string, memo: string) => {
     if (!user?.userId) return;
 
-    await dispatch(
-      updateSchedule({
-        userId: user.userId,
-        scheduleId,
-        request: { memo },
-      })
-    );
-
+    await updateSchedule(user.userId, scheduleId, { memo });
     setEditingSchedule(null);
   };
 
@@ -110,13 +98,13 @@ const SchedulePage: React.FC = () => {
     if (!user?.userId) return;
     if (!confirm(t('schedule.confirmDelete'))) return;
 
-    await dispatch(deleteSchedule({ userId: user.userId, scheduleId }));
+    await deleteSchedule(user.userId, scheduleId);
   };
 
   const handleMarkAsDone = async (scheduleId: string) => {
     if (!user?.userId) return;
 
-    await dispatch(markAsDone({ userId: user.userId, scheduleId }));
+    await markAsDone(user.userId, scheduleId);
   };
 
   const handleRecipeSelect = (recipe: Recipe) => {

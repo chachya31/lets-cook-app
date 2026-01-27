@@ -1,16 +1,9 @@
 import { ShoppingCart } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useDispatch, useSelector } from 'react-redux';
 import { useScrollToMessage } from '../../hooks/useScrollToMessage';
 import { useAuthStore } from '../../store/authStore';
-import {
-  addShoppingListItem,
-  deleteShoppingListItem,
-  fetchShoppingList,
-  updateShoppingListItem,
-} from '../../store/slices/shoppingListSlice';
-import { AppDispatch, RootState } from '../../store/store';
+import { useShoppingListStore } from '../../store/shoppingListStore';
 import { formatUnit } from '../../utils/unitHelper';
 import { MessageDisplay } from '../common/MessageDisplay';
 import { Button } from '../ui/button';
@@ -21,9 +14,9 @@ import { Label } from '../ui/label';
 
 const ShoppingListPage: React.FC = () => {
   const { t } = useTranslation();
-  const dispatch = useDispatch<AppDispatch>();
   const { messageRef, scrollToMessage } = useScrollToMessage();
-  const { items, loading, error } = useSelector((state: RootState) => state.shoppingList);
+  const { items, loading, error, fetchShoppingList, addItem, updateItem, deleteItem } =
+    useShoppingListStore();
   const user = useAuthStore((state) => state.user);
 
   // エラー発生時にスクロール
@@ -39,24 +32,19 @@ const ShoppingListPage: React.FC = () => {
 
   useEffect(() => {
     if (user?.userId) {
-      dispatch(fetchShoppingList(user.userId));
+      fetchShoppingList(user.userId);
     }
-  }, [dispatch, user]);
+  }, [fetchShoppingList, user]);
 
   const handleAddItem = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user?.userId || !name || !quantity) return;
 
-    await dispatch(
-      addShoppingListItem({
-        userId: user.userId,
-        request: {
-          name,
-          quantity: parseFloat(quantity),
-          unit,
-        },
-      })
-    );
+    await addItem(user.userId, {
+      name,
+      quantity: parseFloat(quantity),
+      unit,
+    });
 
     // フォームをリセット
     setName('');
@@ -67,24 +55,13 @@ const ShoppingListPage: React.FC = () => {
   const handleToggleCheck = async (itemId: string, isChecked: boolean) => {
     if (!user?.userId) return;
 
-    await dispatch(
-      updateShoppingListItem({
-        userId: user.userId,
-        itemId,
-        request: { isChecked: !isChecked },
-      })
-    );
+    await updateItem(user.userId, itemId, { isChecked: !isChecked });
   };
 
   const handleDeleteItem = async (itemId: string) => {
     if (!user?.userId) return;
 
-    await dispatch(
-      deleteShoppingListItem({
-        userId: user.userId,
-        itemId,
-      })
-    );
+    await deleteItem(user.userId, itemId);
   };
 
   const uncheckedItems = items.filter((item) => !item.isChecked);
