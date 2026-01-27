@@ -51,7 +51,7 @@ public class RecipeController {
 
     @GetMapping
     public ResponseEntity<List<RecipeResponse>> getRecipes(
-            @RequestParam(required = false) String authorId,
+            @RequestParam(value = "authorId", required = false) String authorId,
             Principal principal) {
         List<RecipeOutput> outputs;
 
@@ -69,7 +69,7 @@ public class RecipeController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<RecipeResponse> getRecipe(@PathVariable String id, Principal principal) {
+    public ResponseEntity<RecipeResponse> getRecipe(@PathVariable("id") String id, Principal principal) {
         String currentUserId = principal != null ? principal.getName() : null;
         RecipeOutput output = recipeUseCase.getRecipeById(id, currentUserId);
         return ResponseEntity.ok(toResponse(output));
@@ -77,7 +77,7 @@ public class RecipeController {
 
     @PutMapping("/{id}")
     public ResponseEntity<RecipeResponse> updateRecipe(
-            @PathVariable String id,
+            @PathVariable("id") String id,
             @Valid @RequestBody RecipeRequest request,
             Principal principal) {
         String userId = getUserId(principal);
@@ -88,7 +88,7 @@ public class RecipeController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteRecipe(
-            @PathVariable String id,
+            @PathVariable("id") String id,
             Principal principal) {
         String userId = getUserId(principal);
         recipeUseCase.deleteRecipe(id, userId);
@@ -136,8 +136,9 @@ public class RecipeController {
     private StepInput toStepInput(StepDto dto) {
         return StepInput.builder()
                 .stepNumber(dto.getStepNumber())
-                .instruction(dto.getInstruction())
+                .description(dto.getDescription())
                 .imageUrl(dto.getImageUrl())
+                .videoUrl(dto.getVideoUrl())
                 .build();
     }
 
@@ -156,8 +157,9 @@ public class RecipeController {
                 ? output.getSteps().stream()
                     .map(s -> StepDto.builder()
                             .stepNumber(s.getStepNumber())
-                            .instruction(s.getInstruction())
+                            .description(s.getDescription())
                             .imageUrl(s.getImageUrl())
+                            .videoUrl(s.getVideoUrl())
                             .build())
                     .collect(Collectors.toList())
                 : null;

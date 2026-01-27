@@ -15,30 +15,35 @@ public class StepDto {
     @NotNull(message = "Step number is required")
     private final Integer stepNumber;
 
-    @NotBlank(message = "Instruction is required")
-    private final String instruction;
+    @NotBlank(message = "Description is required")
+    private final String description;
 
     private final String imageUrl;
 
+    private final String videoUrl;
+
     public StepDto() {
         this.stepNumber = null;
-        this.instruction = null;
+        this.description = null;
         this.imageUrl = null;
+        this.videoUrl = null;
     }
 
     public Step toEntity() {
         return Step.builder()
                 .stepNumber(stepNumber)
-                .instruction(instruction)
+                .description(description)
                 .imageUrl(imageUrl)
+                .videoUrl(videoUrl)
                 .build();
     }
 
     public static StepDto from(Step step) {
         return StepDto.builder()
                 .stepNumber(step.getStepNumber())
-                .instruction(step.getInstruction())
+                .description(step.getDescription())
                 .imageUrl(step.getImageUrl())
+                .videoUrl(step.getVideoUrl())
                 .build();
     }
 }

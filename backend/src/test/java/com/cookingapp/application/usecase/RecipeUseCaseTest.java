@@ -128,7 +128,7 @@ class RecipeUseCaseTest {
 
                 assertThat(output.getSteps()).hasSize(2);
                 assertThat(output.getSteps().get(0).getStepNumber()).isEqualTo(1);
-                assertThat(output.getSteps().get(0).getInstruction()).isEqualTo("Mix ingredients");
+                assertThat(output.getSteps().get(0).getDescription()).isEqualTo("Mix ingredients");
             }
         }
     }
@@ -498,8 +498,8 @@ class RecipeUseCaseTest {
                 IngredientInput.builder().name("Sugar").quantity("100").unit("g").build()
         );
         List<StepInput> steps = List.of(
-                StepInput.builder().stepNumber(1).instruction("Mix ingredients").build(),
-                StepInput.builder().stepNumber(2).instruction("Bake for 30 minutes").build()
+                StepInput.builder().stepNumber(1).description("Mix ingredients").build(),
+                StepInput.builder().stepNumber(2).description("Bake for 30 minutes").build()
         );
 
         return CreateRecipeInput.builder()
@@ -518,8 +518,8 @@ class RecipeUseCaseTest {
                 IngredientInput.builder().name("Sugar").quantity("100").unit("g").build()
         );
         List<StepInput> steps = List.of(
-                StepInput.builder().stepNumber(1).instruction("Mix ingredients").build(),
-                StepInput.builder().stepNumber(2).instruction("Bake for 30 minutes").build()
+                StepInput.builder().stepNumber(1).description("Mix ingredients").build(),
+                StepInput.builder().stepNumber(2).description("Bake for 30 minutes").build()
         );
 
         return CreateRecipeInput.builder()
@@ -538,8 +538,8 @@ class RecipeUseCaseTest {
                 Ingredient.builder().name("Sugar").quantity("100").unit("g").build()
         );
         List<Step> steps = List.of(
-                Step.builder().stepNumber(1).instruction("Mix ingredients").build(),
-                Step.builder().stepNumber(2).instruction("Bake for 30 minutes").build()
+                Step.builder().stepNumber(1).description("Mix ingredients").build(),
+                Step.builder().stepNumber(2).description("Bake for 30 minutes").build()
         );
 
         return Recipe.builder()
@@ -562,7 +562,7 @@ class RecipeUseCaseTest {
                 Ingredient.builder().name("Flour").quantity("200").unit("g").build()
         );
         List<Step> steps = List.of(
-                Step.builder().stepNumber(1).instruction("Mix ingredients").build()
+                Step.builder().stepNumber(1).description("Mix ingredients").build()
         );
 
         return Recipe.builder()
@@ -585,7 +585,7 @@ class RecipeUseCaseTest {
                 Ingredient.builder().name("Flour").quantity("200").unit("g").build()
         );
         List<Step> steps = List.of(
-                Step.builder().stepNumber(1).instruction("Mix ingredients").build()
+                Step.builder().stepNumber(1).description("Mix ingredients").build()
         );
 
         return Recipe.builder()
@@ -605,7 +605,7 @@ class RecipeUseCaseTest {
 
     private Recipe createRecipeWithNullIngredients() {
         List<Step> steps = List.of(
-                Step.builder().stepNumber(1).instruction("Mix ingredients").build()
+                Step.builder().stepNumber(1).description("Mix ingredients").build()
         );
 
         return Recipe.builder()
