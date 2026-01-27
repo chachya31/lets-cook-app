@@ -1,5 +1,7 @@
 package com.cookingapp.application.usecase;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.cookingapp.domain.model.User;
 import com.cookingapp.domain.repository.UserRepository;
 import com.cookingapp.infrastructure.auth.AuthResult;
@@ -30,7 +32,11 @@ public class LoginUseCase {
         // 1. Authenticate with Cognito
         AuthResult authResult = cognitoAuthService.signIn(email, password);
 
-        // 2. Get user details from DynamoDB
+        // 2. Extract Cognito sub (user ID) from idToken
+        DecodedJWT decodedJWT = JWT.decode(authResult.getIdToken());
+        String cognitoSub = decodedJWT.getSubject();
+
+        // 3. Get user details from DynamoDB
         Optional<User> userOptional = userRepository.findByEmail(email);
 
         UserProfileResponse userProfile = null;
@@ -38,20 +44,29 @@ public class LoginUseCase {
         if (userOptional.isPresent()) {
             User user = userOptional.get();
 
-            // 3. Update last login date
+            // 4. Update last login date
             user.setLastLoginDate(Instant.now().toString());
             userRepository.save(user);
 
             logger.info("User logged in and LastLoginDate updated: {}", email);
 
-            userProfile = UserProfileResponse.from(user);
+            // 5. Build UserProfileResponse with Cognito sub as userId
+            userProfile = UserProfileResponse.builder()
+                    .userId(cognitoSub)
+                    .email(user.getEmail())
+                    .nickname(user.getNickname())
+                    .displayName(user.getDisplayName())
+                    .profileImageUrl(user.getProfileImageUrl())
+                    .preferredLanguage(user.getPreferredLanguage())
+                    .timezone(user.getTimezone())
+                    .build();
         } else {
             // User authenticated via Cognito but not found in DynamoDB
             // This could happen if user registration in DynamoDB failed previously
             logger.warn("User authenticated but not found in DynamoDB: {}", email);
         }
 
-        // 4. Build and return response
+        // 6. Build and return response
         return LoginResponse.builder()
                 .accessToken(authResult.getAccessToken())
                 .idToken(authResult.getIdToken())

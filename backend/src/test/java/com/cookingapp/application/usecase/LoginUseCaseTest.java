@@ -1,5 +1,7 @@
 package com.cookingapp.application.usecase;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import com.cookingapp.domain.model.User;
 import com.cookingapp.domain.repository.UserRepository;
 import com.cookingapp.infrastructure.auth.AuthResult;
@@ -39,10 +41,16 @@ class LoginUseCaseTest {
     private static final String TEST_EMAIL = "test@example.com";
     private static final String TEST_PASSWORD = "password123";
     private static final String TEST_USER_ID = "user-123";
+    private static final String TEST_COGNITO_SUB = "cognito-sub-12345";
     private static final String TEST_ACCESS_TOKEN = "access-token-xyz";
-    private static final String TEST_ID_TOKEN = "id-token-xyz";
     private static final String TEST_REFRESH_TOKEN = "refresh-token-xyz";
     private static final Integer TEST_EXPIRES_IN = 3600;
+
+    // テスト用の有効なJWTを生成
+    private static final String TEST_ID_TOKEN = JWT.create()
+            .withSubject(TEST_COGNITO_SUB)
+            .withClaim("email", TEST_EMAIL)
+            .sign(Algorithm.none());
 
     @BeforeEach
     void setUp() {
@@ -78,7 +86,7 @@ class LoginUseCaseTest {
                 assertThat(response.getRefreshToken()).isEqualTo(TEST_REFRESH_TOKEN);
                 assertThat(response.getExpiresIn()).isEqualTo(TEST_EXPIRES_IN);
                 assertThat(response.getUser()).isNotNull();
-                assertThat(response.getUser().getUserId()).isEqualTo(TEST_USER_ID);
+                assertThat(response.getUser().getUserId()).isEqualTo(TEST_COGNITO_SUB);
                 assertThat(response.getUser().getEmail()).isEqualTo(TEST_EMAIL);
                 assertThat(response.getUser().getNickname()).isEqualTo("testuser");
 

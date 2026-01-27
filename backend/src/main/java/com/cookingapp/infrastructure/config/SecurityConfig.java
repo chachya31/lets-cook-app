@@ -7,10 +7,19 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import com.cookingapp.infrastructure.security.JwtAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -23,10 +32,12 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/login").permitAll()
                 .requestMatchers("/api/users/register").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/recipes/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/recipes/**").authenticated()
+                .requestMatchers(HttpMethod.PUT, "/api/recipes/**").authenticated()
+                .requestMatchers(HttpMethod.DELETE, "/api/recipes/**").authenticated()
                 .anyRequest().authenticated()
-            );
-            // TODO: JwtAuthenticationFilter を実装後に追加
-            // .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            )
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
