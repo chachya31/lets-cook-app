@@ -196,7 +196,7 @@ class LoginUseCaseTest {
                 .profileImageUrl("https://example.com/image.jpg")
                 .preferredLanguage("ja")
                 .timezone("Asia/Tokyo")
-                .createdAt("2024-01-01T00:00:00Z")
+                .createdAt("2024-01-01T00:00:00")
                 .marketingOptOut(false)
                 .build();
     }

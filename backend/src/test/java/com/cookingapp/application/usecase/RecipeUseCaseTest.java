@@ -552,8 +552,8 @@ class RecipeUseCaseTest {
                 .isPublic(true)
                 .isDeleted(false)
                 .imageUrl(TEST_IMAGE_KEY)
-                .createdAt("2024-01-01T00:00:00Z")
-                .updatedAt("2024-01-01T00:00:00Z")
+                .createdAt("2024-01-01T00:00:00")
+                .updatedAt("2024-01-01T00:00:00")
                 .build();
     }
 
@@ -575,8 +575,8 @@ class RecipeUseCaseTest {
                 .isPublic(true)
                 .isDeleted(false)
                 .imageUrl(null)
-                .createdAt("2024-01-01T00:00:00Z")
-                .updatedAt("2024-01-01T00:00:00Z")
+                .createdAt("2024-01-01T00:00:00")
+                .updatedAt("2024-01-01T00:00:00")
                 .build();
     }
 
@@ -598,8 +598,8 @@ class RecipeUseCaseTest {
                 .isPublic(false)
                 .isDeleted(false)
                 .imageUrl(TEST_IMAGE_KEY)
-                .createdAt("2024-01-01T00:00:00Z")
-                .updatedAt("2024-01-01T00:00:00Z")
+                .createdAt("2024-01-01T00:00:00")
+                .updatedAt("2024-01-01T00:00:00")
                 .build();
     }
 
@@ -618,8 +618,8 @@ class RecipeUseCaseTest {
                 .isPublic(true)
                 .isDeleted(false)
                 .imageUrl(TEST_IMAGE_KEY)
-                .createdAt("2024-01-01T00:00:00Z")
-                .updatedAt("2024-01-01T00:00:00Z")
+                .createdAt("2024-01-01T00:00:00")
+                .updatedAt("2024-01-01T00:00:00")
                 .build();
     }
 }

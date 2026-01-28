@@ -422,8 +422,8 @@ class RecipeControllerTest {
                 .cookingTime(30)
                 .isPublic(true)
                 .imageUrl(TEST_PRESIGNED_URL)
-                .createdAt("2024-01-01T00:00:00Z")
-                .updatedAt("2024-01-01T00:00:00Z")
+                .createdAt("2024-01-01T00:00:00")
+                .updatedAt("2024-01-01T00:00:00")
                 .build();
     }
 }

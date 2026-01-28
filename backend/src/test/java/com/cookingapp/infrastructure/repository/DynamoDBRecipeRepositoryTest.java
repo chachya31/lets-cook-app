@@ -125,8 +125,8 @@ class DynamoDBRecipeRepositoryTest {
                     .cookingTime(30)
                     .isPublic(true)
                     .isDeleted(false)
-                    .createdAt("2024-01-01T00:00:00Z")
-                    .updatedAt("2024-01-01T00:00:00Z")
+                    .createdAt("2024-01-01T00:00:00")
+                    .updatedAt("2024-01-01T00:00:00")
                     .build();
 
             // Act
@@ -400,8 +400,8 @@ class DynamoDBRecipeRepositoryTest {
                 .cookingTime(30)
                 .isPublic(true)
                 .isDeleted(false)
-                .createdAt("2024-01-01T00:00:00Z")
-                .updatedAt("2024-01-01T00:00:00Z")
+                .createdAt("2024-01-01T00:00:00")
+                .updatedAt("2024-01-01T00:00:00")
                 .build();
     }
 
@@ -414,8 +414,8 @@ class DynamoDBRecipeRepositoryTest {
                 .cookingTime(30)
                 .isPublic(true)
                 .isDeleted(false)
-                .createdAt("2024-01-01T00:00:00Z")
-                .updatedAt("2024-01-01T00:00:00Z")
+                .createdAt("2024-01-01T00:00:00")
+                .updatedAt("2024-01-01T00:00:00")
                 .build();
     }
 

@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -45,7 +45,7 @@ public class LoginUseCase {
             User user = userOptional.get();
 
             // 4. Update last login date
-            user.setLastLoginDate(Instant.now().toString());
+            user.setLastLoginDate(LocalDateTime.now().toString());
             userRepository.save(user);
 
             logger.info("User logged in and LastLoginDate updated: {}", email);

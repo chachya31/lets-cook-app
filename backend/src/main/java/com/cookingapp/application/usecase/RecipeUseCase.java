@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -36,7 +36,7 @@ public class RecipeUseCase {
         logger.debug("Creating recipe for author: {}", authorId);
 
         String recipeId = UUID.randomUUID().toString();
-        String now = Instant.now().toString();
+        String now = LocalDateTime.now().toString();
 
         List<Ingredient> ingredients = input.getIngredients() != null
                 ? input.getIngredients().stream()
@@ -148,7 +148,7 @@ public class RecipeUseCase {
                 .isDeleted(existingRecipe.getIsDeleted())
                 .imageUrl(imageKey)
                 .createdAt(existingRecipe.getCreatedAt())
-                .updatedAt(Instant.now().toString())
+                .updatedAt(LocalDateTime.now().toString())
                 .build();
 
         Recipe savedRecipe = recipeRepository.save(updatedRecipe);
