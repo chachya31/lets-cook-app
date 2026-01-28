@@ -49,3 +49,13 @@ apiClient.interceptors.response.use(
     return Promise.reject(error)
   }
 )
+
+// ファイルアップロード用のPOST関数（multipart/form-data）
+export const apiPostMultipart = async <T>(url: string, formData: FormData): Promise<T> => {
+  const response = await apiClient.post<T>(url, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  })
+  return response.data
+}

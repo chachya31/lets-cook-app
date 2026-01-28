@@ -44,4 +44,10 @@ export interface RecipeFormData {
   isPublic: boolean
   ingredients: Ingredient[]
   steps: Omit<Step, 'stepNumber'>[]
+  imageKey?: string
+}
+
+// 画像アップロードレスポンスの型定義
+export interface ImageUploadResponse {
+  imageKey: string
 }

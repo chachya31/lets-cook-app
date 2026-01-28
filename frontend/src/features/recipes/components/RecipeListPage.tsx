@@ -51,7 +51,24 @@ export const RecipeListPage = () => {
 
   const RecipeCard = ({ recipe }: { recipe: Recipe }) => (
     <Link to={`/recipes/${recipe.recipeId}`} className="block">
-      <Card className="h-full transition-shadow hover:shadow-lg">
+      <Card className="h-full overflow-hidden transition-shadow hover:shadow-lg">
+        {/* 画像表示 */}
+        <div className="aspect-video w-full overflow-hidden bg-muted">
+          {recipe.imageUrl ? (
+            <img
+              src={recipe.imageUrl}
+              alt={recipe.title}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+              <div className="text-center">
+                <div className="text-4xl">🍽️</div>
+                <div className="mt-1 text-xs">No Image</div>
+              </div>
+            </div>
+          )}
+        </div>
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between">
             <CardTitle className="line-clamp-2 text-lg">{recipe.title}</CardTitle>

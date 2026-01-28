@@ -3,7 +3,7 @@ import { useNavigate, useParams, Link } from 'react-router-dom'
 import { useForm, useFieldArray, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { ArrowLeft, GripVertical, Plus, Trash2, ArrowUp, ArrowDown, ImagePlus } from 'lucide-react'
+import { ArrowLeft, GripVertical, Plus, Trash2, ArrowUp, ArrowDown } from 'lucide-react'
 import { Layout } from '@/components/Layout'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -12,7 +12,8 @@ import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useAuthStore } from '@/features/auth/stores/useAuthStore'
-import { createRecipe, getRecipe, updateRecipe } from '../api/recipeApi'
+import { createRecipe, getRecipe, updateRecipe, uploadImage } from '../api/recipeApi'
+import { ImageUploader } from './ImageUploader'
 import type { RecipeFormData } from '../types'
 
 // バリデーションスキーマ
@@ -47,6 +48,8 @@ export const RecipeFormPage = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [isFetching, setIsFetching] = useState(isEditMode)
   const [error, setError] = useState<string | null>(null)
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [existingImageUrl, setExistingImageUrl] = useState<string | null>(null)
 
   const {
     register,
@@ -121,6 +124,10 @@ export const RecipeFormPage = () => {
               videoUrl: step.videoUrl || '',
             })),
         })
+        // 既存の画像URLを保存
+        if (recipe.imageUrl) {
+          setExistingImageUrl(recipe.imageUrl)
+        }
       } catch (err) {
         setError('レシピの取得に失敗しました')
         console.error('Failed to fetch recipe:', err)
@@ -136,15 +143,22 @@ export const RecipeFormPage = () => {
     setIsLoading(true)
     setError(null)
 
-    const formData: RecipeFormData = {
-      title: data.title,
-      cookingTime: data.cookingTime,
-      isPublic: data.isPublic,
-      ingredients: data.ingredients.filter((ing) => ing.name.trim() !== ''),
-      steps: data.steps.filter((step) => step.description.trim() !== ''),
-    }
-
     try {
+      // 画像がある場合は先にアップロード
+      let imageKey: string | undefined
+      if (imageFile) {
+        imageKey = await uploadImage(imageFile)
+      }
+
+      const formData: RecipeFormData = {
+        title: data.title,
+        cookingTime: data.cookingTime,
+        isPublic: data.isPublic,
+        ingredients: data.ingredients.filter((ing) => ing.name.trim() !== ''),
+        steps: data.steps.filter((step) => step.description.trim() !== ''),
+        imageKey,
+      }
+
       if (isEditMode && id) {
         await updateRecipe(id, formData)
         navigate(`/recipes/${id}`)
@@ -238,15 +252,18 @@ export const RecipeFormPage = () => {
                 </Label>
               </div>
 
-              {/* 画像アップロード（UIのみ） */}
+              {/* 画像アップロード */}
               <div className="space-y-2">
                 <Label>レシピ画像</Label>
-                <div className="flex h-32 w-full cursor-pointer items-center justify-center rounded-md border-2 border-dashed border-muted-foreground/25 transition-colors hover:border-muted-foreground/50">
-                  <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                    <ImagePlus className="h-8 w-8" />
-                    <span className="text-sm">画像をアップロード（後日実装）</span>
-                  </div>
-                </div>
+                <ImageUploader
+                  value={imageFile || existingImageUrl}
+                  onChange={(file) => {
+                    setImageFile(file)
+                    if (file) {
+                      setExistingImageUrl(null)
+                    }
+                  }}
+                />
               </div>
             </CardContent>
           </Card>

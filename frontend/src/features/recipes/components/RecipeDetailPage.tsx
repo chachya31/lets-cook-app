@@ -84,9 +84,6 @@ export const RecipeDetailPage = () => {
       </Layout>
     )
   }
-  console.log(user?.userId)
-  console.log(recipe?.authorId)
-
   return (
     <Layout>
       <div className="space-y-6">
@@ -97,6 +94,24 @@ export const RecipeDetailPage = () => {
             レシピ一覧に戻る
           </Link>
         </Button>
+
+        {/* レシピ画像 */}
+        <div className="aspect-video max-h-96 w-full overflow-hidden rounded-lg bg-muted">
+          {recipe.imageUrl ? (
+            <img
+              src={recipe.imageUrl}
+              alt={recipe.title}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+              <div className="text-center">
+                <div className="text-6xl">🍽️</div>
+                <div className="mt-2 text-sm">No Image</div>
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* ヘッダー */}
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">

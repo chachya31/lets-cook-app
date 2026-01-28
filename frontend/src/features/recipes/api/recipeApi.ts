@@ -1,5 +1,5 @@
-import { apiClient } from '@/lib/axios'
-import type { Recipe, RecipeFormData, RecipeRequest } from '../types'
+import { apiClient, apiPostMultipart } from '@/lib/axios'
+import type { ImageUploadResponse, Recipe, RecipeFormData, RecipeRequest } from '../types'
 
 // フォームデータをAPIリクエスト形式に変換
 const toRecipeRequest = (formData: RecipeFormData): RecipeRequest => {
@@ -14,7 +14,16 @@ const toRecipeRequest = (formData: RecipeFormData): RecipeRequest => {
       imageUrl: step.imageUrl,
       videoUrl: step.videoUrl,
     })),
+    imageKey: formData.imageKey,
   }
+}
+
+// 画像アップロード
+export const uploadImage = async (file: File): Promise<string> => {
+  const formData = new FormData()
+  formData.append('file', file)
+  const response = await apiPostMultipart<ImageUploadResponse>('/recipes/images', formData)
+  return response.imageKey
 }
 
 // 全レシピ取得（公開レシピ）
