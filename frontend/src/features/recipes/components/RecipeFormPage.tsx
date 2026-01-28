@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
 import { useForm, useFieldArray, type Resolver } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { ArrowLeft, GripVertical, Plus, Trash2, ArrowUp, ArrowDown } from 'lucide-react'
@@ -16,30 +17,33 @@ import { createRecipe, getRecipe, updateRecipe, uploadImage } from '../api/recip
 import { ImageUploader } from './ImageUploader'
 import type { RecipeFormData } from '../types'
 
-// バリデーションスキーマ
-const ingredientSchema = z.object({
-  name: z.string().min(1, '材料名は必須です'),
-  quantity: z.string().optional(),
-  unit: z.string().optional(),
-})
+// バリデーションスキーマを作成する関数
+const createRecipeFormSchema = (t: (key: string, options?: Record<string, unknown>) => string) => {
+  const ingredientSchema = z.object({
+    name: z.string().min(1, t('zod.required')),
+    quantity: z.string().optional(),
+    unit: z.string().optional(),
+  })
 
-const stepSchema = z.object({
-  description: z.string().min(1, '手順の説明は必須です'),
-  imageUrl: z.string().optional(),
-  videoUrl: z.string().optional(),
-})
+  const stepSchema = z.object({
+    description: z.string().min(1, t('zod.required')),
+    imageUrl: z.string().optional(),
+    videoUrl: z.string().optional(),
+  })
 
-const recipeFormSchema = z.object({
-  title: z.string().min(1, 'タイトルは必須です'),
-  cookingTime: z.coerce.number().min(1, '調理時間は1分以上で入力してください'),
-  isPublic: z.boolean(),
-  ingredients: z.array(ingredientSchema).min(1, '材料は1つ以上追加してください'),
-  steps: z.array(stepSchema).min(1, '手順は1つ以上追加してください'),
-})
+  return z.object({
+    title: z.string().min(1, t('zod.required')),
+    cookingTime: z.coerce.number().min(1, t('zod.number.min', { min: 1 })),
+    isPublic: z.boolean(),
+    ingredients: z.array(ingredientSchema).min(1, t('zod.array.min', { min: 1 })),
+    steps: z.array(stepSchema).min(1, t('zod.array.min', { min: 1 })),
+  })
+}
 
-type RecipeFormValues = z.infer<typeof recipeFormSchema>
+type RecipeFormValues = z.infer<ReturnType<typeof createRecipeFormSchema>>
 
 export const RecipeFormPage = () => {
+  const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { isAuthenticated } = useAuthStore()
@@ -50,6 +54,9 @@ export const RecipeFormPage = () => {
   const [error, setError] = useState<string | null>(null)
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [existingImageUrl, setExistingImageUrl] = useState<string | null>(null)
+
+  // 翻訳が変わるたびにスキーマを再作成
+  const recipeFormSchema = useMemo(() => createRecipeFormSchema(t), [t])
 
   const {
     register,
@@ -129,7 +136,7 @@ export const RecipeFormPage = () => {
           setExistingImageUrl(recipe.imageUrl)
         }
       } catch (err) {
-        setError('レシピの取得に失敗しました')
+        setError(t('recipe.form.fetchError'))
         console.error('Failed to fetch recipe:', err)
       } finally {
         setIsFetching(false)
@@ -137,7 +144,7 @@ export const RecipeFormPage = () => {
     }
 
     fetchRecipe()
-  }, [id, reset])
+  }, [id, reset, t])
 
   const onSubmit = async (data: RecipeFormValues) => {
     setIsLoading(true)
@@ -167,7 +174,7 @@ export const RecipeFormPage = () => {
         navigate(`/recipes/${created.recipeId}`)
       }
     } catch (err) {
-      setError(isEditMode ? 'レシピの更新に失敗しました' : 'レシピの作成に失敗しました')
+      setError(isEditMode ? t('recipe.form.updateError') : t('recipe.form.createError'))
       console.error('Failed to save recipe:', err)
     } finally {
       setIsLoading(false)
@@ -177,7 +184,7 @@ export const RecipeFormPage = () => {
   if (isFetching) {
     return (
       <Layout>
-        <div className="py-12 text-center text-muted-foreground">読み込み中...</div>
+        <div className="py-12 text-center text-muted-foreground">{t('common.loading')}</div>
       </Layout>
     )
   }
@@ -189,17 +196,17 @@ export const RecipeFormPage = () => {
         <Button variant="ghost" size="sm" asChild>
           <Link to="/recipes">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            レシピ一覧に戻る
+            {t('recipe.detail.backToList')}
           </Link>
         </Button>
 
         {/* ページタイトル */}
         <div>
           <h1 className="text-2xl font-bold tracking-tight">
-            {isEditMode ? 'レシピを編集' : '新しいレシピを作成'}
+            {isEditMode ? t('recipe.form.editTitle') : t('recipe.form.createTitle')}
           </h1>
           <p className="text-muted-foreground">
-            {isEditMode ? 'レシピの内容を編集できます' : 'あなたのオリジナルレシピを登録しましょう'}
+            {isEditMode ? t('recipe.form.editDescription') : t('recipe.form.createDescription')}
           </p>
         </div>
 
@@ -210,22 +217,22 @@ export const RecipeFormPage = () => {
           {/* 基本情報 */}
           <Card>
             <CardHeader>
-              <CardTitle>基本情報</CardTitle>
+              <CardTitle>{t('recipe.form.basicInfo')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {/* タイトル */}
               <div className="space-y-2">
                 <Label htmlFor="title">
-                  タイトル <span className="text-destructive">*</span>
+                  {t('recipe.form.title')} <span className="text-destructive">{t('recipe.form.required')}</span>
                 </Label>
-                <Input id="title" placeholder="例: 簡単トマトパスタ" {...register('title')} />
+                <Input id="title" placeholder={t('recipe.form.titlePlaceholder')} {...register('title')} />
                 {errors.title && <p className="text-sm text-destructive">{errors.title.message}</p>}
               </div>
 
               {/* 調理時間 */}
               <div className="space-y-2">
                 <Label htmlFor="cookingTime">
-                  調理時間（分） <span className="text-destructive">*</span>
+                  {t('recipe.form.cookingTime')} <span className="text-destructive">{t('recipe.form.required')}</span>
                 </Label>
                 <Input
                   id="cookingTime"
@@ -248,13 +255,13 @@ export const RecipeFormPage = () => {
                   onCheckedChange={(checked) => setValue('isPublic', checked)}
                 />
                 <Label htmlFor="isPublic" className="cursor-pointer">
-                  {isPublic ? '公開する' : '非公開にする'}
+                  {isPublic ? t('recipe.form.public') : t('recipe.form.private')}
                 </Label>
               </div>
 
               {/* 画像アップロード */}
               <div className="space-y-2">
-                <Label>レシピ画像</Label>
+                <Label>{t('recipe.form.recipeImage')}</Label>
                 <ImageUploader
                   value={imageFile || existingImageUrl}
                   onChange={(file) => {
@@ -271,8 +278,8 @@ export const RecipeFormPage = () => {
           {/* 材料 */}
           <Card>
             <CardHeader>
-              <CardTitle>材料</CardTitle>
-              <CardDescription>材料を追加してください（1つ以上必須）</CardDescription>
+              <CardTitle>{t('recipe.form.ingredients')}</CardTitle>
+              <CardDescription>{t('recipe.form.ingredientsDescription')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               {ingredientFields.map((field, index) => (
@@ -303,9 +310,9 @@ export const RecipeFormPage = () => {
                   </div>
 
                   <div className="grid flex-1 gap-2 sm:grid-cols-3">
-                    <Input placeholder="材料名" {...register(`ingredients.${index}.name`)} />
-                    <Input placeholder="分量" {...register(`ingredients.${index}.quantity`)} />
-                    <Input placeholder="単位" {...register(`ingredients.${index}.unit`)} />
+                    <Input placeholder={t('recipe.form.ingredientName')} {...register(`ingredients.${index}.name`)} />
+                    <Input placeholder={t('recipe.form.quantity')} {...register(`ingredients.${index}.quantity`)} />
+                    <Input placeholder={t('recipe.form.unit')} {...register(`ingredients.${index}.unit`)} />
                   </div>
 
                   <Button
@@ -333,7 +340,7 @@ export const RecipeFormPage = () => {
                 onClick={() => appendIngredient({ name: '', quantity: '', unit: '' })}
               >
                 <Plus className="mr-2 h-4 w-4" />
-                材料を追加
+                {t('recipe.form.addIngredient')}
               </Button>
             </CardContent>
           </Card>
@@ -341,8 +348,8 @@ export const RecipeFormPage = () => {
           {/* 手順 */}
           <Card>
             <CardHeader>
-              <CardTitle>作り方</CardTitle>
-              <CardDescription>手順を追加してください（1つ以上必須）</CardDescription>
+              <CardTitle>{t('recipe.form.steps')}</CardTitle>
+              <CardDescription>{t('recipe.form.stepsDescription')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               {stepFields.map((field, index) => (
@@ -374,7 +381,7 @@ export const RecipeFormPage = () => {
 
                   <div className="flex-1">
                     <Textarea
-                      placeholder={`ステップ ${index + 1} の説明`}
+                      placeholder={t('recipe.form.stepPlaceholder', { number: index + 1 })}
                       rows={2}
                       {...register(`steps.${index}.description`)}
                     />
@@ -405,7 +412,7 @@ export const RecipeFormPage = () => {
                 onClick={() => appendStep({ description: '' })}
               >
                 <Plus className="mr-2 h-4 w-4" />
-                手順を追加
+                {t('recipe.form.addStep')}
               </Button>
             </CardContent>
           </Card>
@@ -417,10 +424,14 @@ export const RecipeFormPage = () => {
               disabled={isSubmitting || isLoading}
               className="bg-emerald-600 hover:bg-emerald-700"
             >
-              {isSubmitting || isLoading ? '保存中...' : isEditMode ? '更新する' : '作成する'}
+              {isSubmitting || isLoading
+                ? t('recipe.form.saving')
+                : isEditMode
+                  ? t('recipe.form.update')
+                  : t('recipe.form.create')}
             </Button>
             <Button type="button" variant="outline" asChild>
-              <Link to="/recipes">キャンセル</Link>
+              <Link to="/recipes">{t('common.cancel')}</Link>
             </Button>
           </div>
         </form>

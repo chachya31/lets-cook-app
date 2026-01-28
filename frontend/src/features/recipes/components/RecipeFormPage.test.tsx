@@ -156,7 +156,7 @@ describe('RecipeFormPage', () => {
       await user.click(submitButton)
 
       await waitFor(() => {
-        expect(screen.getByText('タイトルは必須です')).toBeInTheDocument()
+        expect(screen.getByText('必須項目です')).toBeInTheDocument()
       })
     })
 
@@ -184,7 +184,7 @@ describe('RecipeFormPage', () => {
       await user.click(submitButton)
 
       await waitFor(() => {
-        expect(screen.getByText('調理時間は1分以上で入力してください')).toBeInTheDocument()
+        expect(screen.getByText('1以上の値を入力してください')).toBeInTheDocument()
       })
     })
 

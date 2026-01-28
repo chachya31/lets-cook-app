@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Clock, Plus, User } from 'lucide-react'
 import { Layout } from '@/components/Layout'
 import { Button } from '@/components/ui/button'
@@ -18,6 +19,7 @@ import { getAllRecipes, getRecipesByAuthor } from '../api/recipeApi'
 import type { Recipe } from '../types'
 
 export const RecipeListPage = () => {
+  const { t, i18n } = useTranslation()
   const navigate = useNavigate()
   const { user, isAuthenticated } = useAuthStore()
   const [publicRecipes, setPublicRecipes] = useState<Recipe[]>([])
@@ -39,7 +41,7 @@ export const RecipeListPage = () => {
           setMyRecipes(userRecipes)
         }
       } catch (err) {
-        setError('レシピの取得に失敗しました')
+        setError(t('recipe.detail.fetchError'))
         console.error('Failed to fetch recipes:', err)
       } finally {
         setIsLoading(false)
@@ -47,7 +49,7 @@ export const RecipeListPage = () => {
     }
 
     fetchRecipes()
-  }, [isAuthenticated, user?.userId])
+  }, [isAuthenticated, user?.userId, t])
 
   const RecipeCard = ({ recipe }: { recipe: Recipe }) => (
     <Link to={`/recipes/${recipe.recipeId}`} className="block">
@@ -64,7 +66,7 @@ export const RecipeListPage = () => {
             <div className="flex h-full w-full items-center justify-center text-muted-foreground">
               <div className="text-center">
                 <div className="text-4xl">🍽️</div>
-                <div className="mt-1 text-xs">No Image</div>
+                <div className="mt-1 text-xs">{t('common.noImage')}</div>
               </div>
             </div>
           )}
@@ -74,7 +76,7 @@ export const RecipeListPage = () => {
             <CardTitle className="line-clamp-2 text-lg">{recipe.title}</CardTitle>
             {!recipe.isPublic && (
               <Badge variant="secondary" className="ml-2 shrink-0">
-                非公開
+                {t('recipe.list.private')}
               </Badge>
             )}
           </div>
@@ -86,15 +88,21 @@ export const RecipeListPage = () => {
         <CardContent className="pb-3">
           <div className="flex items-center gap-1 text-sm text-muted-foreground">
             <Clock className="h-4 w-4" />
-            <span>{recipe.cookingTime}分</span>
+            <span>
+              {recipe.cookingTime}
+              {t('recipe.list.minutes')}
+            </span>
           </div>
           <div className="mt-2 text-sm text-muted-foreground">
-            材料: {recipe.ingredients?.length || 0}品
+            {t('recipe.list.ingredients')}: {recipe.ingredients?.length || 0}
+            {t('recipe.list.items')}
           </div>
         </CardContent>
         <CardFooter className="pt-0">
           <div className="text-xs text-muted-foreground">
-            {new Date(recipe.createdAt).toLocaleDateString('ja-JP')}
+            {new Date(recipe.createdAt).toLocaleDateString(
+              i18n.language === 'ko' ? 'ko-KR' : 'ja-JP'
+            )}
           </div>
         </CardFooter>
       </Card>
@@ -103,7 +111,9 @@ export const RecipeListPage = () => {
 
   const RecipeGrid = ({ recipes }: { recipes: Recipe[] }) => {
     if (recipes.length === 0) {
-      return <div className="py-12 text-center text-muted-foreground">レシピがありません</div>
+      return (
+        <div className="py-12 text-center text-muted-foreground">{t('recipe.list.noRecipes')}</div>
+      )
     }
 
     return (
@@ -121,13 +131,13 @@ export const RecipeListPage = () => {
         {/* ヘッダー */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">レシピ一覧</h1>
-            <p className="text-muted-foreground">みんなのレシピを探してみましょう</p>
+            <h1 className="text-2xl font-bold tracking-tight">{t('recipe.list.title')}</h1>
+            <p className="text-muted-foreground">{t('recipe.list.description')}</p>
           </div>
           {isAuthenticated && (
             <Button onClick={() => navigate('/recipes/new')}>
               <Plus className="mr-2 h-4 w-4" />
-              新しいレシピを作成
+              {t('recipe.list.createNew')}
             </Button>
           )}
         </div>
@@ -137,13 +147,13 @@ export const RecipeListPage = () => {
 
         {/* ローディング */}
         {isLoading ? (
-          <div className="py-12 text-center text-muted-foreground">読み込み中...</div>
+          <div className="py-12 text-center text-muted-foreground">{t('common.loading')}</div>
         ) : (
           /* タブ切り替え */
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList>
-              <TabsTrigger value="all">みんなのレシピ</TabsTrigger>
-              {isAuthenticated && <TabsTrigger value="mine">自分のレシピ</TabsTrigger>}
+              <TabsTrigger value="all">{t('recipe.list.allRecipes')}</TabsTrigger>
+              {isAuthenticated && <TabsTrigger value="mine">{t('recipe.list.myRecipes')}</TabsTrigger>}
             </TabsList>
 
             <TabsContent value="all" className="mt-6">

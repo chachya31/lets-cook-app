@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import type { FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -9,6 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useAuthStore } from '../stores/useAuthStore'
 
 export const LoginPage = () => {
+  const { t } = useTranslation()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [validationErrors, setValidationErrors] = useState<{
@@ -33,13 +35,13 @@ export const LoginPage = () => {
     const errors: { email?: string; password?: string } = {}
 
     if (!email.trim()) {
-      errors.email = 'メールアドレスを入力してください'
+      errors.email = t('auth.errors.emailRequired')
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      errors.email = '有効なメールアドレスを入力してください'
+      errors.email = t('auth.errors.emailInvalid')
     }
 
     if (!password) {
-      errors.password = 'パスワードを入力してください'
+      errors.password = t('auth.errors.passwordRequired')
     }
 
     setValidationErrors(errors)
@@ -70,8 +72,8 @@ export const LoginPage = () => {
             <img src="/logo.svg" alt="Let's Cook" className="mx-auto h-16 w-16" />
           </div>
           <div className="text-center">
-            <CardTitle className="text-2xl font-bold">Let&apos;s Cook</CardTitle>
-            <CardDescription className="mt-2">アカウントにログインしてください</CardDescription>
+            <CardTitle className="text-2xl font-bold">{t('auth.loginTitle')}</CardTitle>
+            <CardDescription className="mt-2">{t('auth.loginDescription')}</CardDescription>
           </div>
         </CardHeader>
 
@@ -84,7 +86,7 @@ export const LoginPage = () => {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">メールアドレス</Label>
+              <Label htmlFor="email">{t('auth.email')}</Label>
               <Input
                 id="email"
                 type="email"
@@ -95,7 +97,7 @@ export const LoginPage = () => {
                     setValidationErrors((prev) => ({ ...prev, email: undefined }))
                   }
                 }}
-                placeholder="example@email.com"
+                placeholder={t('auth.emailPlaceholder')}
                 className={
                   validationErrors.email ? 'border-red-500 focus-visible:ring-red-500' : ''
                 }
@@ -107,7 +109,7 @@ export const LoginPage = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">パスワード</Label>
+              <Label htmlFor="password">{t('auth.password')}</Label>
               <Input
                 id="password"
                 type="password"
@@ -118,7 +120,7 @@ export const LoginPage = () => {
                     setValidationErrors((prev) => ({ ...prev, password: undefined }))
                   }
                 }}
-                placeholder="パスワードを入力"
+                placeholder={t('auth.passwordPlaceholder')}
                 className={
                   validationErrors.password ? 'border-red-500 focus-visible:ring-red-500' : ''
                 }
@@ -151,17 +153,15 @@ export const LoginPage = () => {
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     />
                   </svg>
-                  ログイン中...
+                  {t('auth.loggingIn')}
                 </span>
               ) : (
-                'ログイン'
+                t('common.login')
               )}
             </Button>
           </form>
 
-          <p className="text-center text-sm text-muted-foreground">
-            アカウントをお持ちでない方は、新規登録してください
-          </p>
+          <p className="text-center text-sm text-muted-foreground">{t('auth.noAccount')}</p>
         </CardContent>
       </Card>
     </div>

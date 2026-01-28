@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import {
   Search,
   Calendar,
@@ -11,6 +12,7 @@ import {
   Menu,
   LogOut,
   User,
+  Globe,
 } from 'lucide-react'
 import { useAuthStore } from '@/features/auth/stores/useAuthStore'
 import { Button } from '@/components/ui/button'
@@ -26,7 +28,7 @@ import {
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 
 interface NavItem {
-  label: string
+  labelKey: string
   href: string
   icon: React.ReactNode
   authRequired?: boolean
@@ -34,25 +36,26 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { label: 'レシピ検索', href: '/recipes', icon: <Search className="h-4 w-4" /> },
-  { label: 'スケジュール', href: '/schedule', icon: <Calendar className="h-4 w-4" /> },
-  { label: '買い物リスト', href: '/shopping', icon: <ShoppingCart className="h-4 w-4" /> },
+  { labelKey: 'nav.recipeSearch', href: '/recipes', icon: <Search className="h-4 w-4" /> },
+  { labelKey: 'nav.schedule', href: '/schedule', icon: <Calendar className="h-4 w-4" /> },
+  { labelKey: 'nav.shoppingList', href: '/shopping', icon: <ShoppingCart className="h-4 w-4" /> },
   {
-    label: '在庫管理',
+    labelKey: 'nav.inventory',
     href: '/inventory',
     icon: <Package className="h-4 w-4" />,
     authRequired: true,
   },
   {
-    label: 'AIチャット',
+    labelKey: 'nav.aiChat',
     href: '/chat',
     icon: <MessageSquare className="h-4 w-4" />,
     authRequired: true,
   },
-  { label: '管理画面', href: '/admin', icon: <Settings className="h-4 w-4" />, adminOnly: true },
+  { labelKey: 'nav.admin', href: '/admin', icon: <Settings className="h-4 w-4" />, adminOnly: true },
 ]
 
 export const Header = () => {
+  const { t, i18n } = useTranslation()
   const navigate = useNavigate()
   const { isAuthenticated, user, logout } = useAuthStore()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -60,7 +63,7 @@ export const Header = () => {
   const isAdmin = user?.roles?.includes('Admins') ?? false
 
   const getDisplayName = () => {
-    return user?.displayName || user?.nickname || user?.email || 'ユーザー'
+    return user?.displayName || user?.nickname || user?.email || t('common.user')
   }
 
   const getInitials = () => {
@@ -84,6 +87,10 @@ export const Header = () => {
     console.log('新規登録ボタンがクリックされました')
   }
 
+  const changeLanguage = (lng: string) => {
+    i18n.changeLanguage(lng)
+  }
+
   const filteredNavItems = navItems.filter((item) => {
     if (item.adminOnly) return isAdmin
     if (item.authRequired) return isAuthenticated
@@ -104,10 +111,37 @@ export const Header = () => {
           onClick={() => setMobileMenuOpen(false)}
         >
           {item.icon}
-          {item.label}
+          {t(item.labelKey)}
         </Link>
       ))}
     </>
+  )
+
+  const LanguageSwitcher = () => (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="icon">
+          <Globe className="h-4 w-4" />
+          <span className="sr-only">{t('language.select')}</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuLabel>{t('language.select')}</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          onClick={() => changeLanguage('ja')}
+          className={i18n.language === 'ja' ? 'bg-accent' : ''}
+        >
+          {t('language.ja')}
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={() => changeLanguage('ko')}
+          className={i18n.language === 'ko' ? 'bg-accent' : ''}
+        >
+          {t('language.ko')}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 
   return (
@@ -126,11 +160,12 @@ export const Header = () => {
 
         {/* Desktop Actions */}
         <div className="hidden items-center gap-3 lg:flex">
+          <LanguageSwitcher />
           {isAuthenticated ? (
             <>
               <Button onClick={handleCreateRecipe} size="sm" className="gap-1.5">
                 <Plus className="h-4 w-4" />
-                レシピ作成
+                {t('header.createRecipe')}
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -156,12 +191,12 @@ export const Header = () => {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => console.log('プロフィール編集')}>
                     <User className="mr-2 h-4 w-4" />
-                    プロフィール編集
+                    {t('header.editProfile')}
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout}>
                     <LogOut className="mr-2 h-4 w-4" />
-                    ログアウト
+                    {t('common.logout')}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -169,10 +204,10 @@ export const Header = () => {
           ) : (
             <>
               <Button asChild variant="ghost" size="sm">
-                <Link to="/login">ログイン</Link>
+                <Link to="/login">{t('common.login')}</Link>
               </Button>
               <Button variant="outline" size="sm" onClick={handleRegister}>
-                新規登録
+                {t('common.register')}
               </Button>
             </>
           )}
@@ -183,7 +218,7 @@ export const Header = () => {
           <SheetTrigger asChild className="lg:hidden">
             <Button variant="ghost" size="icon">
               <Menu className="h-5 w-5" />
-              <span className="sr-only">メニューを開く</span>
+              <span className="sr-only">{t('header.openMenu')}</span>
             </Button>
           </SheetTrigger>
           <SheetContent side="right" className="w-72">
@@ -194,6 +229,29 @@ export const Header = () => {
               </SheetTitle>
             </SheetHeader>
             <div className="mt-6 flex flex-col gap-4">
+              {/* Language Switcher for Mobile */}
+              <div className="flex items-center justify-between px-3">
+                <span className="text-sm font-medium">{t('language.select')}</span>
+                <div className="flex gap-2">
+                  <Button
+                    variant={i18n.language === 'ja' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => changeLanguage('ja')}
+                  >
+                    {t('language.ja')}
+                  </Button>
+                  <Button
+                    variant={i18n.language === 'ko' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => changeLanguage('ko')}
+                  >
+                    {t('language.ko')}
+                  </Button>
+                </div>
+              </div>
+
+              <div className="my-2 h-px bg-border" />
+
               {/* Mobile Navigation */}
               <nav className="flex flex-col gap-1">
                 <NavLinks mobile />
@@ -221,7 +279,7 @@ export const Header = () => {
                   </div>
                   <Button onClick={handleCreateRecipe} className="gap-1.5">
                     <Plus className="h-4 w-4" />
-                    レシピ作成
+                    {t('header.createRecipe')}
                   </Button>
                   <Button
                     variant="ghost"
@@ -229,7 +287,7 @@ export const Header = () => {
                     onClick={() => console.log('プロフィール編集')}
                   >
                     <User className="h-4 w-4" />
-                    プロフィール編集
+                    {t('header.editProfile')}
                   </Button>
                   <Button
                     variant="ghost"
@@ -237,18 +295,18 @@ export const Header = () => {
                     onClick={handleLogout}
                   >
                     <LogOut className="h-4 w-4" />
-                    ログアウト
+                    {t('common.logout')}
                   </Button>
                 </>
               ) : (
                 <>
                   <Button asChild className="w-full">
                     <Link to="/login" onClick={() => setMobileMenuOpen(false)}>
-                      ログイン
+                      {t('common.login')}
                     </Link>
                   </Button>
                   <Button variant="outline" className="w-full" onClick={handleRegister}>
-                    新規登録
+                    {t('common.register')}
                   </Button>
                 </>
               )}

@@ -1,0 +1,121 @@
+{
+  "common": {
+    "login": "로그인",
+    "logout": "로그아웃",
+    "register": "회원가입",
+    "save": "저장",
+    "cancel": "취소",
+    "delete": "삭제",
+    "edit": "편집",
+    "loading": "로딩 중...",
+    "user": "사용자",
+    "noImage": "No Image"
+  },
+  "nav": {
+    "recipeSearch": "레시피 검색",
+    "schedule": "일정",
+    "shoppingList": "장보기 리스트",
+    "inventory": "재고 관리",
+    "aiChat": "AI 채팅",
+    "admin": "관리자"
+  },
+  "header": {
+    "createRecipe": "레시피 작성",
+    "editProfile": "프로필 편집",
+    "openMenu": "메뉴 열기"
+  },
+  "auth": {
+    "loginTitle": "Let's Cook",
+    "loginDescription": "계정에 로그인하세요",
+    "email": "이메일",
+    "password": "비밀번호",
+    "emailPlaceholder": "example@email.com",
+    "passwordPlaceholder": "비밀번호를 입력하세요",
+    "loggingIn": "로그인 중...",
+    "noAccount": "계정이 없으신가요? 회원가입 해주세요",
+    "errors": {
+      "emailRequired": "이메일을 입력해주세요",
+      "emailInvalid": "유효한 이메일을 입력해주세요",
+      "passwordRequired": "비밀번호를 입력해주세요"
+    }
+  },
+  "recipe": {
+    "list": {
+      "title": "레시피 목록",
+      "description": "다양한 레시피를 찾아보세요",
+      "createNew": "새 레시피 만들기",
+      "allRecipes": "모든 레시피",
+      "myRecipes": "내 레시피",
+      "noRecipes": "레시피가 없습니다",
+      "private": "비공개",
+      "minutes": "분",
+      "ingredients": "재료",
+      "items": "가지"
+    },
+    "detail": {
+      "backToList": "레시피 목록으로 돌아가기",
+      "backToListShort": "목록으로",
+      "ingredients": "재료",
+      "steps": "만드는 법",
+      "stepsCount": "단계",
+      "deleting": "삭제 중...",
+      "confirmDelete": "\"{{title}}\"을(를) 삭제하시겠습니까?",
+      "notFound": "레시피를 찾을 수 없습니다",
+      "createdAt": "작성일",
+      "updatedAt": "수정일",
+      "fetchError": "레시피를 불러오는데 실패했습니다",
+      "deleteError": "레시피 삭제에 실패했습니다"
+    },
+    "form": {
+      "createTitle": "새 레시피 만들기",
+      "editTitle": "레시피 편집",
+      "createDescription": "나만의 오리지널 레시피를 등록하세요",
+      "editDescription": "레시피 내용을 편집할 수 있습니다",
+      "basicInfo": "기본 정보",
+      "title": "제목",
+      "titlePlaceholder": "예: 간단한 토마토 파스타",
+      "cookingTime": "조리 시간 (분)",
+      "public": "공개",
+      "private": "비공개",
+      "recipeImage": "레시피 이미지",
+      "ingredients": "재료",
+      "ingredientsDescription": "재료를 추가하세요 (1개 이상 필수)",
+      "ingredientName": "재료명",
+      "quantity": "분량",
+      "unit": "단위",
+      "addIngredient": "재료 추가",
+      "steps": "만드는 법",
+      "stepsDescription": "단계를 추가하세요 (1개 이상 필수)",
+      "stepPlaceholder": "{{number}}단계 설명",
+      "addStep": "단계 추가",
+      "saving": "저장 중...",
+      "update": "수정하기",
+      "create": "만들기",
+      "required": "*",
+      "fetchError": "레시피를 불러오는데 실패했습니다",
+      "createError": "레시피 생성에 실패했습니다",
+      "updateError": "레시피 수정에 실패했습니다"
+    }
+  },
+  "language": {
+    "select": "언어",
+    "ja": "日本語",
+    "ko": "한국어"
+  },
+  "zod": {
+    "required": "필수 항목입니다",
+    "invalid_type": "입력 형식이 올바르지 않습니다",
+    "string": {
+      "min": "{{min}}자 이상 입력해주세요",
+      "max": "{{max}}자 이내로 입력해주세요",
+      "email": "유효한 이메일을 입력해주세요"
+    },
+    "number": {
+      "min": "{{min}} 이상의 값을 입력해주세요",
+      "max": "{{max}} 이하의 값을 입력해주세요"
+    },
+    "array": {
+      "min": "{{min}}개 이상 추가해주세요"
+    }
+  }
+}
