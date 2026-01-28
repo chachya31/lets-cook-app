@@ -14,3 +14,7 @@ HELP.md
 
 # Local
 application-claude.yml
+application-local.yml
+
+# Test
+.jqwik-database
