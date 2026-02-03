@@ -1,37 +1,39 @@
-import { ShoppingListItem, AddShoppingListItemRequest, UpdateShoppingListItemRequest } from '../types/shoppingList';
-import { apiGet, apiPost, apiPut, apiDelete } from '../utils/apiClient';
+import {
+  AddShoppingListItemRequest,
+  ShoppingListItem,
+  UpdateShoppingListItemRequest,
+} from '../types/shoppingList';
+import { apiDelete, apiGet, apiPost, apiPut } from '../utils/apiClient';
 
 /**
  * 買い物リスト取得
  */
-export const getShoppingList = async (userId: string): Promise<ShoppingListItem[]> => {
-  return apiGet<ShoppingListItem[]>('/api/shopping-lists', userId);
+export const getShoppingList = async (): Promise<ShoppingListItem[]> => {
+  return apiGet<ShoppingListItem[]>('/api/shopping-lists');
 };
 
 /**
  * 買い物リストアイテム追加
  */
 export const addShoppingListItem = async (
-  userId: string,
   request: AddShoppingListItemRequest
 ): Promise<ShoppingListItem> => {
-  return apiPost<ShoppingListItem>('/api/shopping-lists', request, userId);
+  return apiPost<ShoppingListItem>('/api/shopping-lists', request);
 };
 
 /**
  * 買い物リストアイテム更新
  */
 export const updateShoppingListItem = async (
-  userId: string,
   itemId: string,
   request: UpdateShoppingListItemRequest
 ): Promise<ShoppingListItem> => {
-  return apiPut<ShoppingListItem>(`/api/shopping-lists/${itemId}`, request, userId);
+  return apiPut<ShoppingListItem>(`/api/shopping-lists/${itemId}`, request);
 };
 
 /**
  * 買い物リストアイテム削除
  */
-export const deleteShoppingListItem = async (userId: string, itemId: string): Promise<void> => {
-  return apiDelete<void>(`/api/shopping-lists/${itemId}`, userId);
+export const deleteShoppingListItem = async (itemId: string): Promise<void> => {
+  return apiDelete<void>(`/api/shopping-lists/${itemId}`);
 };

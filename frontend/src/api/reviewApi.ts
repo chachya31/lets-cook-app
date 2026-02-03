@@ -3,8 +3,8 @@
  * レビューAPI呼び出し関数
  */
 
-import { Review, CreateReviewRequest, UpdateReviewRequest } from '../types/review';
-import { apiGet, apiPost, apiPut, apiDelete } from '../utils/apiClient';
+import { CreateReviewRequest, Review, UpdateReviewRequest } from '../types/review';
+import { apiDelete, apiGet, apiPost, apiPut } from '../utils/apiClient';
 
 /**
  * レシピのレビュー一覧を取得
@@ -18,10 +18,9 @@ export const getReviewsByRecipe = async (recipeId: string): Promise<Review[]> =>
  */
 export const createReview = async (
   recipeId: string,
-  userId: string,
   request: CreateReviewRequest
 ): Promise<Review> => {
-  return apiPost<Review>(`/api/recipes/${recipeId}/reviews`, request, userId);
+  return apiPost<Review>(`/api/recipes/${recipeId}/reviews`, request);
 };
 
 /**
@@ -29,17 +28,16 @@ export const createReview = async (
  */
 export const updateReview = async (
   reviewId: string,
-  userId: string,
   request: UpdateReviewRequest
 ): Promise<Review> => {
-  return apiPut<Review>(`/api/reviews/${reviewId}`, request, userId);
+  return apiPut<Review>(`/api/reviews/${reviewId}`, request);
 };
 
 /**
  * レビューを削除
  */
-export const deleteReview = async (reviewId: string, userId: string): Promise<void> => {
-  return apiDelete<void>(`/api/reviews/${reviewId}`, userId);
+export const deleteReview = async (reviewId: string): Promise<void> => {
+  return apiDelete<void>(`/api/reviews/${reviewId}`);
 };
 
 /**

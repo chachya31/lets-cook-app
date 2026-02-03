@@ -172,18 +172,18 @@ export const useRecipeEditHandlers = (scrollToMessage?: () => void) => {
           steps: filteredSteps,
           cookingTime,
         };
-        await updateRecipeApi(id, user.userId, recipeData);
+        await updateRecipeApi(id, recipeData);
 
         // メイン画像がある場合はアップロード
         if (mainImage) {
-          await uploadRecipeImage(id, user.userId, mainImage);
+          await uploadRecipeImage(id, mainImage);
         }
 
         // 手順画像がある場合はアップロード
         for (let i = 0; i < stepImages.length; i++) {
           const stepImage = stepImages[i];
           if (stepImage) {
-            await uploadStepImage(id, i, user.userId, stepImage);
+            await uploadStepImage(id, i, stepImage);
           }
         }
 
@@ -191,7 +191,6 @@ export const useRecipeEditHandlers = (scrollToMessage?: () => void) => {
       } else {
         // 新規作成: 画像付きAPIを使用
         const recipe = await createRecipeWithImages(
-          user.userId,
           title,
           ingredients,
           filteredSteps,

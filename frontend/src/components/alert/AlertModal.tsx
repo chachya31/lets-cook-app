@@ -40,14 +40,14 @@ export const AlertModal: React.FC = () => {
       }
 
       try {
-        const response = await checkAlert(userId);
+        const response = await checkAlert();
 
         if (response.shouldShow && response.message) {
           setMessage(response.message);
           setIsOpen(true);
         }
       } catch (error) {
-        console.error('Failed to check alert:', error);
+        // Alert check failed silently
       }
     };
 

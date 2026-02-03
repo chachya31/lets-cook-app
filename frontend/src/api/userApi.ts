@@ -1,5 +1,5 @@
-import { RegisterRequest, LoginRequest, LoginResponse, User } from '../types/user';
-import { apiPost, apiGet } from '../utils/apiClient';
+import { LoginRequest, LoginResponse, RegisterRequest, User } from '../types/user';
+import { apiGet, apiPost } from '../utils/apiClient';
 
 /**
  * ユーザー登録
@@ -33,5 +33,5 @@ export const resendConfirmationCode = async (email: string): Promise<void> => {
  * プロフィール取得
  */
 export const getUserProfile = async (userId: string): Promise<User> => {
-  return apiGet<User>(`/api/users/profile/${userId}`, userId);
+  return apiGet<User>(`/api/users/profile/${userId}`);
 };

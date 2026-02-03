@@ -2,7 +2,6 @@ import { ShoppingCart } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useScrollToMessage } from '../../hooks/useScrollToMessage';
-import { useAuthStore } from '../../store/authStore';
 import { useShoppingListStore } from '../../store/shoppingListStore';
 import { formatUnit } from '../../utils/unitHelper';
 import { MessageDisplay } from '../common/MessageDisplay';
@@ -17,7 +16,6 @@ const ShoppingListPage: React.FC = () => {
   const { messageRef, scrollToMessage } = useScrollToMessage();
   const { items, loading, error, fetchShoppingList, addItem, updateItem, deleteItem } =
     useShoppingListStore();
-  const user = useAuthStore((state) => state.user);
 
   // エラー発生時にスクロール
   useEffect(() => {
@@ -31,16 +29,14 @@ const ShoppingListPage: React.FC = () => {
   const [unit, setUnit] = useState('');
 
   useEffect(() => {
-    if (user?.userId) {
-      fetchShoppingList(user.userId);
-    }
-  }, [fetchShoppingList, user]);
+    fetchShoppingList();
+  }, [fetchShoppingList]);
 
   const handleAddItem = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user?.userId || !name || !quantity) return;
+    if (!name || !quantity) return;
 
-    await addItem(user.userId, {
+    await addItem({
       name,
       quantity: parseFloat(quantity),
       unit,
@@ -53,15 +49,11 @@ const ShoppingListPage: React.FC = () => {
   };
 
   const handleToggleCheck = async (itemId: string, isChecked: boolean) => {
-    if (!user?.userId) return;
-
-    await updateItem(user.userId, itemId, { isChecked: !isChecked });
+    await updateItem(itemId, { isChecked: !isChecked });
   };
 
   const handleDeleteItem = async (itemId: string) => {
-    if (!user?.userId) return;
-
-    await deleteItem(user.userId, itemId);
+    await deleteItem(itemId);
   };
 
   const uncheckedItems = items.filter((item) => !item.isChecked);

@@ -33,7 +33,7 @@ describe('shoppingListStore', () => {
       vi.mocked(shoppingListApi.getShoppingList).mockResolvedValue(mockItems);
 
       await act(async () => {
-        await useShoppingListStore.getState().fetchShoppingList('user-1');
+        await useShoppingListStore.getState().fetchShoppingList();
       });
 
       const state = useShoppingListStore.getState();
@@ -46,7 +46,7 @@ describe('shoppingListStore', () => {
       vi.mocked(shoppingListApi.getShoppingList).mockRejectedValue(new Error('Failed to fetch'));
 
       await act(async () => {
-        await useShoppingListStore.getState().fetchShoppingList('user-1');
+        await useShoppingListStore.getState().fetchShoppingList();
       });
 
       const state = useShoppingListStore.getState();
@@ -59,7 +59,7 @@ describe('shoppingListStore', () => {
       vi.mocked(shoppingListApi.addShoppingListItem).mockResolvedValue(mockItem);
 
       await act(async () => {
-        await useShoppingListStore.getState().addItem('user-1', {
+        await useShoppingListStore.getState().addItem({
           name: '牛乳',
           quantity: 1,
           unit: 'L',
@@ -77,7 +77,7 @@ describe('shoppingListStore', () => {
       vi.mocked(shoppingListApi.addShoppingListItem).mockResolvedValue(updatedItem);
 
       await act(async () => {
-        await useShoppingListStore.getState().addItem('user-1', {
+        await useShoppingListStore.getState().addItem({
           name: '牛乳',
           quantity: 2,
           unit: 'L',
@@ -97,7 +97,7 @@ describe('shoppingListStore', () => {
       vi.mocked(shoppingListApi.updateShoppingListItem).mockResolvedValue(checkedItem);
 
       await act(async () => {
-        await useShoppingListStore.getState().updateItem('user-1', 'item-1', {
+        await useShoppingListStore.getState().updateItem('item-1', {
           isChecked: true,
         });
       });
@@ -113,7 +113,7 @@ describe('shoppingListStore', () => {
       vi.mocked(shoppingListApi.deleteShoppingListItem).mockResolvedValue(undefined);
 
       await act(async () => {
-        await useShoppingListStore.getState().deleteItem('user-1', 'item-1');
+        await useShoppingListStore.getState().deleteItem('item-1');
       });
 
       const state = useShoppingListStore.getState();

@@ -62,21 +62,19 @@ const SchedulePage: React.FC = () => {
     setStartDate(start);
     setEndDate(end);
 
-    if (user?.userId) {
-      fetchSchedules(user.userId, { startDate: start, endDate: end });
-    }
-  }, [fetchSchedules, user]);
+    fetchSchedules({ startDate: start, endDate: end });
+  }, [fetchSchedules]);
 
   const handleSearch = () => {
-    if (user?.userId && startDate && endDate) {
-      fetchSchedules(user.userId, { startDate, endDate });
+    if (startDate && endDate) {
+      fetchSchedules({ startDate, endDate });
     }
   };
 
   const handleCreate = async () => {
     if (!user?.userId) return;
 
-    await createSchedule(user.userId, {
+    await createSchedule({
       date: formData.date,
       recipeId: formData.recipeId,
       recipeTitle: formData.recipeTitle,
@@ -90,7 +88,7 @@ const SchedulePage: React.FC = () => {
   const handleUpdate = async (scheduleId: string, memo: string) => {
     if (!user?.userId) return;
 
-    await updateSchedule(user.userId, scheduleId, { memo });
+    await updateSchedule(scheduleId, { memo });
     setEditingSchedule(null);
   };
 
@@ -98,13 +96,13 @@ const SchedulePage: React.FC = () => {
     if (!user?.userId) return;
     if (!confirm(t('schedule.confirmDelete'))) return;
 
-    await deleteSchedule(user.userId, scheduleId);
+    await deleteSchedule(scheduleId);
   };
 
   const handleMarkAsDone = async (scheduleId: string) => {
     if (!user?.userId) return;
 
-    await markAsDone(user.userId, scheduleId);
+    await markAsDone(scheduleId);
   };
 
   const handleRecipeSelect = (recipe: Recipe) => {

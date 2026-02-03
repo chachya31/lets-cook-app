@@ -32,7 +32,7 @@ describe('scheduleStore', () => {
       vi.mocked(scheduleApi.getSchedules).mockResolvedValue(mockSchedules);
 
       await act(async () => {
-        await useScheduleStore.getState().fetchSchedules('user-1', {
+        await useScheduleStore.getState().fetchSchedules({
           startDate: '2025-01-01',
           endDate: '2025-01-31',
         });
@@ -48,7 +48,7 @@ describe('scheduleStore', () => {
       vi.mocked(scheduleApi.getSchedules).mockRejectedValue(new Error('Failed to fetch'));
 
       await act(async () => {
-        await useScheduleStore.getState().fetchSchedules('user-1', {
+        await useScheduleStore.getState().fetchSchedules({
           startDate: '2025-01-01',
           endDate: '2025-01-31',
         });
@@ -64,7 +64,7 @@ describe('scheduleStore', () => {
       vi.mocked(scheduleApi.createSchedule).mockResolvedValue(mockSchedule);
 
       await act(async () => {
-        await useScheduleStore.getState().createSchedule('user-1', {
+        await useScheduleStore.getState().createSchedule({
           date: '2025-01-15',
           recipeId: 'recipe-1',
           recipeTitle: 'カレーライス',
@@ -85,7 +85,7 @@ describe('scheduleStore', () => {
       vi.mocked(scheduleApi.updateSchedule).mockResolvedValue(updatedSchedule);
 
       await act(async () => {
-        await useScheduleStore.getState().updateSchedule('user-1', 'schedule-1', {
+        await useScheduleStore.getState().updateSchedule('schedule-1', {
           memo: '更新メモ',
         });
       });
@@ -101,7 +101,7 @@ describe('scheduleStore', () => {
       vi.mocked(scheduleApi.deleteSchedule).mockResolvedValue(undefined);
 
       await act(async () => {
-        await useScheduleStore.getState().deleteSchedule('user-1', 'schedule-1');
+        await useScheduleStore.getState().deleteSchedule('schedule-1');
       });
 
       const state = useScheduleStore.getState();
@@ -116,7 +116,7 @@ describe('scheduleStore', () => {
       vi.mocked(scheduleApi.markAsDone).mockResolvedValue(doneSchedule);
 
       await act(async () => {
-        await useScheduleStore.getState().markAsDone('user-1', 'schedule-1');
+        await useScheduleStore.getState().markAsDone('schedule-1');
       });
 
       const state = useScheduleStore.getState();

@@ -51,7 +51,7 @@ const RecipeDetailPage: React.FC = () => {
   const handleDelete = async () => {
     if (!id || !user) return;
     if (window.confirm(t('recipe.delete.confirm'))) {
-      await deleteRecipe(id, user.userId);
+      await deleteRecipe(id);
       navigate('/recipes');
     }
   };
@@ -88,26 +88,26 @@ const RecipeDetailPage: React.FC = () => {
 
     try {
       if (editingReview) {
-        await updateReview(editingReview.reviewId, user.userId, { rating, comment });
+        await updateReview(editingReview.reviewId, { rating, comment });
         setEditingReview(null);
       } else {
-        await createReview(id, user.userId, { rating, comment });
+        await createReview(id, { rating, comment });
         setShowReviewForm(false);
       }
     } catch (err) {
-      console.error('Failed to submit review:', err);
+      // Review submit failed
     }
   };
 
   const handleReviewUpdate = async (reviewId: string, rating: number, comment: string) => {
     if (!user) return;
-    await updateReview(reviewId, user.userId, { rating, comment });
+    await updateReview(reviewId, { rating, comment });
   };
 
   const handleReviewDelete = async (reviewId: string) => {
     if (!user) return;
     if (window.confirm(t('review.deleteConfirm'))) {
-      await deleteReviewAction(reviewId, user.userId);
+      await deleteReviewAction(reviewId);
     }
   };
 

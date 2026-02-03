@@ -5,6 +5,11 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
 /**
+ * デフォルトのタイムアウト時間（ミリ秒）
+ */
+const DEFAULT_TIMEOUT_MS = 10000;
+
+/**
  * セッション期限切れフラグ（リダイレクト重複防止用）
  */
 let isSessionExpiredRedirecting = false;
@@ -36,7 +41,7 @@ const handleSessionExpired = (): void => {
 };
 
 interface RequestOptions extends RequestInit {
-  userId?: string;
+  timeoutMs?: number;
 }
 
 /**
@@ -77,6 +82,10 @@ const getDefaultErrorMessage = (status: number): string => {
  * ネットワークエラーをハンドリング
  */
 const handleNetworkError = (error: unknown): never => {
+  // タイムアウトエラーの場合
+  if (error instanceof DOMException && error.name === 'AbortError') {
+    throw new Error('Request timeout: The server took too long to respond');
+  }
   if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
     throw new Error('Network error: Please check your internet connection');
   }
@@ -105,13 +114,35 @@ const handleResponseError = async (response: Response): Promise<never> => {
 };
 
 /**
+ * タイムアウト付きfetchを実行
+ */
+const fetchWithTimeout = async (
+  url: string,
+  options: RequestInit,
+  timeoutMs: number
+): Promise<Response> => {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+    });
+    return response;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+};
+
+/**
  * 共通のfetchラッパー
  */
 async function fetchWithErrorHandling<T>(
   endpoint: string,
   options: RequestOptions = {}
 ): Promise<T> {
-  const { userId, ...fetchOptions } = options;
+  const { timeoutMs = DEFAULT_TIMEOUT_MS, ...fetchOptions } = options;
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -125,17 +156,15 @@ async function fetchWithErrorHandling<T>(
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  // X-User-Idヘッダーを追加（明示的に指定されていない場合はlocalStorageから取得）
-  const effectiveUserId = userId || localStorage.getItem('userId');
-  if (effectiveUserId) {
-    headers['X-User-Id'] = effectiveUserId;
-  }
-
   try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      ...fetchOptions,
-      headers,
-    });
+    const response = await fetchWithTimeout(
+      `${API_BASE_URL}${endpoint}`,
+      {
+        ...fetchOptions,
+        headers,
+      },
+      timeoutMs
+    );
 
     if (!response.ok) {
       await handleResponseError(response);
@@ -162,53 +191,45 @@ async function fetchWithErrorHandling<T>(
 /**
  * GET リクエスト
  */
-export async function apiGet<T>(endpoint: string, userId?: string): Promise<T> {
+export async function apiGet<T>(endpoint: string): Promise<T> {
   return fetchWithErrorHandling<T>(endpoint, {
     method: 'GET',
-    userId,
   });
 }
 
 /**
  * POST リクエスト
  */
-export async function apiPost<T>(endpoint: string, data: unknown, userId?: string): Promise<T> {
+export async function apiPost<T>(endpoint: string, data: unknown): Promise<T> {
   return fetchWithErrorHandling<T>(endpoint, {
     method: 'POST',
     body: JSON.stringify(data),
-    userId,
   });
 }
 
 /**
  * PUT リクエスト
  */
-export async function apiPut<T>(endpoint: string, data: unknown, userId?: string): Promise<T> {
+export async function apiPut<T>(endpoint: string, data: unknown): Promise<T> {
   return fetchWithErrorHandling<T>(endpoint, {
     method: 'PUT',
     body: JSON.stringify(data),
-    userId,
   });
 }
 
 /**
  * DELETE リクエスト
  */
-export async function apiDelete<T>(endpoint: string, userId?: string): Promise<T> {
+export async function apiDelete<T>(endpoint: string): Promise<T> {
   return fetchWithErrorHandling<T>(endpoint, {
     method: 'DELETE',
-    userId,
   });
 }
 
 /**
  * ファイルアップロード用POST
  */
-export async function apiPostFile<T>(
-  endpoint: string,
-  formData: FormData,
-  userId?: string
-): Promise<T> {
+export async function apiPostFile<T>(endpoint: string, formData: FormData): Promise<T> {
   const headers: Record<string, string> = {
     'Accept-Language': localStorage.getItem('i18nextLng') || 'ja',
   };
@@ -219,18 +240,16 @@ export async function apiPostFile<T>(
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  // X-User-Idヘッダーを追加（明示的に指定されていない場合はlocalStorageから取得）
-  const effectiveUserId = userId || localStorage.getItem('userId');
-  if (effectiveUserId) {
-    headers['X-User-Id'] = effectiveUserId;
-  }
-
   try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      method: 'POST',
-      headers,
-      body: formData,
-    });
+    const response = await fetchWithTimeout(
+      `${API_BASE_URL}${endpoint}`,
+      {
+        method: 'POST',
+        headers,
+        body: formData,
+      },
+      DEFAULT_TIMEOUT_MS
+    );
 
     if (!response.ok) {
       await handleResponseError(response);

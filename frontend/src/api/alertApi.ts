@@ -8,6 +8,6 @@ export interface AlertResponse {
 /**
  * アラート表示判定を取得
  */
-export const checkAlert = async (userId: string): Promise<AlertResponse> => {
-  return apiGet<AlertResponse>('/api/alerts/check', userId);
+export const checkAlert = async (): Promise<AlertResponse> => {
+  return apiGet<AlertResponse>('/api/alerts/check');
 };

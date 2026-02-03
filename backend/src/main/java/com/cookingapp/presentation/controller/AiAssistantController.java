@@ -11,13 +11,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cookingapp.application.usecase.ai.ChatUseCase;
 import com.cookingapp.domain.entity.ChatConversation;
 import com.cookingapp.domain.entity.ChatMessage;
+import com.cookingapp.infrastructure.security.SecurityUtils;
 
 /**
  * AIアシスタントコントローラー
@@ -39,9 +39,8 @@ public class AiAssistantController {
      * 新しい会話を開始してチャット
      */
     @PostMapping("/chat")
-    public ResponseEntity<ChatResponse> chat(
-            @RequestHeader("X-User-Id") String userId,
-            @RequestBody ChatRequest request) {
+    public ResponseEntity<ChatResponse> chat(@RequestBody ChatRequest request) {
+        String userId = SecurityUtils.getCurrentUserId();
         log.info("POST /api/ai/chat - userId={}, conversationType={}", userId, request.conversationType());
         String conversationType = request.conversationType() != null ? request.conversationType() : "general";
         ChatUseCase.ChatResponse result = chatUseCase.chat(userId, request.message(), conversationType);
@@ -53,8 +52,8 @@ public class AiAssistantController {
      * 会話一覧を取得
      */
     @GetMapping("/conversations")
-    public ResponseEntity<List<ConversationResponse>> getConversations(
-            @RequestHeader("X-User-Id") String userId) {
+    public ResponseEntity<List<ConversationResponse>> getConversations() {
+        String userId = SecurityUtils.getCurrentUserId();
         log.info("GET /api/ai/conversations - userId={}", userId);
         List<ChatConversation> conversations = chatUseCase.getConversations(userId);
         List<ConversationResponse> response = conversations.stream()
@@ -67,9 +66,8 @@ public class AiAssistantController {
      * 会話のメッセージ一覧を取得
      */
     @GetMapping("/conversations/{conversationId}/messages")
-    public ResponseEntity<List<MessageResponse>> getMessages(
-            @RequestHeader("X-User-Id") String userId,
-            @PathVariable String conversationId) {
+    public ResponseEntity<List<MessageResponse>> getMessages(@PathVariable String conversationId) {
+        String userId = SecurityUtils.getCurrentUserId();
         log.info("GET /api/ai/conversations/{}/messages - userId={}", conversationId, userId);
         List<ChatMessage> messages = chatUseCase.getMessages(userId, conversationId);
         List<MessageResponse> response = messages.stream()
@@ -83,9 +81,9 @@ public class AiAssistantController {
      */
     @PostMapping("/conversations/{conversationId}/messages")
     public ResponseEntity<ChatResponse> sendMessage(
-            @RequestHeader("X-User-Id") String userId,
             @PathVariable String conversationId,
             @RequestBody ChatRequest request) {
+        String userId = SecurityUtils.getCurrentUserId();
         log.info("POST /api/ai/conversations/{}/messages - userId={}", conversationId, userId);
         ChatUseCase.ChatResponse result = chatUseCase.chatInConversation(userId, conversationId, request.message());
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -96,9 +94,8 @@ public class AiAssistantController {
      * 会話を削除
      */
     @DeleteMapping("/conversations/{conversationId}")
-    public ResponseEntity<Void> deleteConversation(
-            @RequestHeader("X-User-Id") String userId,
-            @PathVariable String conversationId) {
+    public ResponseEntity<Void> deleteConversation(@PathVariable String conversationId) {
+        String userId = SecurityUtils.getCurrentUserId();
         log.info("DELETE /api/ai/conversations/{} - userId={}", conversationId, userId);
         chatUseCase.deleteConversation(userId, conversationId);
         return ResponseEntity.noContent().build();

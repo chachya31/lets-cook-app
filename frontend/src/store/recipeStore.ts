@@ -17,10 +17,10 @@ interface RecipeState {
 interface RecipeActions {
   searchRecipes: (params?: RecipeSearchParams) => Promise<void>;
   fetchRecipe: (recipeId: string) => Promise<void>;
-  createRecipe: (userId: string, recipe: RecipeRequest) => Promise<Recipe>;
-  updateRecipe: (recipeId: string, userId: string, recipe: RecipeRequest) => Promise<Recipe>;
-  deleteRecipe: (recipeId: string, userId: string) => Promise<void>;
-  uploadRecipeImage: (recipeId: string, userId: string, file: File) => Promise<Recipe>;
+  createRecipe: (recipe: RecipeRequest) => Promise<Recipe>;
+  updateRecipe: (recipeId: string, recipe: RecipeRequest) => Promise<Recipe>;
+  deleteRecipe: (recipeId: string) => Promise<void>;
+  uploadRecipeImage: (recipeId: string, file: File) => Promise<Recipe>;
   clearError: () => void;
   clearCurrentRecipe: () => void;
 }
@@ -63,10 +63,10 @@ export const useRecipeStore = create<RecipeStore>((set, get) => ({
   },
 
   // レシピ作成
-  createRecipe: async (userId: string, recipe: RecipeRequest) => {
+  createRecipe: async (recipe: RecipeRequest) => {
     set({ loading: true, error: null });
     try {
-      const newRecipe = await recipeApi.createRecipe(userId, recipe);
+      const newRecipe = await recipeApi.createRecipe(recipe);
       set((state) => ({
         recipes: [...state.recipes, newRecipe],
         currentRecipe: newRecipe,
@@ -83,10 +83,10 @@ export const useRecipeStore = create<RecipeStore>((set, get) => ({
   },
 
   // レシピ更新
-  updateRecipe: async (recipeId: string, userId: string, recipe: RecipeRequest) => {
+  updateRecipe: async (recipeId: string, recipe: RecipeRequest) => {
     set({ loading: true, error: null });
     try {
-      const updatedRecipe = await recipeApi.updateRecipe(recipeId, userId, recipe);
+      const updatedRecipe = await recipeApi.updateRecipe(recipeId, recipe);
       set((state) => ({
         recipes: state.recipes.map((r) => (r.recipeId === recipeId ? updatedRecipe : r)),
         currentRecipe: updatedRecipe,
@@ -103,10 +103,10 @@ export const useRecipeStore = create<RecipeStore>((set, get) => ({
   },
 
   // レシピ削除
-  deleteRecipe: async (recipeId: string, userId: string) => {
+  deleteRecipe: async (recipeId: string) => {
     set({ loading: true, error: null });
     try {
-      await recipeApi.deleteRecipe(recipeId, userId);
+      await recipeApi.deleteRecipe(recipeId);
       const state = get();
       set({
         recipes: state.recipes.filter((r) => r.recipeId !== recipeId),
@@ -123,10 +123,10 @@ export const useRecipeStore = create<RecipeStore>((set, get) => ({
   },
 
   // レシピ画像アップロード
-  uploadRecipeImage: async (recipeId: string, userId: string, file: File) => {
+  uploadRecipeImage: async (recipeId: string, file: File) => {
     set({ loading: true, error: null });
     try {
-      const updatedRecipe = await recipeApi.uploadRecipeImage(recipeId, userId, file);
+      const updatedRecipe = await recipeApi.uploadRecipeImage(recipeId, file);
       set((state) => ({
         recipes: state.recipes.map((r) => (r.recipeId === recipeId ? updatedRecipe : r)),
         currentRecipe: updatedRecipe,

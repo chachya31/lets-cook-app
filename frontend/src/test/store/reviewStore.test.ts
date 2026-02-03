@@ -62,7 +62,7 @@ describe('reviewStore', () => {
       vi.mocked(reviewApi.createReview).mockResolvedValue(mockReview);
 
       await act(async () => {
-        await useReviewStore.getState().createReview('recipe-1', 'user-1', {
+        await useReviewStore.getState().createReview('recipe-1', {
           rating: 5,
           comment: 'おいしかった！',
         });
@@ -77,7 +77,7 @@ describe('reviewStore', () => {
       vi.mocked(reviewApi.createReview).mockRejectedValue(new Error('Failed to create'));
 
       await expect(
-        useReviewStore.getState().createReview('recipe-1', 'user-1', {
+        useReviewStore.getState().createReview('recipe-1', {
           rating: 5,
         })
       ).rejects.toThrow('Failed to create');
@@ -96,7 +96,7 @@ describe('reviewStore', () => {
       vi.mocked(reviewApi.updateReview).mockResolvedValue(updatedReview);
 
       await act(async () => {
-        await useReviewStore.getState().updateReview('review-1', 'user-1', {
+        await useReviewStore.getState().updateReview('review-1', {
           rating: 4,
           comment: '更新しました',
         });
@@ -114,7 +114,7 @@ describe('reviewStore', () => {
       vi.mocked(reviewApi.deleteReview).mockResolvedValue(undefined);
 
       await act(async () => {
-        await useReviewStore.getState().deleteReview('review-1', 'user-1');
+        await useReviewStore.getState().deleteReview('review-1');
       });
 
       const state = useReviewStore.getState();

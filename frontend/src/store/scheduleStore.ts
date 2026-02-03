@@ -19,15 +19,11 @@ interface ScheduleState {
 }
 
 interface ScheduleActions {
-  fetchSchedules: (userId: string, params: ScheduleSearchParams) => Promise<void>;
-  createSchedule: (userId: string, request: CreateScheduleRequest) => Promise<void>;
-  updateSchedule: (
-    userId: string,
-    scheduleId: string,
-    request: UpdateScheduleRequest
-  ) => Promise<void>;
-  deleteSchedule: (userId: string, scheduleId: string) => Promise<void>;
-  markAsDone: (userId: string, scheduleId: string) => Promise<void>;
+  fetchSchedules: (params: ScheduleSearchParams) => Promise<void>;
+  createSchedule: (request: CreateScheduleRequest) => Promise<void>;
+  updateSchedule: (scheduleId: string, request: UpdateScheduleRequest) => Promise<void>;
+  deleteSchedule: (scheduleId: string) => Promise<void>;
+  markAsDone: (scheduleId: string) => Promise<void>;
   clearError: () => void;
 }
 
@@ -40,10 +36,10 @@ export const useScheduleStore = create<ScheduleStore>((set) => ({
   error: null,
 
   // スケジュール一覧取得
-  fetchSchedules: async (userId: string, params: ScheduleSearchParams) => {
+  fetchSchedules: async (params: ScheduleSearchParams) => {
     set({ loading: true, error: null });
     try {
-      const schedules = await scheduleApi.getSchedules(userId, params);
+      const schedules = await scheduleApi.getSchedules(params);
       set({ schedules, loading: false });
     } catch (error) {
       set({
@@ -54,10 +50,10 @@ export const useScheduleStore = create<ScheduleStore>((set) => ({
   },
 
   // スケジュール作成
-  createSchedule: async (userId: string, request: CreateScheduleRequest) => {
+  createSchedule: async (request: CreateScheduleRequest) => {
     set({ loading: true, error: null });
     try {
-      const schedule = await scheduleApi.createSchedule(userId, request);
+      const schedule = await scheduleApi.createSchedule(request);
       set((state) => ({
         schedules: [...state.schedules, schedule],
         loading: false,
@@ -72,10 +68,10 @@ export const useScheduleStore = create<ScheduleStore>((set) => ({
   },
 
   // スケジュール更新
-  updateSchedule: async (userId: string, scheduleId: string, request: UpdateScheduleRequest) => {
+  updateSchedule: async (scheduleId: string, request: UpdateScheduleRequest) => {
     set({ loading: true, error: null });
     try {
-      const updatedSchedule = await scheduleApi.updateSchedule(userId, scheduleId, request);
+      const updatedSchedule = await scheduleApi.updateSchedule(scheduleId, request);
       set((state) => ({
         schedules: state.schedules.map((s) => (s.scheduleId === scheduleId ? updatedSchedule : s)),
         loading: false,
@@ -90,10 +86,10 @@ export const useScheduleStore = create<ScheduleStore>((set) => ({
   },
 
   // スケジュール削除
-  deleteSchedule: async (userId: string, scheduleId: string) => {
+  deleteSchedule: async (scheduleId: string) => {
     set({ loading: true, error: null });
     try {
-      await scheduleApi.deleteSchedule(userId, scheduleId);
+      await scheduleApi.deleteSchedule(scheduleId);
       set((state) => ({
         schedules: state.schedules.filter((s) => s.scheduleId !== scheduleId),
         loading: false,
@@ -108,10 +104,10 @@ export const useScheduleStore = create<ScheduleStore>((set) => ({
   },
 
   // 予定を実績に変換（完了にする）
-  markAsDone: async (userId: string, scheduleId: string) => {
+  markAsDone: async (scheduleId: string) => {
     set({ loading: true, error: null });
     try {
-      const updatedSchedule = await scheduleApi.markAsDone(userId, scheduleId);
+      const updatedSchedule = await scheduleApi.markAsDone(scheduleId);
       set((state) => ({
         schedules: state.schedules.map((s) => (s.scheduleId === scheduleId ? updatedSchedule : s)),
         loading: false,

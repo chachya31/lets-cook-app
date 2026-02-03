@@ -15,9 +15,9 @@ interface ReviewState {
 
 interface ReviewActions {
   fetchReviews: (recipeId: string) => Promise<void>;
-  createReview: (recipeId: string, userId: string, request: CreateReviewRequest) => Promise<void>;
-  updateReview: (reviewId: string, userId: string, request: UpdateReviewRequest) => Promise<void>;
-  deleteReview: (reviewId: string, userId: string) => Promise<void>;
+  createReview: (recipeId: string, request: CreateReviewRequest) => Promise<void>;
+  updateReview: (reviewId: string, request: UpdateReviewRequest) => Promise<void>;
+  deleteReview: (reviewId: string) => Promise<void>;
   reportReview: (reviewId: string) => Promise<void>;
   clearReviews: () => void;
   clearError: () => void;
@@ -46,10 +46,10 @@ export const useReviewStore = create<ReviewStore>((set) => ({
   },
 
   // レビューを作成
-  createReview: async (recipeId: string, userId: string, request: CreateReviewRequest) => {
+  createReview: async (recipeId: string, request: CreateReviewRequest) => {
     set({ loading: true, error: null });
     try {
-      const review = await reviewApi.createReview(recipeId, userId, request);
+      const review = await reviewApi.createReview(recipeId, request);
       set((state) => ({
         reviews: [...state.reviews, review],
         loading: false,
@@ -64,10 +64,10 @@ export const useReviewStore = create<ReviewStore>((set) => ({
   },
 
   // レビューを更新
-  updateReview: async (reviewId: string, userId: string, request: UpdateReviewRequest) => {
+  updateReview: async (reviewId: string, request: UpdateReviewRequest) => {
     set({ loading: true, error: null });
     try {
-      const updatedReview = await reviewApi.updateReview(reviewId, userId, request);
+      const updatedReview = await reviewApi.updateReview(reviewId, request);
       set((state) => ({
         reviews: state.reviews.map((r) => (r.reviewId === reviewId ? updatedReview : r)),
         loading: false,
@@ -82,10 +82,10 @@ export const useReviewStore = create<ReviewStore>((set) => ({
   },
 
   // レビューを削除
-  deleteReview: async (reviewId: string, userId: string) => {
+  deleteReview: async (reviewId: string) => {
     set({ loading: true, error: null });
     try {
-      await reviewApi.deleteReview(reviewId, userId);
+      await reviewApi.deleteReview(reviewId);
       set((state) => ({
         reviews: state.reviews.filter((r) => r.reviewId !== reviewId),
         loading: false,

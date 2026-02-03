@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,6 +22,7 @@ import com.cookingapp.application.usecase.schedule.DeleteScheduleUseCase;
 import com.cookingapp.application.usecase.schedule.GetSchedulesUseCase;
 import com.cookingapp.application.usecase.schedule.UpdateScheduleUseCase;
 import com.cookingapp.domain.entity.Schedule;
+import com.cookingapp.infrastructure.security.SecurityUtils;
 import com.cookingapp.presentation.dto.request.CreateScheduleRequest;
 import com.cookingapp.presentation.dto.request.UpdateScheduleRequest;
 import com.cookingapp.presentation.dto.response.ScheduleResponse;
@@ -49,9 +49,9 @@ public class ScheduleController {
      */
     @GetMapping
     public ResponseEntity<List<ScheduleResponse>> getSchedules(
-            @RequestHeader("X-User-Id") String userId,
             @RequestParam(name = "startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(name = "endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        String userId = SecurityUtils.getCurrentUserId();
         List<Schedule> schedules = getSchedulesUseCase.execute(userId, startDate, endDate);
         return ResponseEntity.ok(ScheduleMapper.toResponseList(schedules));
     }
@@ -61,8 +61,8 @@ public class ScheduleController {
      */
     @PostMapping
     public ResponseEntity<ScheduleResponse> createSchedule(
-            @RequestHeader("X-User-Id") String userId,
             @Valid @RequestBody CreateScheduleRequest request) {
+        String userId = SecurityUtils.getCurrentUserId();
         Schedule schedule = createScheduleUseCase.execute(
                 userId,
                 LocalDate.parse(request.getDate()),
@@ -78,8 +78,8 @@ public class ScheduleController {
     @PutMapping("/{scheduleId}")
     public ResponseEntity<ScheduleResponse> updateSchedule(
             @PathVariable("scheduleId") String scheduleId,
-            @RequestHeader("X-User-Id") String userId,
             @Valid @RequestBody UpdateScheduleRequest request) {
+        String userId = SecurityUtils.getCurrentUserId();
         Schedule schedule = updateScheduleUseCase.execute(scheduleId, userId, request.getMemo());
         return ResponseEntity.ok(ScheduleMapper.toResponse(schedule));
     }
@@ -88,9 +88,8 @@ public class ScheduleController {
      * スケジュール削除
      */
     @DeleteMapping("/{scheduleId}")
-    public ResponseEntity<Void> deleteSchedule(
-            @PathVariable("scheduleId") String scheduleId,
-            @RequestHeader("X-User-Id") String userId) {
+    public ResponseEntity<Void> deleteSchedule(@PathVariable("scheduleId") String scheduleId) {
+        String userId = SecurityUtils.getCurrentUserId();
         deleteScheduleUseCase.execute(scheduleId, userId);
         return ResponseEntity.noContent().build();
     }
@@ -99,9 +98,8 @@ public class ScheduleController {
      * 予定を実績に変換（完了にする）
      */
     @PostMapping("/{scheduleId}/mark-done")
-    public ResponseEntity<ScheduleResponse> markAsDone(
-            @PathVariable("scheduleId") String scheduleId,
-            @RequestHeader("X-User-Id") String userId) {
+    public ResponseEntity<ScheduleResponse> markAsDone(@PathVariable("scheduleId") String scheduleId) {
+        String userId = SecurityUtils.getCurrentUserId();
         Schedule schedule = convertScheduleToCookedUseCase.execute(scheduleId, userId);
         return ResponseEntity.ok(ScheduleMapper.toResponse(schedule));
     }

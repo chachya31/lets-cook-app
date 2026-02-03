@@ -21,6 +21,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -30,6 +31,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.MessageSource;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -108,6 +111,21 @@ class RecipeControllerTest {
                 .build();
         objectMapper = new ObjectMapper();
         objectMapper.findAndRegisterModules(); // LocalDateTime対応
+    }
+
+    @AfterEach
+    void tearDown() {
+        // テスト後にSecurityContextをクリア
+        SecurityContextHolder.clearContext();
+    }
+
+    /**
+     * SecurityContextに認証情報を設定するヘルパーメソッド
+     */
+    private void setAuthenticatedUser(String userId) {
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                userId, null, Collections.emptyList());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
     @Nested
@@ -242,9 +260,10 @@ class RecipeControllerTest {
         class Success {
 
             @Test
-            @DisplayName("有効なリクエストでレシピ作成時、201 Createdを返す")
+            @DisplayName("認証済みユーザーでレシピ作成時、201 Createdを返す")
             void shouldReturn201WhenRecipeCreatedSuccessfully() throws Exception {
                 // Arrange
+                setAuthenticatedUser(TEST_USER_ID);
                 RecipeRequest request = createRecipeRequest();
                 Recipe recipe = createTestRecipe();
                 when(createRecipeUseCase.execute(
@@ -258,7 +277,6 @@ class RecipeControllerTest {
                 // Act & Assert
                 mockMvc.perform(post(RECIPES_ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-User-Id", TEST_USER_ID)
                         .content(objectMapper.writeValueAsString(request)))
                         .andExpect(status().isCreated())
                         .andExpect(jsonPath("$.recipeId").value(TEST_RECIPE_ID))
@@ -278,16 +296,16 @@ class RecipeControllerTest {
         class Failure {
 
             @Test
-            @DisplayName("X-User-Idヘッダーがない場合、400 Bad Requestを返す")
-            void shouldReturn400WhenUserIdHeaderMissing() throws Exception {
-                // Arrange
+            @DisplayName("未認証の場合、403 Forbiddenを返す")
+            void shouldReturn403WhenNotAuthenticated() throws Exception {
+                // Arrange - SecurityContextに認証情報を設定しない
                 RecipeRequest request = createRecipeRequest();
 
                 // Act & Assert
                 mockMvc.perform(post(RECIPES_ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                        .andExpect(status().isBadRequest());
+                        .andExpect(status().isForbidden());
 
                 verify(createRecipeUseCase, never()).execute(
                         anyString(), anyString(), anyList(), anyList(), anyInt());
@@ -297,13 +315,13 @@ class RecipeControllerTest {
             @DisplayName("タイトルが空の場合、400 Bad Requestを返す")
             void shouldReturn400WhenTitleIsEmpty() throws Exception {
                 // Arrange
+                setAuthenticatedUser(TEST_USER_ID);
                 RecipeRequest request = createRecipeRequest();
                 request.setTitle("");
 
                 // Act & Assert
                 mockMvc.perform(post(RECIPES_ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-User-Id", TEST_USER_ID)
                         .content(objectMapper.writeValueAsString(request)))
                         .andExpect(status().isBadRequest());
 
@@ -322,9 +340,10 @@ class RecipeControllerTest {
         class Success {
 
             @Test
-            @DisplayName("有効なリクエストでレシピ更新時、200 OKを返す")
+            @DisplayName("認証済みユーザーでレシピ更新時、200 OKを返す")
             void shouldReturn200WhenRecipeUpdatedSuccessfully() throws Exception {
                 // Arrange
+                setAuthenticatedUser(TEST_USER_ID);
                 RecipeRequest request = createRecipeRequest();
                 Recipe recipe = createTestRecipe();
                 when(updateRecipeUseCase.execute(
@@ -339,7 +358,6 @@ class RecipeControllerTest {
                 // Act & Assert
                 mockMvc.perform(put(RECIPES_ENDPOINT + "/" + TEST_RECIPE_ID)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-User-Id", TEST_USER_ID)
                         .content(objectMapper.writeValueAsString(request)))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$.recipeId").value(TEST_RECIPE_ID));
@@ -362,6 +380,7 @@ class RecipeControllerTest {
             @DisplayName("レシピが存在しない場合、404 Not Foundを返す")
             void shouldReturn404WhenRecipeNotFound() throws Exception {
                 // Arrange
+                setAuthenticatedUser(TEST_USER_ID);
                 RecipeRequest request = createRecipeRequest();
                 when(updateRecipeUseCase.execute(
                         eq(TEST_RECIPE_ID),
@@ -375,7 +394,6 @@ class RecipeControllerTest {
                 // Act & Assert
                 mockMvc.perform(put(RECIPES_ENDPOINT + "/" + TEST_RECIPE_ID)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-User-Id", TEST_USER_ID)
                         .content(objectMapper.writeValueAsString(request)))
                         .andExpect(status().isNotFound())
                         .andExpect(jsonPath("$.code").value("RECIPE_NOT_FOUND"));
@@ -385,6 +403,7 @@ class RecipeControllerTest {
             @DisplayName("著者以外が更新しようとした場合、403 Forbiddenを返す")
             void shouldReturn403WhenUserIsNotAuthor() throws Exception {
                 // Arrange
+                setAuthenticatedUser(TEST_USER_ID);
                 RecipeRequest request = createRecipeRequest();
                 when(updateRecipeUseCase.execute(
                         eq(TEST_RECIPE_ID),
@@ -398,7 +417,6 @@ class RecipeControllerTest {
                 // Act & Assert
                 mockMvc.perform(put(RECIPES_ENDPOINT + "/" + TEST_RECIPE_ID)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-User-Id", TEST_USER_ID)
                         .content(objectMapper.writeValueAsString(request)))
                         .andExpect(status().isForbidden())
                         .andExpect(jsonPath("$.code").value("UNAUTHORIZED"));
@@ -418,11 +436,11 @@ class RecipeControllerTest {
             @DisplayName("レシピ削除成功時、204 No Contentを返す")
             void shouldReturn204WhenRecipeDeletedSuccessfully() throws Exception {
                 // Arrange
+                setAuthenticatedUser(TEST_USER_ID);
                 doNothing().when(deleteRecipeUseCase).execute(TEST_RECIPE_ID, TEST_USER_ID);
 
                 // Act & Assert
-                mockMvc.perform(delete(RECIPES_ENDPOINT + "/" + TEST_RECIPE_ID)
-                        .header("X-User-Id", TEST_USER_ID))
+                mockMvc.perform(delete(RECIPES_ENDPOINT + "/" + TEST_RECIPE_ID))
                         .andExpect(status().isNoContent());
 
                 verify(deleteRecipeUseCase).execute(TEST_RECIPE_ID, TEST_USER_ID);
@@ -437,12 +455,12 @@ class RecipeControllerTest {
             @DisplayName("レシピが存在しない場合、404 Not Foundを返す")
             void shouldReturn404WhenRecipeNotFound() throws Exception {
                 // Arrange
+                setAuthenticatedUser(TEST_USER_ID);
                 doThrow(new RecipeNotFoundException("Recipe not found: " + TEST_RECIPE_ID))
                         .when(deleteRecipeUseCase).execute(TEST_RECIPE_ID, TEST_USER_ID);
 
                 // Act & Assert
-                mockMvc.perform(delete(RECIPES_ENDPOINT + "/" + TEST_RECIPE_ID)
-                        .header("X-User-Id", TEST_USER_ID))
+                mockMvc.perform(delete(RECIPES_ENDPOINT + "/" + TEST_RECIPE_ID))
                         .andExpect(status().isNotFound())
                         .andExpect(jsonPath("$.code").value("RECIPE_NOT_FOUND"));
             }
@@ -451,12 +469,12 @@ class RecipeControllerTest {
             @DisplayName("著者以外が削除しようとした場合、403 Forbiddenを返す")
             void shouldReturn403WhenUserIsNotAuthor() throws Exception {
                 // Arrange
+                setAuthenticatedUser(TEST_USER_ID);
                 doThrow(new UnauthorizedException("User does not have permission"))
                         .when(deleteRecipeUseCase).execute(TEST_RECIPE_ID, TEST_USER_ID);
 
                 // Act & Assert
-                mockMvc.perform(delete(RECIPES_ENDPOINT + "/" + TEST_RECIPE_ID)
-                        .header("X-User-Id", TEST_USER_ID))
+                mockMvc.perform(delete(RECIPES_ENDPOINT + "/" + TEST_RECIPE_ID))
                         .andExpect(status().isForbidden())
                         .andExpect(jsonPath("$.code").value("UNAUTHORIZED"));
             }

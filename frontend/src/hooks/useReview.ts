@@ -24,16 +24,16 @@ export const useReview = () => {
     await fetchReviewsAction(recipeId);
   };
 
-  const createReview = async (recipeId: string, userId: string, request: CreateReviewRequest) => {
-    await createReviewAction(recipeId, userId, request);
+  const createReview = async (recipeId: string, request: CreateReviewRequest) => {
+    await createReviewAction(recipeId, request);
   };
 
-  const updateReview = async (reviewId: string, userId: string, request: UpdateReviewRequest) => {
-    await updateReviewAction(reviewId, userId, request);
+  const updateReview = async (reviewId: string, request: UpdateReviewRequest) => {
+    await updateReviewAction(reviewId, request);
   };
 
-  const deleteReview = async (reviewId: string, userId: string) => {
-    await deleteReviewAction(reviewId, userId);
+  const deleteReview = async (reviewId: string) => {
+    await deleteReviewAction(reviewId);
   };
 
   const reportReview = async (reviewId: string) => {

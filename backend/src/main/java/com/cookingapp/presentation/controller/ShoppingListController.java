@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,6 +21,7 @@ import com.cookingapp.application.usecase.shoppinglist.DeleteShoppingListItemUse
 import com.cookingapp.application.usecase.shoppinglist.GetShoppingListUseCase;
 import com.cookingapp.application.usecase.shoppinglist.UpdateShoppingListItemUseCase;
 import com.cookingapp.domain.entity.ShoppingListItem;
+import com.cookingapp.infrastructure.security.SecurityUtils;
 import com.cookingapp.presentation.dto.request.AddShoppingListItemRequest;
 import com.cookingapp.presentation.dto.request.UpdateShoppingListItemRequest;
 import com.cookingapp.presentation.dto.response.ShoppingListItemResponse;
@@ -48,8 +48,8 @@ public class ShoppingListController {
      * 買い物リスト取得
      */
     @GetMapping
-    public ResponseEntity<List<ShoppingListItemResponse>> getShoppingList(
-            @RequestHeader("X-User-Id") String userId) {
+    public ResponseEntity<List<ShoppingListItemResponse>> getShoppingList() {
+        String userId = SecurityUtils.getCurrentUserId();
         log.info("GET /api/shopping-lists - userId={}", userId);
 
         // 期限切れアイテムをクリーンアップ
@@ -65,8 +65,8 @@ public class ShoppingListController {
      */
     @PostMapping
     public ResponseEntity<ShoppingListItemResponse> addItem(
-            @RequestHeader("X-User-Id") String userId,
             @Valid @RequestBody AddShoppingListItemRequest request) {
+        String userId = SecurityUtils.getCurrentUserId();
         log.info("POST /api/shopping-lists - userId={}, name={}", userId, request.getName());
 
         ShoppingListItem item = addShoppingListItemUseCase.execute(
@@ -85,9 +85,9 @@ public class ShoppingListController {
      */
     @PutMapping("/{itemId}")
     public ResponseEntity<ShoppingListItemResponse> updateItem(
-            @RequestHeader("X-User-Id") String userId,
             @PathVariable("itemId") String itemId,
             @Valid @RequestBody UpdateShoppingListItemRequest request) {
+        String userId = SecurityUtils.getCurrentUserId();
         log.info("PUT /api/shopping-lists/{} - userId={}, isChecked={}",
                 itemId, userId, request.getIsChecked());
 
@@ -103,9 +103,8 @@ public class ShoppingListController {
      * 買い物リストアイテム削除
      */
     @DeleteMapping("/{itemId}")
-    public ResponseEntity<Void> deleteItem(
-            @RequestHeader("X-User-Id") String userId,
-            @PathVariable("itemId") String itemId) {
+    public ResponseEntity<Void> deleteItem(@PathVariable("itemId") String itemId) {
+        String userId = SecurityUtils.getCurrentUserId();
         log.info("DELETE /api/shopping-lists/{} - userId={}", itemId, userId);
 
         deleteShoppingListItemUseCase.execute(userId, itemId);

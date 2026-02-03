@@ -106,7 +106,7 @@ describe('recipeStore', () => {
       const newRecipe = mockRecipes[0];
       vi.mocked(recipeApi.createRecipe).mockResolvedValue(newRecipe);
 
-      const result = await useRecipeStore.getState().createRecipe('user-1', {
+      const result = await useRecipeStore.getState().createRecipe({
         title: 'Test Recipe 1',
         ingredients: [{ name: 'Ingredient 1', optional: false }],
         steps: [{ description: 'Step 1' }],
@@ -123,7 +123,7 @@ describe('recipeStore', () => {
       vi.mocked(recipeApi.createRecipe).mockRejectedValue(new Error('Create failed'));
 
       await expect(
-        useRecipeStore.getState().createRecipe('user-1', {
+        useRecipeStore.getState().createRecipe({
           title: 'Test',
           ingredients: [],
           steps: [],
@@ -141,7 +141,7 @@ describe('recipeStore', () => {
 
       useRecipeStore.setState({ recipes: mockRecipes });
 
-      const result = await useRecipeStore.getState().updateRecipe('recipe-1', 'user-1', {
+      const result = await useRecipeStore.getState().updateRecipe('recipe-1', {
         title: 'Updated Title',
         ingredients: mockRecipes[0].ingredients,
         steps: mockRecipes[0].steps,
@@ -158,7 +158,7 @@ describe('recipeStore', () => {
       vi.mocked(recipeApi.updateRecipe).mockRejectedValue(new Error('Update failed'));
 
       await expect(
-        useRecipeStore.getState().updateRecipe('recipe-1', 'user-1', {
+        useRecipeStore.getState().updateRecipe('recipe-1', {
           title: 'Test',
           ingredients: [],
           steps: [],
@@ -174,7 +174,7 @@ describe('recipeStore', () => {
 
       useRecipeStore.setState({ recipes: mockRecipes, currentRecipe: mockRecipes[0] });
 
-      await useRecipeStore.getState().deleteRecipe('recipe-1', 'user-1');
+      await useRecipeStore.getState().deleteRecipe('recipe-1');
 
       const state = useRecipeStore.getState();
       expect(state.recipes).toHaveLength(1);
@@ -185,7 +185,7 @@ describe('recipeStore', () => {
     it('レシピ削除失敗時にエラーをスローする', async () => {
       vi.mocked(recipeApi.deleteRecipe).mockRejectedValue(new Error('Delete failed'));
 
-      await expect(useRecipeStore.getState().deleteRecipe('recipe-1', 'user-1')).rejects.toThrow(
+      await expect(useRecipeStore.getState().deleteRecipe('recipe-1')).rejects.toThrow(
         'Delete failed'
       );
     });
@@ -199,7 +199,7 @@ describe('recipeStore', () => {
       useRecipeStore.setState({ recipes: mockRecipes });
 
       const file = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
-      const result = await useRecipeStore.getState().uploadRecipeImage('recipe-1', 'user-1', file);
+      const result = await useRecipeStore.getState().uploadRecipeImage('recipe-1', file);
 
       expect(result).toEqual(updatedRecipe);
       expect(useRecipeStore.getState().recipes[0].imageUrl).toBe('https://example.com/image.jpg');

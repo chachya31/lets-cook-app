@@ -18,14 +18,10 @@ interface ShoppingListState {
 }
 
 interface ShoppingListActions {
-  fetchShoppingList: (userId: string) => Promise<void>;
-  addItem: (userId: string, request: AddShoppingListItemRequest) => Promise<void>;
-  updateItem: (
-    userId: string,
-    itemId: string,
-    request: UpdateShoppingListItemRequest
-  ) => Promise<void>;
-  deleteItem: (userId: string, itemId: string) => Promise<void>;
+  fetchShoppingList: () => Promise<void>;
+  addItem: (request: AddShoppingListItemRequest) => Promise<void>;
+  updateItem: (itemId: string, request: UpdateShoppingListItemRequest) => Promise<void>;
+  deleteItem: (itemId: string) => Promise<void>;
   clearError: () => void;
 }
 
@@ -38,10 +34,10 @@ export const useShoppingListStore = create<ShoppingListStore>((set) => ({
   error: null,
 
   // 買い物リスト取得
-  fetchShoppingList: async (userId: string) => {
+  fetchShoppingList: async () => {
     set({ loading: true, error: null });
     try {
-      const items = await shoppingListApi.getShoppingList(userId);
+      const items = await shoppingListApi.getShoppingList();
       set({ items, loading: false });
     } catch (error) {
       set({
@@ -52,10 +48,10 @@ export const useShoppingListStore = create<ShoppingListStore>((set) => ({
   },
 
   // アイテム追加
-  addItem: async (userId: string, request: AddShoppingListItemRequest) => {
+  addItem: async (request: AddShoppingListItemRequest) => {
     set({ loading: true, error: null });
     try {
-      const newItem = await shoppingListApi.addShoppingListItem(userId, request);
+      const newItem = await shoppingListApi.addShoppingListItem(request);
       set((state) => {
         // 既存アイテムを更新または新規追加
         const existingIndex = state.items.findIndex((item) => item.itemId === newItem.itemId);
@@ -76,10 +72,10 @@ export const useShoppingListStore = create<ShoppingListStore>((set) => ({
   },
 
   // アイテム更新
-  updateItem: async (userId: string, itemId: string, request: UpdateShoppingListItemRequest) => {
+  updateItem: async (itemId: string, request: UpdateShoppingListItemRequest) => {
     set({ loading: true, error: null });
     try {
-      const updatedItem = await shoppingListApi.updateShoppingListItem(userId, itemId, request);
+      const updatedItem = await shoppingListApi.updateShoppingListItem(itemId, request);
       set((state) => ({
         items: state.items.map((item) => (item.itemId === itemId ? updatedItem : item)),
         loading: false,
@@ -94,10 +90,10 @@ export const useShoppingListStore = create<ShoppingListStore>((set) => ({
   },
 
   // アイテム削除
-  deleteItem: async (userId: string, itemId: string) => {
+  deleteItem: async (itemId: string) => {
     set({ loading: true, error: null });
     try {
-      await shoppingListApi.deleteShoppingListItem(userId, itemId);
+      await shoppingListApi.deleteShoppingListItem(itemId);
       set((state) => ({
         items: state.items.filter((item) => item.itemId !== itemId),
         loading: false,

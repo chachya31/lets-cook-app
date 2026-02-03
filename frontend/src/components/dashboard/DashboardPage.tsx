@@ -23,9 +23,6 @@ const DashboardPage: React.FC = () => {
   const [shoppingItems, setShoppingItems] = useState<ShoppingListItem[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // ユーザーIDを取得（実際の実装では認証状態から取得）
-  const userId = localStorage.getItem('userId') || '';
-
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
@@ -36,31 +33,29 @@ const DashboardPage: React.FC = () => {
         setRecentRecipes(recipes.slice(0, 3));
 
         // 今日から7日間のスケジュールを取得
-        if (userId) {
-          const today = new Date();
-          const nextWeek = new Date();
-          nextWeek.setDate(today.getDate() + 7);
+        const today = new Date();
+        const nextWeek = new Date();
+        nextWeek.setDate(today.getDate() + 7);
 
-          const schedules = await getSchedules(userId, {
-            startDate: today.toISOString().split('T')[0],
-            endDate: nextWeek.toISOString().split('T')[0],
-          });
-          setUpcomingSchedules(schedules.slice(0, 5));
+        const schedules = await getSchedules({
+          startDate: today.toISOString().split('T')[0],
+          endDate: nextWeek.toISOString().split('T')[0],
+        });
+        setUpcomingSchedules(schedules.slice(0, 5));
 
-          // 買い物リストを取得（未チェックのみ、最大5件）
-          const items = await getShoppingList(userId);
-          const uncheckedItems = items.filter((item) => !item.isChecked);
-          setShoppingItems(uncheckedItems.slice(0, 5));
-        }
+        // 買い物リストを取得（未チェックのみ、最大5件）
+        const items = await getShoppingList();
+        const uncheckedItems = items.filter((item) => !item.isChecked);
+        setShoppingItems(uncheckedItems.slice(0, 5));
       } catch (error) {
-        console.error('Failed to fetch dashboard data:', error);
+        // Dashboard data fetch failed silently
       } finally {
         setLoading(false);
       }
     };
 
     fetchDashboardData();
-  }, [userId]);
+  }, []);
 
   if (loading) {
     return (

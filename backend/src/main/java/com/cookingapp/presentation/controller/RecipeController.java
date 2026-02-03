@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,6 +28,7 @@ import com.cookingapp.domain.entity.Recipe;
 import com.cookingapp.domain.entity.RecipeIngredient;
 import com.cookingapp.domain.valueobject.Ingredient;
 import com.cookingapp.domain.valueobject.Step;
+import com.cookingapp.infrastructure.security.SecurityUtils;
 import com.cookingapp.presentation.dto.RecipeRequest;
 import com.cookingapp.presentation.dto.RecipeResponse;
 import com.cookingapp.presentation.dto.request.SearchByIngredientsRequest;
@@ -141,14 +141,14 @@ public class RecipeController {
      * レシピ作成
      * POST /api/recipes
      * 
-     * @param authorId 作成者ID（ヘッダーから取得）
-     * @param request  レシピ作成リクエスト
+     * @param request レシピ作成リクエスト
      * @return 作成されたレシピ
      */
     @PostMapping
     public ResponseEntity<RecipeResponse> createRecipe(
-            @RequestHeader("X-User-Id") String authorId,
             @Valid @RequestBody RecipeRequest request) {
+
+        String authorId = SecurityUtils.getCurrentUserId();
 
         List<Ingredient> ingredients = RecipeMapper.toIngredients(request);
         List<Step> steps = RecipeMapper.toSteps(request);
@@ -168,15 +168,15 @@ public class RecipeController {
      * PUT /api/recipes/{id}
      * 
      * @param id      レシピID
-     * @param userId  ユーザーID（ヘッダーから取得）
      * @param request レシピ更新リクエスト
      * @return 更新されたレシピ
      */
     @PutMapping("/{id}")
     public ResponseEntity<RecipeResponse> updateRecipe(
             @PathVariable("id") String id,
-            @RequestHeader("X-User-Id") String userId,
             @Valid @RequestBody RecipeRequest request) {
+
+        String userId = SecurityUtils.getCurrentUserId();
 
         List<Ingredient> ingredients = RecipeMapper.toIngredients(request);
         List<Step> steps = RecipeMapper.toSteps(request);
@@ -196,24 +196,24 @@ public class RecipeController {
      * レシピ作成（画像付き）
      * POST /api/recipes/with-images
      * 
-     * @param authorId    作成者ID（ヘッダーから取得）
-     * @param title       タイトル
-     * @param ingredients 食材リスト（JSON文字列）
-     * @param steps       手順リスト（JSON文字列）
-     * @param cookingTime 調理時間
-     * @param mainImage   メイン画像（任意）
-     * @param stepImages  手順画像リスト（任意）
+     * @param title           タイトル
+     * @param ingredientsJson 食材リスト（JSON文字列）
+     * @param stepsJson       手順リスト（JSON文字列）
+     * @param cookingTime     調理時間
+     * @param mainImage       メイン画像（任意）
+     * @param stepImages      手順画像リスト（任意）
      * @return 作成されたレシピ
      */
     @PostMapping(value = "/with-images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<RecipeResponse> createRecipeWithImages(
-            @RequestHeader("X-User-Id") String authorId,
             @RequestParam("title") String title,
             @RequestParam("ingredients") String ingredientsJson,
             @RequestParam("steps") String stepsJson,
             @RequestParam("cookingTime") int cookingTime,
             @RequestParam(value = "mainImage", required = false) MultipartFile mainImage,
             @RequestParam(value = "stepImages", required = false) List<MultipartFile> stepImages) throws IOException {
+
+        String authorId = SecurityUtils.getCurrentUserId();
 
         List<Ingredient> ingredients = RecipeMapper.parseIngredients(ingredientsJson);
         List<Step> steps = RecipeMapper.parseSteps(stepsJson);
@@ -234,15 +234,13 @@ public class RecipeController {
      * レシピ削除
      * DELETE /api/recipes/{id}
      * 
-     * @param id     レシピID
-     * @param userId ユーザーID（ヘッダーから取得）
+     * @param id レシピID
      * @return 204 No Content
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteRecipe(
-            @PathVariable("id") String id,
-            @RequestHeader("X-User-Id") String userId) {
+    public ResponseEntity<Void> deleteRecipe(@PathVariable("id") String id) {
 
+        String userId = SecurityUtils.getCurrentUserId();
         deleteRecipeUseCase.execute(id, userId);
         return ResponseEntity.noContent().build();
     }
@@ -251,17 +249,16 @@ public class RecipeController {
      * レシピ画像アップロード
      * POST /api/recipes/{id}/image
      * 
-     * @param id     レシピID
-     * @param userId ユーザーID（ヘッダーから取得）
-     * @param file   画像ファイル
+     * @param id   レシピID
+     * @param file 画像ファイル
      * @return 更新されたレシピ
      */
     @PostMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<RecipeResponse> uploadRecipeImage(
             @PathVariable("id") String id,
-            @RequestHeader("X-User-Id") String userId,
             @RequestParam("file") MultipartFile file) throws IOException {
 
+        String userId = SecurityUtils.getCurrentUserId();
         Recipe recipe = uploadRecipeImageUseCase.execute(id, userId, file);
         return ResponseEntity.ok(RecipeMapper.toResponse(recipe));
     }
@@ -272,7 +269,6 @@ public class RecipeController {
      * 
      * @param id        レシピID
      * @param stepIndex 手順インデックス（0始まり）
-     * @param userId    ユーザーID（ヘッダーから取得）
      * @param file      画像ファイル
      * @return 更新されたレシピ
      */
@@ -280,9 +276,9 @@ public class RecipeController {
     public ResponseEntity<RecipeResponse> uploadStepImage(
             @PathVariable("id") String id,
             @PathVariable("stepIndex") int stepIndex,
-            @RequestHeader("X-User-Id") String userId,
             @RequestParam("file") MultipartFile file) throws IOException {
 
+        String userId = SecurityUtils.getCurrentUserId();
         Recipe recipe = uploadRecipeImageUseCase.executeStepImage(id, userId, stepIndex, file);
         return ResponseEntity.ok(RecipeMapper.toResponse(recipe));
     }
