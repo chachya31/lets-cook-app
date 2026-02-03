@@ -11,7 +11,7 @@ public class RecipeIngredient {
     private final String ingredientName;
     private final String recipeId;
     private final String recipeTitle;
-    private final String recipeImageUrl;
+    private String recipeImageUrl;
 
     /**
      * レシピ食材を作成
@@ -61,5 +61,12 @@ public class RecipeIngredient {
             return null;
         }
         return ingredientName.trim();
+    }
+
+    /**
+     * レシピ画像URLを更新（PresignedURL生成用）
+     */
+    public void updateRecipeImageUrl(String recipeImageUrl) {
+        this.recipeImageUrl = recipeImageUrl;
     }
 }

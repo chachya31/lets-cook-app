@@ -33,10 +33,19 @@ public class GetRecipeUseCase {
         Recipe recipe = recipeRepository.findById(recipeId)
                 .orElseThrow(() -> new RecipeNotFoundException("Recipe not found: " + recipeId));
 
-        // 画像URLがある場合は新しいPresignedURLを生成
+        // メイン画像URLがある場合は新しいPresignedURLを生成
         if (recipe.getImageUrl() != null && !recipe.getImageUrl().isEmpty()) {
             String presignedUrl = imageStorageService.generatePresignedUrl(recipe.getImageUrl());
             recipe.updateImageUrl(presignedUrl);
+        }
+
+        // 手順画像のPresignedURLを生成
+        for (int i = 0; i < recipe.getSteps().size(); i++) {
+            var step = recipe.getSteps().get(i);
+            if (step.hasImage()) {
+                String presignedUrl = imageStorageService.generatePresignedUrl(step.getImageUrl());
+                recipe.updateStepImageUrl(i, presignedUrl);
+            }
         }
 
         return recipe;

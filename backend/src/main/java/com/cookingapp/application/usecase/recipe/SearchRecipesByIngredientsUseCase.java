@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import com.cookingapp.domain.entity.RecipeIngredient;
 import com.cookingapp.domain.repository.RecipeIngredientRepository;
+import com.cookingapp.domain.service.ImageStorageService;
 
 /**
  * 食材によるレシピ検索ユースケース
@@ -24,9 +25,12 @@ public class SearchRecipesByIngredientsUseCase {
     private static final Logger logger = LoggerFactory.getLogger(SearchRecipesByIngredientsUseCase.class);
 
     private final RecipeIngredientRepository recipeIngredientRepository;
+    private final ImageStorageService imageStorageService;
 
-    public SearchRecipesByIngredientsUseCase(RecipeIngredientRepository recipeIngredientRepository) {
+    public SearchRecipesByIngredientsUseCase(RecipeIngredientRepository recipeIngredientRepository,
+            ImageStorageService imageStorageService) {
         this.recipeIngredientRepository = recipeIngredientRepository;
+        this.imageStorageService = imageStorageService;
     }
 
     /**
@@ -88,6 +92,14 @@ public class SearchRecipesByIngredientsUseCase {
                 .stream()
                 .filter(ri -> finalCommonRecipeIds.contains(ri.getRecipeId()))
                 .collect(Collectors.toList());
+
+        // 画像URLがある場合はPresignedURLを生成
+        for (RecipeIngredient ri : results) {
+            if (ri.getRecipeImageUrl() != null && !ri.getRecipeImageUrl().isEmpty()) {
+                String presignedUrl = imageStorageService.generatePresignedUrl(ri.getRecipeImageUrl());
+                ri.updateRecipeImageUrl(presignedUrl);
+            }
+        }
 
         logger.info("Found {} recipes containing all ingredients: {}", results.size(), validIngredients);
 
