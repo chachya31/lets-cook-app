@@ -12,6 +12,7 @@ describe('authStore', () => {
     // ストアをリセット
     useAuthStore.setState({
       user: null,
+      cognitoSub: null,
       accessToken: null,
       refreshToken: null,
       isAuthenticated: false,
@@ -55,12 +56,14 @@ describe('authStore', () => {
       // Assert
       const state = useAuthStore.getState();
       expect(state.user).toBeNull();
+      expect(state.cognitoSub).toBeNull();
       expect(state.accessToken).toBeNull();
       expect(state.refreshToken).toBeNull();
       expect(state.isAuthenticated).toBe(false);
       expect(localStorage.getItem('accessToken')).toBeNull();
       expect(localStorage.getItem('refreshToken')).toBeNull();
       expect(localStorage.getItem('userId')).toBeNull();
+      expect(localStorage.getItem('cognitoSub')).toBeNull();
     });
   });
 
@@ -160,10 +163,12 @@ describe('authStore', () => {
   describe('login', () => {
     it('should set user and tokens on successful login', async () => {
       // Arrange
+      // JWT payload: {"sub": "cognito-sub-123", "cognito:groups": ["users"]}
       const loginResponse = {
         accessToken: 'access-token',
         refreshToken: 'refresh-token',
-        idToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2duaXRvOmdyb3VwcyI6WyJ1c2VycyJdfQ.test',
+        idToken:
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjb2duaXRvLXN1Yi0xMjMiLCJjb2duaXRvOmdyb3VwcyI6WyJ1c2VycyJdfQ.test',
         expiresIn: 3600,
         user: {
           userId: '123',
@@ -187,6 +192,7 @@ describe('authStore', () => {
       // Assert
       const state = useAuthStore.getState();
       expect(state.user?.email).toBe('test@example.com');
+      expect(state.cognitoSub).toBe('cognito-sub-123');
       expect(state.accessToken).toBe('access-token');
       expect(state.refreshToken).toBe('refresh-token');
       expect(state.isAuthenticated).toBe(true);
@@ -196,10 +202,12 @@ describe('authStore', () => {
 
     it('should save tokens to localStorage on successful login', async () => {
       // Arrange
+      // JWT payload: {"sub": "cognito-sub-456", "cognito:groups": []}
       const loginResponse = {
         accessToken: 'access-token',
         refreshToken: 'refresh-token',
-        idToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb2duaXRvOmdyb3VwcyI6W119.test',
+        idToken:
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjb2duaXRvLXN1Yi00NTYiLCJjb2duaXRvOmdyb3VwcyI6W119.test',
         expiresIn: 3600,
         user: {
           userId: '123',
@@ -224,6 +232,7 @@ describe('authStore', () => {
       expect(localStorage.getItem('accessToken')).toBe('access-token');
       expect(localStorage.getItem('refreshToken')).toBe('refresh-token');
       expect(localStorage.getItem('userId')).toBe('123');
+      expect(localStorage.getItem('cognitoSub')).toBe('cognito-sub-456');
     });
 
     it('should set error on login failure', async () => {

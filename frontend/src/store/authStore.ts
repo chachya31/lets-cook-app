@@ -4,6 +4,7 @@ import { LoginRequest, RegisterRequest, User } from '../types/user';
 
 interface AuthState {
   user: User | null;
+  cognitoSub: string | null;
   accessToken: string | null;
   refreshToken: string | null;
   isAuthenticated: boolean;
@@ -52,6 +53,17 @@ const extractRolesFromToken = (idToken: string): string[] => {
 };
 
 /**
+ * JWTトークンからCognito sub（ユーザーID）を抽出
+ */
+const extractCognitoSubFromToken = (idToken: string): string | null => {
+  const payload = decodeJwtPayload(idToken);
+  if (payload && typeof payload['sub'] === 'string') {
+    return payload['sub'];
+  }
+  return null;
+};
+
+/**
  * localStorageからユーザー情報を復元
  */
 const loadUserFromStorage = (): User | null => {
@@ -67,11 +79,19 @@ const loadUserFromStorage = (): User | null => {
 };
 
 /**
+ * localStorageからCognito subを復元
+ */
+const loadCognitoSubFromStorage = (): string | null => {
+  return localStorage.getItem('cognitoSub');
+};
+
+/**
  * Zustand認証ストア
  */
 export const useAuthStore = create<AuthStore>((set) => ({
   // 初期状態
   user: loadUserFromStorage(),
+  cognitoSub: loadCognitoSubFromStorage(),
   accessToken: localStorage.getItem('accessToken'),
   refreshToken: localStorage.getItem('refreshToken'),
   isAuthenticated: !!localStorage.getItem('accessToken'),
@@ -84,8 +104,9 @@ export const useAuthStore = create<AuthStore>((set) => ({
     try {
       const response = await loginUser(data);
 
-      // JWTからロール（グループ）を抽出
+      // JWTからロール（グループ）とCognito subを抽出
       const roles = extractRolesFromToken(response.idToken);
+      const cognitoSub = extractCognitoSubFromToken(response.idToken);
       const userWithRoles = { ...response.user, roles };
 
       // トークンとユーザー情報をlocalStorageに保存
@@ -94,9 +115,13 @@ export const useAuthStore = create<AuthStore>((set) => ({
       localStorage.setItem('idToken', response.idToken);
       localStorage.setItem('userId', response.user.userId);
       localStorage.setItem('user', JSON.stringify(userWithRoles));
+      if (cognitoSub) {
+        localStorage.setItem('cognitoSub', cognitoSub);
+      }
 
       set({
         user: userWithRoles,
+        cognitoSub,
         accessToken: response.accessToken,
         refreshToken: response.refreshToken,
         isAuthenticated: true,
@@ -131,10 +156,12 @@ export const useAuthStore = create<AuthStore>((set) => ({
     localStorage.removeItem('idToken');
     localStorage.removeItem('userId');
     localStorage.removeItem('user');
+    localStorage.removeItem('cognitoSub');
     localStorage.removeItem('alert_dismissed_date');
 
     set({
       user: null,
+      cognitoSub: null,
       accessToken: null,
       refreshToken: null,
       isAuthenticated: false,
