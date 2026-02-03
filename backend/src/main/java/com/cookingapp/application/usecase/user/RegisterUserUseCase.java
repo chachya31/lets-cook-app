@@ -55,8 +55,8 @@ public class RegisterUserUseCase {
             throw new UserAlreadyExistsException("User with email " + email + " already exists");
         }
 
-        // Cognitoにユーザー登録
-        authService.signUp(email, password, nickname);
+        // Cognitoにユーザー登録（Cognito subが返される）
+        String cognitoSub = authService.signUp(email, password, nickname);
 
         // デフォルトでUsersグループに追加
         try {
@@ -67,8 +67,8 @@ public class RegisterUserUseCase {
             // グループ追加失敗してもユーザー登録は継続
         }
 
-        // ユーザーエンティティ作成
-        User user = new User(email, nickname, preferredLanguage);
+        // ユーザーエンティティ作成（Cognito subをuserIdとして使用）
+        User user = new User(cognitoSub, email, nickname, preferredLanguage);
 
         // DynamoDBに保存
         return userRepository.save(user);

@@ -66,7 +66,7 @@ class LoginUserUseCaseTest {
                 "id-token",
                 3600);
 
-        User existingUser = new User(email, "testuser", Language.JA);
+        User existingUser = new User("user-id-123", email, "testuser", Language.JA);
 
         when(authService.signIn(email, password)).thenReturn(tokens);
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(existingUser));
@@ -115,7 +115,7 @@ class LoginUserUseCaseTest {
         String password = "Password123!";
 
         AuthTokens tokens = new AuthTokens("access-token", "refresh-token", "id-token", 3600);
-        User existingUser = new User(email, "testuser", Language.JA);
+        User existingUser = new User("user-id-123", email, "testuser", Language.JA);
         LocalDateTime beforeLogin = LocalDateTime.now();
 
         when(authService.signIn(email, password)).thenReturn(tokens);
@@ -138,10 +138,12 @@ class LoginUserUseCaseTest {
         // Arrange
         String email = "newuser@example.com";
         String password = "Password123!";
+        String cognitoSub = "cognito-sub-12345";
 
         AuthTokens tokens = new AuthTokens("access-token", "refresh-token", "id-token", 3600);
 
         Map<String, String> attributes = new HashMap<>();
+        attributes.put("sub", cognitoSub);
         attributes.put("nickname", "newuser");
         attributes.put("locale", "ja");
 
@@ -156,6 +158,7 @@ class LoginUserUseCaseTest {
         // Assert
         assertThat(result).isNotNull();
         assertThat(result.getUser()).isNotNull();
+        assertThat(result.getUser().getUserId()).isEqualTo(cognitoSub);
         assertThat(result.getUser().getEmail()).isEqualTo(email);
         assertThat(result.getUser().getNickname()).isEqualTo("newuser");
 

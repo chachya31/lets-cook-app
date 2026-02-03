@@ -12,7 +12,6 @@ describe('authStore', () => {
     // ストアをリセット
     useAuthStore.setState({
       user: null,
-      cognitoSub: null,
       accessToken: null,
       refreshToken: null,
       isAuthenticated: false,
@@ -56,14 +55,12 @@ describe('authStore', () => {
       // Assert
       const state = useAuthStore.getState();
       expect(state.user).toBeNull();
-      expect(state.cognitoSub).toBeNull();
       expect(state.accessToken).toBeNull();
       expect(state.refreshToken).toBeNull();
       expect(state.isAuthenticated).toBe(false);
       expect(localStorage.getItem('accessToken')).toBeNull();
       expect(localStorage.getItem('refreshToken')).toBeNull();
       expect(localStorage.getItem('userId')).toBeNull();
-      expect(localStorage.getItem('cognitoSub')).toBeNull();
     });
   });
 
@@ -192,7 +189,6 @@ describe('authStore', () => {
       // Assert
       const state = useAuthStore.getState();
       expect(state.user?.email).toBe('test@example.com');
-      expect(state.cognitoSub).toBe('cognito-sub-123');
       expect(state.accessToken).toBe('access-token');
       expect(state.refreshToken).toBe('refresh-token');
       expect(state.isAuthenticated).toBe(true);
@@ -232,7 +228,6 @@ describe('authStore', () => {
       expect(localStorage.getItem('accessToken')).toBe('access-token');
       expect(localStorage.getItem('refreshToken')).toBe('refresh-token');
       expect(localStorage.getItem('userId')).toBe('123');
-      expect(localStorage.getItem('cognitoSub')).toBe('cognito-sub-456');
     });
 
     it('should set error on login failure', async () => {

@@ -56,9 +56,10 @@ class RegisterUserUseCaseTest {
         String password = "Password123!";
         String nickname = "testuser";
         Language language = Language.JA;
+        String cognitoSub = "cognito-sub-12345";
 
         when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
-        when(authService.signUp(email, password, nickname)).thenReturn("cognito-user-id");
+        when(authService.signUp(email, password, nickname)).thenReturn(cognitoSub);
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act
@@ -66,10 +67,10 @@ class RegisterUserUseCaseTest {
 
         // Assert
         assertThat(result).isNotNull();
+        assertThat(result.getUserId()).isEqualTo(cognitoSub);
         assertThat(result.getEmail()).isEqualTo(email);
         assertThat(result.getNickname()).isEqualTo(nickname);
         assertThat(result.getPreferredLanguage()).isEqualTo(language);
-        assertThat(result.getUserId()).isNotNull();
 
         verify(userRepository).findByEmail(email);
         verify(authService).signUp(email, password, nickname);
@@ -105,7 +106,7 @@ class RegisterUserUseCaseTest {
         String nickname = "testuser";
         Language language = Language.JA;
 
-        User existingUser = new User(email, "existinguser", Language.JA);
+        User existingUser = new User("existing-user-id", email, "existinguser", Language.JA);
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(existingUser));
 
         // Act & Assert

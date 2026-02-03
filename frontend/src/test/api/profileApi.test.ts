@@ -41,11 +41,7 @@ describe('profileApi', () => {
       const result = await updateProfile(userId, updateData);
 
       // Assert
-      expect(apiClient.apiPut).toHaveBeenCalledWith(
-        `/api/users/profile/${userId}`,
-        updateData,
-        userId
-      );
+      expect(apiClient.apiPut).toHaveBeenCalledWith(`/api/users/profile/${userId}`, updateData);
       expect(result).toEqual(expectedUser);
     });
 
@@ -94,8 +90,7 @@ describe('profileApi', () => {
       // Assert
       expect(apiClient.apiPostFile).toHaveBeenCalledWith(
         `/api/users/profile/${userId}/image`,
-        expect.any(FormData),
-        userId
+        expect.any(FormData)
       );
 
       // FormDataの内容を検証

@@ -1,11 +1,13 @@
 package com.cookingapp.domain.entity;
 
-import com.cookingapp.domain.valueobject.Language;
-import lombok.Getter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.regex.Pattern;
+
+import com.cookingapp.domain.valueobject.Language;
+
+import lombok.Getter;
 
 /**
  * ユーザーエンティティ
@@ -15,9 +17,9 @@ import java.util.regex.Pattern;
 public class User {
     // パスワード要件: 少なくとも8文字で、大文字、小文字、数字、特殊文字を含む
     // 特殊文字: $ * . [ ] { } ( ) ? - " ! @ # % & / \ , > < ' : ; | _ ~ ` + =
-    private static final Pattern PASSWORD_PATTERN = 
-        Pattern.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[$*.\\[\\]{}()?\\-\"!@#%&/\\\\,><':;|_~`+=]).{8,}$");
-    
+    private static final Pattern PASSWORD_PATTERN = Pattern
+            .compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[$*.\\[\\]{}()?\\-\"!@#%&/\\\\,><':;|_~`+=]).{8,}$");
+
     private final String userId;
     private String email;
     private String nickname;
@@ -31,10 +33,13 @@ public class User {
     private boolean marketingOptOut;
 
     /**
-     * 新規ユーザーを作成
+     * 新規ユーザーを作成（userIdを指定）
      */
-    public User(String email, String nickname, Language preferredLanguage) {
-        this.userId = UUID.randomUUID().toString();
+    public User(String userId, String email, String nickname, Language preferredLanguage) {
+        if (userId == null || userId.trim().isEmpty()) {
+            throw new IllegalArgumentException("ユーザーIDは必須です");
+        }
+        this.userId = userId;
         this.email = email;
         this.nickname = nickname;
         this.displayName = nickname;
@@ -45,12 +50,22 @@ public class User {
     }
 
     /**
+     * 新規ユーザーを作成（UUID自動生成）
+     * 
+     * @deprecated Cognito subを使用するコンストラクタを推奨
+     */
+    @Deprecated
+    public User(String email, String nickname, Language preferredLanguage) {
+        this(UUID.randomUUID().toString(), email, nickname, preferredLanguage);
+    }
+
+    /**
      * 既存ユーザーを復元（リポジトリから取得時）
      */
     public User(String userId, String email, String nickname, String displayName,
-                String profileImageUrl, Language preferredLanguage, LocalDate lastCookingDate,
-                LocalDateTime lastLoginDate, LocalDateTime createdAt, String timezone,
-                boolean marketingOptOut) {
+            String profileImageUrl, Language preferredLanguage, LocalDate lastCookingDate,
+            LocalDateTime lastLoginDate, LocalDateTime createdAt, String timezone,
+            boolean marketingOptOut) {
         this.userId = userId;
         this.email = email;
         this.nickname = nickname;
@@ -108,7 +123,7 @@ public class User {
      * プロフィール情報を更新
      */
     public void updateProfile(String nickname, String displayName, Language preferredLanguage,
-                             String timezone, boolean marketingOptOut) {
+            String timezone, boolean marketingOptOut) {
         if (nickname != null && !nickname.trim().isEmpty()) {
             this.nickname = nickname;
         }

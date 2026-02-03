@@ -78,11 +78,17 @@ public class LoginUserUseCase {
             String preferredLanguageCode = attributes.getOrDefault("locale", "ja");
             Language preferredLanguage = Language.fromCode(preferredLanguageCode);
 
-            // 新しいユーザーを作成
-            User newUser = new User(email, nickname, preferredLanguage);
+            // Cognito subを取得（userIdとして使用）
+            String cognitoSub = attributes.get("sub");
+            if (cognitoSub == null || cognitoSub.isEmpty()) {
+                throw new AuthenticationException("Failed to get Cognito sub from user attributes", null);
+            }
 
-            logger.info("Creating new user: email={}, nickname={}, language={}",
-                    email, nickname, preferredLanguage.getCode());
+            // 新しいユーザーを作成（Cognito subをuserIdとして使用）
+            User newUser = new User(cognitoSub, email, nickname, preferredLanguage);
+
+            logger.info("Creating new user: userId={}, email={}, nickname={}, language={}",
+                    cognitoSub, email, nickname, preferredLanguage.getCode());
 
             return userRepository.save(newUser);
 

@@ -22,7 +22,6 @@ const RecipeDetailPage: React.FC = () => {
   const { currentRecipe, loading, error, fetchRecipe, deleteRecipe, clearCurrentRecipe } =
     useRecipeStore();
   const user = useAuthStore((state) => state.user);
-  const cognitoSub = useAuthStore((state) => state.cognitoSub);
   const {
     reviews,
     loading: reviewLoading,
@@ -82,7 +81,7 @@ const RecipeDetailPage: React.FC = () => {
     return <div className="container mx-auto px-4 py-8 text-center">{t('recipe.notFound')}</div>;
   }
 
-  const isAuthor = cognitoSub && currentRecipe.authorId === cognitoSub;
+  const isAuthor = user && currentRecipe.authorId === user.userId;
 
   const handleReviewSubmit = async (rating: number, comment: string) => {
     if (!id || !user) return;
