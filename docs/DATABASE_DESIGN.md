@@ -6,17 +6,17 @@
 
 ## テーブル一覧
 
-| テーブル名        | 用途                   | Partition Key    | Sort Key         | GSI               |
-| ----------------- | ---------------------- | ---------------- | ---------------- | ----------------- |
-| Users             | ユーザー情報           | UserId           | -                | -                 |
-| Recipes           | レシピ情報             | RecipeId         | -                | GSI_Author        |
-| RecipeIngredients | 食材逆引きインデックス | IngredientName   | RecipeId         | -                 |
-| Reviews           | レビュー情報           | RecipeId         | ReviewId         | GSI_User          |
-| Schedules         | スケジュール情報       | UserId           | DateRecipeId     | -                 |
-| ShoppingLists     | 買い物リスト           | UserId           | ItemId           | GSI_NormalizedKey |
-| Inventory         | 食材在庫               | UserId           | ItemId           | GSI_ExpiryDate    |
-| ChatConversations | AIチャット会話         | UserId           | ConversationId   | -                 |
-| ChatMessages      | AIチャットメッセージ   | ConversationId   | MessageId        | -                 |
+| テーブル名        | 用途                   | Partition Key  | Sort Key       | GSI               |
+| ----------------- | ---------------------- | -------------- | -------------- | ----------------- |
+| Users             | ユーザー情報           | UserId         | -              | -                 |
+| Recipes           | レシピ情報             | RecipeId       | -              | GSI_Author        |
+| RecipeIngredients | 食材逆引きインデックス | IngredientName | RecipeId       | -                 |
+| Reviews           | レビュー情報           | RecipeId       | ReviewId       | GSI_User          |
+| Schedules         | スケジュール情報       | UserId         | DateRecipeId   | -                 |
+| ShoppingLists     | 買い物リスト           | UserId         | ItemId         | GSI_NormalizedKey |
+| Inventory         | 食材在庫               | UserId         | ItemId         | GSI_ExpiryDate    |
+| ChatConversations | AIチャット会話         | UserId         | ConversationId | -                 |
+| ChatMessages      | AIチャットメッセージ   | ConversationId | MessageId      | -                 |
 
 ---
 
@@ -26,14 +26,14 @@
 ユーザーアカウント情報とプロフィールを管理するテーブル。
 
 ### キー構造
-- **Partition Key**: `UserId` (String, UUID)
+- **Partition Key**: `UserId` (String, Cognito sub)
 - **Sort Key**: なし
 
 ### 属性
 
 | 属性名            | 型      | 必須 | 説明                            | 例                                     |
 | ----------------- | ------- | ---- | ------------------------------- | -------------------------------------- |
-| UserId            | String  | ✓    | ユーザーID（UUID）              | "550e8400-e29b-41d4-a716-446655440000" |
+| UserId            | String  | ✓    | ユーザーID（Cognito sub）       | "a1b2c3d4-e5f6-7890-abcd-ef1234567890" |
 | Email             | String  | ✓    | メールアドレス                  | "user@example.com"                     |
 | Nickname          | String  | ✓    | ニックネーム（1-50文字）        | "山田太郎"                             |
 | DisplayName       | String  | ✓    | 表示名（1-50文字）              | "Taro Yamada"                          |
@@ -55,6 +55,7 @@
 
 ### 備考
 - Cognitoと連携してユーザー認証を管理
+- **UserIdはCognito subを使用**（ユーザー登録時にCognitoから取得したsubをそのまま使用）
 - `LastCookingDate` はサボり防止アラート機能で使用
 - メールアドレスでの検索は現在Scanを使用しているため、ユーザー数が増加した場合はGSIの追加が必要
 
@@ -75,7 +76,7 @@
 | ----------- | --------- | ---- | ----------------------------- | -------------------------------------- |
 | RecipeId    | String    | ✓    | レシピID（UUID）              | "660e8400-e29b-41d4-a716-446655440001" |
 | Title       | String    | ✓    | レシピタイトル（最大100文字） | "簡単カレーライス"                     |
-| AuthorId    | String    | ✓    | 作成者ID（UserId）            | "550e8400-e29b-41d4-a716-446655440000" |
+| AuthorId    | String    | ✓    | 作成者ID（Cognito sub）       | "a1b2c3d4-e5f6-7890-abcd-ef1234567890" |
 | Ingredients | List<Map> | ✓    | 食材リスト                    | 下記参照                               |
 | Steps       | List<Map> | ✓    | 調理手順リスト                | 下記参照                               |
 | CookingTime | Number    | ✓    | 調理時間（分）                | 30                                     |
@@ -197,7 +198,7 @@
 | ------------- | ------ | ---- | ----------------------------------- | -------------------------------------- |
 | RecipeId      | String | ✓    | レシピID                            | "660e8400-e29b-41d4-a716-446655440001" |
 | ReviewId      | String | ✓    | レビューID（UUID）                  | "770e8400-e29b-41d4-a716-446655440002" |
-| UserId        | String | ✓    | レビュー投稿者ID                    | "550e8400-e29b-41d4-a716-446655440000" |
+| UserId        | String | ✓    | レビュー投稿者ID（Cognito sub）     | "a1b2c3d4-e5f6-7890-abcd-ef1234567890" |
 | Rating        | Number | ✓    | 星評価（1-5）                       | 5                                      |
 | Comment       | String |      | コメント（最大300文字）             | "とても美味しかったです！"             |
 | Status        | String | ✓    | ステータス（"visible" or "hidden"） | "visible"                              |
@@ -247,7 +248,7 @@
 
 | 属性名       | 型      | 必須 | 説明                                | 例                                     |
 | ------------ | ------- | ---- | ----------------------------------- | -------------------------------------- |
-| UserId       | String  | ✓    | ユーザーID                          | "550e8400-e29b-41d4-a716-446655440000" |
+| UserId       | String  | ✓    | ユーザーID（Cognito sub）           | "a1b2c3d4-e5f6-7890-abcd-ef1234567890" |
 | DateRecipeId | String  | ✓    | 複合ソートキー                      | "2024-12-01#660e..."                   |
 | ScheduleId   | String  | ✓    | スケジュールID（UUID）              | "880e8400-e29b-41d4-a716-446655440003" |
 | Date         | String  | ✓    | 日付（YYYY-MM-DD形式）              | "2024-12-01"                           |
@@ -286,7 +287,7 @@
 
 | 属性名         | 型      | 必須 | 説明                                 | 例                                     |
 | -------------- | ------- | ---- | ------------------------------------ | -------------------------------------- |
-| UserId         | String  | ✓    | ユーザーID                           | "550e8400-e29b-41d4-a716-446655440000" |
+| UserId         | String  | ✓    | ユーザーID（Cognito sub）            | "a1b2c3d4-e5f6-7890-abcd-ef1234567890" |
 | ItemId         | String  | ✓    | アイテムID（UUID）                   | "990e8400-e29b-41d4-a716-446655440004" |
 | Name           | String  | ✓    | アイテム名（最大100文字）            | "玉ねぎ"                               |
 | Quantity       | Number  | ✓    | 数量（0.01-9999）                    | 2                                      |
@@ -328,16 +329,16 @@
 
 ### 属性
 
-| 属性名       | 型         | 必須 | 説明                                 | 例                                     |
-| ------------ | ---------- | ---- | ------------------------------------ | -------------------------------------- |
-| UserId       | String     | ✓    | ユーザーID                           | "550e8400-e29b-41d4-a716-446655440000" |
-| ItemId       | String     | ✓    | アイテムID（UUID）                   | "990e8400-e29b-41d4-a716-446655440004" |
-| Name         | String     | ✓    | 食材名（最大100文字）                | "玉ねぎ"                               |
-| Quantity     | Number     | ✓    | 数量（0.01-9999）                    | 2                                      |
-| Unit         | String     | ✓    | 単位                                 | "個"                                   |
-| ExpiryDate   | String     |      | 賞味期限（YYYY-MM-DD形式、任意）     | "2024-12-31"                           |
-| PurchasedAt  | String     | ✓    | 購入日時（ISO8601形式）              | "2024-12-25T10:00:00Z"                 |
-| CreatedAt    | String     | ✓    | 登録日時（ISO8601形式）              | "2024-12-25T10:00:00Z"                 |
+| 属性名      | 型     | 必須 | 説明                             | 例                                     |
+| ----------- | ------ | ---- | -------------------------------- | -------------------------------------- |
+| UserId      | String | ✓    | ユーザーID                       | "550e8400-e29b-41d4-a716-446655440000" |
+| ItemId      | String | ✓    | アイテムID（UUID）               | "990e8400-e29b-41d4-a716-446655440004" |
+| Name        | String | ✓    | 食材名（最大100文字）            | "玉ねぎ"                               |
+| Quantity    | Number | ✓    | 数量（0.01-9999）                | 2                                      |
+| Unit        | String | ✓    | 単位                             | "個"                                   |
+| ExpiryDate  | String |      | 賞味期限（YYYY-MM-DD形式、任意） | "2024-12-31"                           |
+| PurchasedAt | String | ✓    | 購入日時（ISO8601形式）          | "2024-12-25T10:00:00Z"                 |
+| CreatedAt   | String | ✓    | 登録日時（ISO8601形式）          | "2024-12-25T10:00:00Z"                 |
 
 ### インデックス
 
@@ -370,22 +371,22 @@ AIチャットの会話セッションを管理するテーブル。ユーザー
 
 ### 属性
 
-| 属性名           | 型     | 必須 | 説明                                                                 | 例                                     |
-| ---------------- | ------ | ---- | -------------------------------------------------------------------- | -------------------------------------- |
-| UserId           | String | ✓    | ユーザーID                                                           | "550e8400-e29b-41d4-a716-446655440000" |
-| ConversationId   | String | ✓    | 会話ID（UUID）                                                       | "aa0e8400-e29b-41d4-a716-446655440005" |
-| Title            | String | ✓    | 会話タイトル（最大100文字）                                          | "カレーのレシピについて"               |
-| ConversationType | String | ✓    | 会話タイプ（"general", "recipe_recommendation", "expiry_check"）     | "general"                              |
-| CreatedAt        | String | ✓    | 作成日時（ISO8601形式）                                              | "2024-12-25T10:00:00Z"                 |
-| UpdatedAt        | String | ✓    | 更新日時（ISO8601形式）                                              | "2024-12-25T10:30:00Z"                 |
+| 属性名           | 型     | 必須 | 説明                                                             | 例                                     |
+| ---------------- | ------ | ---- | ---------------------------------------------------------------- | -------------------------------------- |
+| UserId           | String | ✓    | ユーザーID（Cognito sub）                                        | "a1b2c3d4-e5f6-7890-abcd-ef1234567890" |
+| ConversationId   | String | ✓    | 会話ID（UUID）                                                   | "aa0e8400-e29b-41d4-a716-446655440005" |
+| Title            | String | ✓    | 会話タイトル（最大100文字）                                      | "カレーのレシピについて"               |
+| ConversationType | String | ✓    | 会話タイプ（"general", "recipe_recommendation", "expiry_check"） | "general"                              |
+| CreatedAt        | String | ✓    | 作成日時（ISO8601形式）                                          | "2024-12-25T10:00:00Z"                 |
+| UpdatedAt        | String | ✓    | 更新日時（ISO8601形式）                                          | "2024-12-25T10:30:00Z"                 |
 
 ### 会話タイプ
 
-| 値                    | 説明                       |
-| --------------------- | -------------------------- |
-| general               | 一般的なチャット           |
-| recipe_recommendation | レシピ推薦                 |
-| expiry_check          | 食材の賞味期限確認         |
+| 値                    | 説明               |
+| --------------------- | ------------------ |
+| general               | 一般的なチャット   |
+| recipe_recommendation | レシピ推薦         |
+| expiry_check          | 食材の賞味期限確認 |
 
 ### インデックス
 なし
@@ -413,33 +414,33 @@ AIチャットの個別メッセージを管理するテーブル。会話ごと
 
 ### 属性
 
-| 属性名          | 型     | 必須 | 説明                                       | 例                                     |
-| --------------- | ------ | ---- | ------------------------------------------ | -------------------------------------- |
-| ConversationId  | String | ✓    | 会話ID                                     | "aa0e8400-e29b-41d4-a716-446655440005" |
-| MessageId       | String | ✓    | メッセージID（ULID）                       | "01ARZ3NDEKTSV4RRFFQ69G5FAV"           |
-| Role            | String | ✓    | 送信者ロール（"user" or "assistant"）      | "user"                                 |
-| Content         | String | ✓    | メッセージ内容                             | "カレーの作り方を教えて"               |
-| GeneratedRecipe | Map    |      | Geminiが生成したレシピ情報（JSON）         | 下記参照                               |
-| CreatedAt       | String | ✓    | 作成日時（ISO8601形式）                    | "2024-12-25T10:00:00Z"                 |
+| 属性名          | 型     | 必須 | 説明                                  | 例                                     |
+| --------------- | ------ | ---- | ------------------------------------- | -------------------------------------- |
+| ConversationId  | String | ✓    | 会話ID                                | "aa0e8400-e29b-41d4-a716-446655440005" |
+| MessageId       | String | ✓    | メッセージID（ULID）                  | "01ARZ3NDEKTSV4RRFFQ69G5FAV"           |
+| Role            | String | ✓    | 送信者ロール（"user" or "assistant"） | "user"                                 |
+| Content         | String | ✓    | メッセージ内容                        | "カレーの作り方を教えて"               |
+| GeneratedRecipe | Map    |      | Geminiが生成したレシピ情報（JSON）    | 下記参照                               |
+| CreatedAt       | String | ✓    | 作成日時（ISO8601形式）               | "2024-12-25T10:00:00Z"                 |
 
 ### Role（ロール）
 
-| 値        | 説明                   |
-| --------- | ---------------------- |
+| 値        | 説明                     |
+| --------- | ------------------------ |
 | user      | ユーザーからのメッセージ |
-| assistant | AIからの応答           |
+| assistant | AIからの応答             |
 
 ### GeneratedRecipe（生成レシピ）の構造
 
 Geminiがレシピを生成した場合に保存されるMapオブジェクト：
 
-| 属性名      | 型        | 必須 | 説明                   | 例                                                                 |
-| ----------- | --------- | ---- | ---------------------- | ------------------------------------------------------------------ |
-| title       | String    | ✓    | レシピタイトル         | "簡単チキンカレー"                                                 |
-| ingredients | List<Map> | ✓    | 食材リスト             | [{"name": "鶏肉", "quantity": 300, "unit": "g"}]                   |
-| steps       | List<String> | ✓ | 調理手順               | ["野菜を切る", "鶏肉を炒める", "水を加えて煮込む"]                 |
-| cookingTime | Number    |      | 調理時間（分）         | 45                                                                 |
-| tips        | String    |      | 調理のコツ             | "鶏肉は一口大に切ると火が通りやすい"                               |
+| 属性名      | 型           | 必須 | 説明           | 例                                                 |
+| ----------- | ------------ | ---- | -------------- | -------------------------------------------------- |
+| title       | String       | ✓    | レシピタイトル | "簡単チキンカレー"                                 |
+| ingredients | List<Map>    | ✓    | 食材リスト     | [{"name": "鶏肉", "quantity": 300, "unit": "g"}]   |
+| steps       | List<String> | ✓    | 調理手順       | ["野菜を切る", "鶏肉を炒める", "水を加えて煮込む"] |
+| cookingTime | Number       |      | 調理時間（分） | 45                                                 |
+| tips        | String       |      | 調理のコツ     | "鶏肉は一口大に切ると火が通りやすい"               |
 
 ### インデックス
 なし

@@ -24,11 +24,13 @@
 - ヘッダー: `Accept-Language: ja` または `Accept-Language: ko`
 
 ### 共通ヘッダー
-| ヘッダー          | 説明                                     | 必須 |
-| ----------------- | ---------------------------------------- | ---- |
-| `Content-Type`    | `application/json`                       | ○    |
-| `Accept-Language` | 言語設定（ja/ko）                        | -    |
-| `X-User-Id`       | ユーザーID（認証が必要なエンドポイント） | △    |
+| ヘッダー          | 説明                                               | 必須 |
+| ----------------- | -------------------------------------------------- | ---- |
+| `Content-Type`    | `application/json`                                 | ○    |
+| `Accept-Language` | 言語設定（ja/ko）                                  | -    |
+| `Authorization`   | Bearer {accessToken}（認証が必要なエンドポイント） | △    |
+
+> **Note**: 以前使用していた `X-User-Id` ヘッダーは廃止されました。ユーザー識別はJWTトークン（SecurityContext）から取得します。
 
 ---
 
@@ -86,17 +88,17 @@
 | POST     | `/api/users/profile/image`    | プロフィール画像アップロード |
 
 ### Recipes API
-| メソッド | エンドポイント                          | 説明                       |
-| -------- | --------------------------------------- | -------------------------- |
-| GET      | `/api/recipes`                          | レシピ検索                 |
-| POST     | `/api/recipes`                          | レシピ作成                 |
-| POST     | `/api/recipes/with-images`              | レシピ作成（画像付き）     |
-| GET      | `/api/recipes/{id}`                     | レシピ詳細取得             |
-| PUT      | `/api/recipes/{id}`                     | レシピ更新                 |
-| DELETE   | `/api/recipes/{id}`                     | レシピ削除（論理削除）     |
-| POST     | `/api/recipes/{id}/image`               | レシピ画像アップロード     |
-| POST     | `/api/recipes/{id}/steps/{index}/image` | 手順画像アップロード       |
-| POST     | `/api/recipes/search/by-ingredients`    | 食材でレシピ検索（AND条件）|
+| メソッド | エンドポイント                          | 説明                        |
+| -------- | --------------------------------------- | --------------------------- |
+| GET      | `/api/recipes`                          | レシピ検索                  |
+| POST     | `/api/recipes`                          | レシピ作成                  |
+| POST     | `/api/recipes/with-images`              | レシピ作成（画像付き）      |
+| GET      | `/api/recipes/{id}`                     | レシピ詳細取得              |
+| PUT      | `/api/recipes/{id}`                     | レシピ更新                  |
+| DELETE   | `/api/recipes/{id}`                     | レシピ削除（論理削除）      |
+| POST     | `/api/recipes/{id}/image`               | レシピ画像アップロード      |
+| POST     | `/api/recipes/{id}/steps/{index}/image` | 手順画像アップロード        |
+| POST     | `/api/recipes/search/by-ingredients`    | 食材でレシピ検索（AND条件） |
 
 ### Reviews API
 | メソッド | エンドポイント                    | 説明             |
@@ -192,8 +194,11 @@
 
 ## セキュリティ
 
+### セキュリティ
+
 ### 認証・認可
 - AWS Cognitoを使用したJWT認証
+- **ユーザーIDはJWTトークンのsubクレームから取得**（SecurityContextで管理）
 - ユーザーは自分のデータのみアクセス可能
 - 管理者APIは管理者権限が必要
 
@@ -215,9 +220,10 @@
 
 ## 変更履歴
 
-| バージョン | 日付       | 変更内容                                     |
-| ---------- | ---------- | -------------------------------------------- |
-| 1.0.0      | 2024-12-02 | 初版作成                                     |
-| 1.1.0      | 2024-12-18 | openapi.yamlへ詳細仕様を移行                 |
-| 1.2.0      | 2024-12-23 | 手順画像・動画アップロードエンドポイント追加 |
-| 1.3.0      | 2024-12-24 | 食材検索エンドポイント追加                   |
+| バージョン | 日付       | 変更内容                                         |
+| ---------- | ---------- | ------------------------------------------------ |
+| 1.0.0      | 2024-12-02 | 初版作成                                         |
+| 1.1.0      | 2024-12-18 | openapi.yamlへ詳細仕様を移行                     |
+| 1.2.0      | 2024-12-23 | 手順画像・動画アップロードエンドポイント追加     |
+| 1.3.0      | 2024-12-24 | 食材検索エンドポイント追加                       |
+| 1.4.0      | 2026-02-03 | X-User-Idヘッダー廃止、SecurityContext認証に移行 |

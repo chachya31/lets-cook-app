@@ -17,6 +17,7 @@ info:
     - AWS Cognito認証を使用
     - アクセストークンの有効期限: 1時間
     - リフレッシュトークンの有効期限: 90日
+    - ユーザーIDはJWTトークンのsubクレームから取得（SecurityContext）
     
     ## 多言語対応
     - 日本語（ja）、韓国語（ko）
@@ -269,10 +270,8 @@ paths:
     post:
       tags: [Recipes]
       summary: レシピ作成
-      description: 新しいレシピを作成します。
+      description: 新しいレシピを作成します。ユーザーIDはJWTトークンから取得されます。
       operationId: createRecipe
-      parameters:
-        - $ref: '#/components/parameters/XUserId'
       requestBody:
         required: true
         content:
@@ -310,11 +309,10 @@ paths:
     put:
       tags: [Recipes]
       summary: レシピ更新
-      description: レシピを更新します。
+      description: レシピを更新します。ユーザーIDはJWTトークンから取得されます。
       operationId: updateRecipe
       parameters:
         - $ref: '#/components/parameters/RecipeIdPath'
-        - $ref: '#/components/parameters/XUserId'
       requestBody:
         required: true
         content:
@@ -335,11 +333,10 @@ paths:
     delete:
       tags: [Recipes]
       summary: レシピ削除
-      description: レシピを論理削除します。
+      description: レシピを論理削除します。ユーザーIDはJWTトークンから取得されます。
       operationId: deleteRecipe
       parameters:
         - $ref: '#/components/parameters/RecipeIdPath'
-        - $ref: '#/components/parameters/XUserId'
       responses:
         '204':
           description: 削除成功
@@ -350,11 +347,10 @@ paths:
     post:
       tags: [Recipes]
       summary: レシピ画像アップロード
-      description: レシピ画像をアップロードします（JPEG/PNG、最大5MB）。
+      description: レシピ画像をアップロードします（JPEG/PNG、最大5MB）。ユーザーIDはJWTトークンから取得されます。
       operationId: uploadRecipeImage
       parameters:
         - $ref: '#/components/parameters/RecipeIdPath'
-        - $ref: '#/components/parameters/XUserId'
       requestBody:
         required: true
         content:
@@ -382,7 +378,7 @@ paths:
     post:
       tags: [Recipes]
       summary: 手順画像アップロード
-      description: 手順画像をアップロードします（JPEG/PNG、最大5MB）。
+      description: 手順画像をアップロードします（JPEG/PNG、最大5MB）。ユーザーIDはJWTトークンから取得されます。
       operationId: uploadStepImage
       parameters:
         - $ref: '#/components/parameters/RecipeIdPath'
@@ -393,7 +389,6 @@ paths:
           schema:
             type: integer
             minimum: 0
-        - $ref: '#/components/parameters/XUserId'
       requestBody:
         required: true
         content:
@@ -466,11 +461,10 @@ paths:
     post:
       tags: [Reviews]
       summary: レビュー作成
-      description: レシピにレビューを投稿します。
+      description: レシピにレビューを投稿します。ユーザーIDはJWTトークンから取得されます。
       operationId: createReview
       parameters:
         - $ref: '#/components/parameters/RecipeIdPathForReview'
-        - $ref: '#/components/parameters/XUserId'
       requestBody:
         required: true
         content:
@@ -491,11 +485,10 @@ paths:
     put:
       tags: [Reviews]
       summary: レビュー更新
-      description: レビューを更新します。
+      description: レビューを更新します。ユーザーIDはJWTトークンから取得されます。
       operationId: updateReview
       parameters:
         - $ref: '#/components/parameters/ReviewIdPath'
-        - $ref: '#/components/parameters/XUserId'
       requestBody:
         required: true
         content:
@@ -516,11 +509,10 @@ paths:
     delete:
       tags: [Reviews]
       summary: レビュー削除
-      description: レビューを削除します。
+      description: レビューを削除します。ユーザーIDはJWTトークンから取得されます。
       operationId: deleteReview
       parameters:
         - $ref: '#/components/parameters/ReviewIdPath'
-        - $ref: '#/components/parameters/XUserId'
       responses:
         '204':
           description: 削除成功
@@ -552,10 +544,9 @@ paths:
     get:
       tags: [Schedules]
       summary: スケジュール一覧取得
-      description: 指定期間のスケジュール一覧を取得します。
+      description: 指定期間のスケジュール一覧を取得します。ユーザーIDはJWTトークンから取得されます。
       operationId: getSchedules
       parameters:
-        - $ref: '#/components/parameters/XUserId'
         - name: startDate
           in: query
           required: true
@@ -582,10 +573,8 @@ paths:
     post:
       tags: [Schedules]
       summary: スケジュール作成
-      description: 新しいスケジュールを作成します。
+      description: 新しいスケジュールを作成します。ユーザーIDはJWTトークンから取得されます。
       operationId: createSchedule
-      parameters:
-        - $ref: '#/components/parameters/XUserId'
       requestBody:
         required: true
         content:
@@ -606,11 +595,10 @@ paths:
     put:
       tags: [Schedules]
       summary: スケジュール更新
-      description: スケジュールを更新します。
+      description: スケジュールを更新します。ユーザーIDはJWTトークンから取得されます。
       operationId: updateSchedule
       parameters:
         - $ref: '#/components/parameters/ScheduleIdPath'
-        - $ref: '#/components/parameters/XUserId'
       requestBody:
         required: true
         content:
@@ -631,11 +619,10 @@ paths:
     delete:
       tags: [Schedules]
       summary: スケジュール削除
-      description: スケジュールを削除します。
+      description: スケジュールを削除します。ユーザーIDはJWTトークンから取得されます。
       operationId: deleteSchedule
       parameters:
         - $ref: '#/components/parameters/ScheduleIdPath'
-        - $ref: '#/components/parameters/XUserId'
       responses:
         '204':
           description: 削除成功
@@ -646,11 +633,10 @@ paths:
     post:
       tags: [Schedules]
       summary: 予定を実績に変換
-      description: PLANNEDをCOOKEDに変換し、LastCookingDateを更新します。
+      description: PLANNEDをCOOKEDに変換し、LastCookingDateを更新します。ユーザーIDはJWTトークンから取得されます。
       operationId: convertToCooked
       parameters:
         - $ref: '#/components/parameters/ScheduleIdPath'
-        - $ref: '#/components/parameters/XUserId'
       responses:
         '200':
           description: 変換成功
@@ -668,10 +654,8 @@ paths:
     get:
       tags: [Shopping Lists]
       summary: 買い物リスト取得
-      description: 買い物リストを取得します。期限切れアイテム（チェック済みから3日経過）を自動削除します。
+      description: 買い物リストを取得します。期限切れアイテム（チェック済みから3日経過）を自動削除します。ユーザーIDはJWTトークンから取得されます。
       operationId: getShoppingList
-      parameters:
-        - $ref: '#/components/parameters/XUserId'
       responses:
         '200':
           description: 取得成功
@@ -684,10 +668,8 @@ paths:
     post:
       tags: [Shopping Lists]
       summary: アイテム追加
-      description: 買い物リストにアイテムを追加します。同じ正規化キー（名前+単位）のアイテムがある場合、数量を合算します。
+      description: 買い物リストにアイテムを追加します。同じ正規化キー（名前+単位）のアイテムがある場合、数量を合算します。ユーザーIDはJWTトークンから取得されます。
       operationId: addShoppingListItem
-      parameters:
-        - $ref: '#/components/parameters/XUserId'
       requestBody:
         required: true
         content:
@@ -708,11 +690,10 @@ paths:
     put:
       tags: [Shopping Lists]
       summary: アイテム更新
-      description: 買い物リストアイテムのチェック状態を更新します。
+      description: 買い物リストアイテムのチェック状態を更新します。ユーザーIDはJWTトークンから取得されます。
       operationId: updateShoppingListItem
       parameters:
         - $ref: '#/components/parameters/ItemIdPath'
-        - $ref: '#/components/parameters/XUserId'
       requestBody:
         required: true
         content:
@@ -731,11 +712,10 @@ paths:
     delete:
       tags: [Shopping Lists]
       summary: アイテム削除
-      description: 買い物リストからアイテムを削除します。
+      description: 買い物リストからアイテムを削除します。ユーザーIDはJWTトークンから取得されます。
       operationId: deleteShoppingListItem
       parameters:
         - $ref: '#/components/parameters/ItemIdPath'
-        - $ref: '#/components/parameters/XUserId'
       responses:
         '204':
           description: 削除成功
@@ -749,10 +729,9 @@ paths:
     get:
       tags: [Inventory]
       summary: 在庫一覧取得
-      description: 在庫一覧を取得します。賞味期限順でソート可能です。
+      description: 在庫一覧を取得します。賞味期限順でソート可能です。ユーザーIDはJWTトークンから取得されます。
       operationId: getInventory
       parameters:
-        - $ref: '#/components/parameters/XUserId'
         - name: sortByExpiry
           in: query
           description: 賞味期限順でソートするかどうか
@@ -771,10 +750,8 @@ paths:
     post:
       tags: [Inventory]
       summary: 在庫アイテム追加
-      description: 在庫にアイテムを追加します。
+      description: 在庫にアイテムを追加します。ユーザーIDはJWTトークンから取得されます。
       operationId: addInventoryItem
-      parameters:
-        - $ref: '#/components/parameters/XUserId'
       requestBody:
         required: true
         content:
@@ -795,11 +772,10 @@ paths:
     put:
       tags: [Inventory]
       summary: 在庫アイテム更新
-      description: 在庫アイテムの数量や賞味期限を更新します。
+      description: 在庫アイテムの数量や賞味期限を更新します。ユーザーIDはJWTトークンから取得されます。
       operationId: updateInventoryItem
       parameters:
         - $ref: '#/components/parameters/InventoryItemIdPath'
-        - $ref: '#/components/parameters/XUserId'
       requestBody:
         required: true
         content:
@@ -818,11 +794,10 @@ paths:
     delete:
       tags: [Inventory]
       summary: 在庫アイテム削除
-      description: 在庫からアイテムを削除します。
+      description: 在庫からアイテムを削除します。ユーザーIDはJWTトークンから取得されます。
       operationId: deleteInventoryItem
       parameters:
         - $ref: '#/components/parameters/InventoryItemIdPath'
-        - $ref: '#/components/parameters/XUserId'
       responses:
         '204':
           description: 削除成功
@@ -836,10 +811,8 @@ paths:
     post:
       tags: [AI Assistant]
       summary: 新規会話開始
-      description: 新しい会話を開始してAIとチャットします。
+      description: 新しい会話を開始してAIとチャットします。ユーザーIDはJWTトークンから取得されます。
       operationId: startChat
-      parameters:
-        - $ref: '#/components/parameters/XUserId'
       requestBody:
         required: true
         content:
@@ -860,10 +833,8 @@ paths:
     get:
       tags: [AI Assistant]
       summary: 会話一覧取得
-      description: ユーザーの会話一覧を取得します。
+      description: ユーザーの会話一覧を取得します。ユーザーIDはJWTトークンから取得されます。
       operationId: getConversations
-      parameters:
-        - $ref: '#/components/parameters/XUserId'
       responses:
         '200':
           description: 取得成功
@@ -878,11 +849,10 @@ paths:
     get:
       tags: [AI Assistant]
       summary: メッセージ一覧取得
-      description: 会話のメッセージ一覧を取得します。
+      description: 会話のメッセージ一覧を取得します。ユーザーIDはJWTトークンから取得されます。
       operationId: getMessages
       parameters:
         - $ref: '#/components/parameters/ConversationIdPath'
-        - $ref: '#/components/parameters/XUserId'
       responses:
         '200':
           description: 取得成功
@@ -897,11 +867,10 @@ paths:
     post:
       tags: [AI Assistant]
       summary: メッセージ送信
-      description: 既存の会話にメッセージを送信します。
+      description: 既存の会話にメッセージを送信します。ユーザーIDはJWTトークンから取得されます。
       operationId: sendMessage
       parameters:
         - $ref: '#/components/parameters/ConversationIdPath'
-        - $ref: '#/components/parameters/XUserId'
       requestBody:
         required: true
         content:
@@ -922,11 +891,10 @@ paths:
     delete:
       tags: [AI Assistant]
       summary: 会話削除
-      description: 会話を削除します。
+      description: 会話を削除します。ユーザーIDはJWTトークンから取得されます。
       operationId: deleteConversation
       parameters:
         - $ref: '#/components/parameters/ConversationIdPath'
-        - $ref: '#/components/parameters/XUserId'
       responses:
         '204':
           description: 削除成功
@@ -943,9 +911,8 @@ paths:
       description: |
         最終料理日から3日経過（4日目の0時）でアラートを表示します。
         メッセージは警告（50%）または励まし（50%）からランダムに選択されます。
+        ユーザーIDはJWTトークンから取得されます。
       operationId: checkAlert
-      parameters:
-        - $ref: '#/components/parameters/XUserId'
       responses:
         '200':
           description: 判定成功
@@ -1071,23 +1038,16 @@ components:
   # Parameters
   # ========================================
   parameters:
-    XUserId:
-      name: X-User-Id
-      in: header
-      required: true
-      description: ユーザーID
-      schema:
-        type: string
-        format: uuid
+    # X-User-Idパラメータは廃止されました。
+    # ユーザーIDはJWTトークンのsubクレームから取得されます（SecurityContext）。
 
     UserIdPath:
       name: userId
       in: path
       required: true
-      description: ユーザーID
+      description: ユーザーID（Cognito sub）
       schema:
         type: string
-        format: uuid
 
     RecipeIdPath:
       name: id
@@ -1855,22 +1815,12 @@ components:
       description: |
         AWS Cognito JWTトークン認証。
         ログインエンドポイント（/api/users/login）から取得したアクセストークンを使用します。
+        ユーザーIDはJWTトークンのsubクレームから自動的に取得されます（SecurityContext）。
         
         例: `Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`
-    
-    UserIdHeader:
-      type: apiKey
-      in: header
-      name: X-User-Id
-      description: |
-        ユーザーID（UUID形式）。
-        認証が必要なエンドポイントで使用します。
-        
-        例: `X-User-Id: 550e8400-e29b-41d4-a716-446655440000`
 
 # ========================================
 # Global Security (認証不要のエンドポイントは個別にsecurity: []を指定)
 # ========================================
 security:
   - CognitoAuth: []
-  - UserIdHeader: []
