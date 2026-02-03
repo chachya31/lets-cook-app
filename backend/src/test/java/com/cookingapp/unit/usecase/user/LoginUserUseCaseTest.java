@@ -1,4 +1,4 @@
-package com.cookingapp.unit.usecase;
+package com.cookingapp.unit.usecase.user;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
