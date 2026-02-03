@@ -1,7 +1,6 @@
 import { Search } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useAuthStore } from '../../store/authStore';
 import { useRecipeStore } from '../../store/recipeStore';
 import { Recipe } from '../../types/recipe';
 import { Button } from '../ui/button';
@@ -21,17 +20,16 @@ interface RecipeSelectModalProps {
 const RecipeSelectModal: React.FC<RecipeSelectModalProps> = ({ open, onClose, onSelect }) => {
   const { t } = useTranslation();
   const { recipes, loading, searchRecipes } = useRecipeStore();
-  const user = useAuthStore((state) => state.user);
 
   const [searchKeyword, setSearchKeyword] = useState('');
   const [filteredRecipes, setFilteredRecipes] = useState<Recipe[]>([]);
 
-  // モーダルが開いたときにレシピを取得
+  // モーダルが開いたときに全レシピを取得
   useEffect(() => {
-    if (open && user?.userId) {
-      searchRecipes({ authorId: user.userId });
+    if (open) {
+      searchRecipes({});
     }
-  }, [open, user, searchRecipes]);
+  }, [open, searchRecipes]);
 
   // レシピが更新されたらフィルタリング
   useEffect(() => {
