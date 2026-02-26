@@ -14,6 +14,7 @@ export interface SetRecipeStatusRequest {
   isPublic: boolean;
 }
 
+import { Recipe } from './recipe';
 import { User } from './user';
 
 /**
@@ -21,7 +22,7 @@ import { User } from './user';
  */
 export interface AdminState {
   stats: AdminDashboardStats | null;
-  recipes: any[]; // Recipe型を使用
+  recipes: Recipe[];
   users: User[];
   loading: boolean;
   error: string | null;

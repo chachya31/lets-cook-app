@@ -3,7 +3,7 @@
  */
 
 export interface ValidationRule {
-  validate: (value: any, formData?: any) => boolean;
+  validate: (value: unknown, formData?: Record<string, unknown>) => boolean;
   message: string;
 }
 
@@ -15,7 +15,7 @@ export interface ValidationRules {
  * バリデーションを実行
  */
 export const validateForm = (
-  formData: Record<string, any>,
+  formData: Record<string, unknown>,
   rules: ValidationRules
 ): Record<string, string> => {
   const errors: Record<string, string> = {};
@@ -40,27 +40,30 @@ export const validateForm = (
  */
 export const validationRules = {
   required: (message: string): ValidationRule => ({
-    validate: (value) => value !== null && value !== undefined && value.trim() !== '',
+    validate: (value) => {
+      if (typeof value !== 'string') return value !== null && value !== undefined;
+      return value.trim() !== '';
+    },
     message,
   }),
 
   email: (message: string): ValidationRule => ({
-    validate: (value) => /\S+@\S+\.\S+/.test(value),
+    validate: (value) => typeof value === 'string' && /\S+@\S+\.\S+/.test(value),
     message,
   }),
 
   minLength: (length: number, message: string): ValidationRule => ({
-    validate: (value) => value && value.length >= length,
+    validate: (value) => typeof value === 'string' && value.length >= length,
     message,
   }),
 
   maxLength: (length: number, message: string): ValidationRule => ({
-    validate: (value) => !value || value.length <= length,
+    validate: (value) => typeof value !== 'string' || value.length <= length,
     message,
   }),
 
   pattern: (regex: RegExp, message: string): ValidationRule => ({
-    validate: (value) => regex.test(value),
+    validate: (value) => typeof value === 'string' && regex.test(value),
     message,
   }),
 
