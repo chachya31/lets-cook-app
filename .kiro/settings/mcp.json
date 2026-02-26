@@ -1,0 +1,22 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@latest"],
+      "disabled": false,
+      "autoApprove": [
+        "browser_click",
+        "browser_run_code",
+        "browser_take_screenshot",
+        "browser_type",
+        "browser_hover"
+      ]
+    },
+    "drawio": {
+      "command": "npx",
+      "args": ["-y", "@drawio/mcp@latest"],
+      "disabled": false,
+      "autoApprove": []
+    }
+  }
+}

@@ -1,0 +1,135 @@
+import com.github.jengelman.gradle.plugins.shadow.transformers.*
+
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.1.10'
+    id 'io.spring.dependency-management' version '1.1.4'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+}
+
+group = 'com.cookingapp'
+version = '1.0.0'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+// エンコーディング設定（日本語文字化け防止）
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+    // パラメータ名を保持（Spring MVCのパラメータバインディングに必要）
+    options.compilerArgs << '-parameters'
+}
+
+tasks.withType(Test) {
+    systemProperty 'file.encoding', 'UTF-8'
+}
+
+tasks.withType(JavaExec) {
+    systemProperty 'file.encoding', 'UTF-8'
+    systemProperty 'console.encoding', 'UTF-8'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    
+    // JWT解析
+    implementation 'com.auth0:java-jwt:4.4.0'
+    
+    // AWS SDK
+    implementation platform('software.amazon.awssdk:bom:2.21.0')
+    implementation 'software.amazon.awssdk:dynamodb'
+    implementation 'software.amazon.awssdk:s3'
+    implementation 'software.amazon.awssdk:cognitoidentityprovider'
+    implementation 'software.amazon.awssdk:secretsmanager'
+    
+    // AWS Lambda
+    implementation 'com.amazonaws:aws-lambda-java-core:1.2.3'
+    implementation 'com.amazonaws:aws-lambda-java-events:3.11.3'
+    implementation 'com.amazonaws.serverless:aws-serverless-java-container-springboot3:2.0.3'
+    
+    // Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    
+    // Testing
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'net.jqwik:jqwik:1.7.4'
+    testImplementation 'org.mockito:mockito-core:5.14.2'
+    testImplementation 'net.bytebuddy:byte-buddy:1.15.10'
+    testImplementation 'net.bytebuddy:byte-buddy-agent:1.15.10'
+    
+    // JSON
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
+    // Google Generative AI SDK
+    implementation 'com.google.genai:google-genai:1.0.0'
+
+    // ULID (Universally Unique Lexicographically Sortable Identifier)
+    implementation 'com.github.f4b6a3:ulid-creator:5.2.3'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+    
+    // Java 21+でMockitoを使用するための設定（AWS SDK含む）
+    jvmArgs = [
+        '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
+        '--add-opens', 'java.base/java.util=ALL-UNNAMED',
+        '--add-opens', 'java.base/java.time=ALL-UNNAMED',
+        '--add-opens', 'java.base/java.nio=ALL-UNNAMED',
+        '--add-opens', 'java.base/sun.nio.ch=ALL-UNNAMED',
+        '--add-opens', 'java.base/java.lang.reflect=ALL-UNNAMED',
+        '--add-opens', 'java.base/java.net=ALL-UNNAMED',
+        '--add-opens', 'java.base/java.security=ALL-UNNAMED',
+        '--add-opens', 'java.base/javax.crypto=ALL-UNNAMED'
+    ]
+}
+
+// Spring Boot起動時のエンコーディング設定
+bootRun {
+    systemProperty 'file.encoding', 'UTF-8'
+    systemProperty 'console.encoding', 'UTF-8'
+    systemProperty 'spring.profiles.active', 'local'
+    jvmArgs = ['-Dfile.encoding=UTF-8', '-Dconsole.encoding=UTF-8']
+    
+    // 標準出力をリアルタイムで表示
+    standardOutput = System.out
+    errorOutput = System.err
+}
+
+// Lambda用のFat JARビルド設定
+shadowJar {
+    archiveClassifier.set('')
+    mergeServiceFiles()
+    
+    append 'META-INF/spring.handlers'
+    append 'META-INF/spring.schemas'
+    append 'META-INF/spring.tooling'
+    append 'META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports'
+
+    // Spring Boot 3の自動設定ファイルを正しくマージする設定
+    transform(PropertiesFileTransformer) {
+        paths = ['META-INF/spring.factories']
+        mergeStrategy = "append"
+    }
+    
+    // Spring Bootのメタデータを保持
+    manifest {
+        attributes(
+            'Main-Class': 'com.cookingapp.StreamLambdaHandler',
+            'Start-Class': 'com.cookingapp.CookingAppApplication'
+        )
+    }
+}
+
+// buildタスクでshadowJarも実行
+build.dependsOn shadowJar

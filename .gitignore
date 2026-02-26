@@ -1,0 +1,45 @@
+# Backend
+backend/build/
+backend/bin/
+backend/.gradle/
+backend/out/
+backend/*.iml
+backend/.idea/
+backend/.jqwik-database
+backend/logs/
+backend/.env
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/amplify/
+frontend/.env
+frontend/.env.local
+frontend/.env.dev
+frontend/.env.production
+
+# Infrastructure
+infrastructure/cdk/node_modules/
+infrastructure/cdk/cdk.out/
+infrastructure/cdk/.cdk.staging/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# AWS
+.aws-sam/
+*.pem
+*.key
+
+# Local scripts
+backend/set-aws-credentials.bat

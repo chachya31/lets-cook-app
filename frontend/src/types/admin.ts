@@ -1,0 +1,29 @@
+/**
+ * 管理者ダッシュボード統計
+ */
+export interface AdminDashboardStats {
+  message: string;
+  totalUsers: number;
+  totalRecipes: number;
+}
+
+/**
+ * レシピステータス設定リクエスト
+ */
+export interface SetRecipeStatusRequest {
+  isPublic: boolean;
+}
+
+import { Recipe } from './recipe';
+import { User } from './user';
+
+/**
+ * 管理者状態
+ */
+export interface AdminState {
+  stats: AdminDashboardStats | null;
+  recipes: Recipe[];
+  users: User[];
+  loading: boolean;
+  error: string | null;
+}

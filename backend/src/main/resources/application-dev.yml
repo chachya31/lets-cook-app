@@ -1,0 +1,19 @@
+aws:
+  region: ${AWS_REGION_NAME:ap-northeast-1}
+  dynamodb:
+    table:
+      users: ${DYNAMODB_USERS_TABLE}
+      recipes: ${DYNAMODB_RECIPES_TABLE}
+      recipe-ingredients: ${DYNAMODB_RECIPE_INGREDIENTS_TABLE}
+      schedules: ${DYNAMODB_SCHEDULES_TABLE}
+      shoppingLists: ${DYNAMODB_SHOPPING_LISTS_TABLE}
+      reviews: ${DYNAMODB_REVIEWS_TABLE}
+      chatConversations: ${DYNAMODB_CHAT_CONVERSATIONS_TABLE}
+      chatMessages: ${DYNAMODB_CHAT_MESSAGES_TABLE}
+      inventory: ${DYNAMODB_INVENTORY_TABLE}
+  s3:
+    bucket: ${S3_BUCKET_NAME}
+  cognito:
+    region: ap-northeast-1
+    userPoolId: ${AWS_COGNITO_USER_POOL_ID}
+    clientId: ${AWS_COGNITO_CLIENT_ID}

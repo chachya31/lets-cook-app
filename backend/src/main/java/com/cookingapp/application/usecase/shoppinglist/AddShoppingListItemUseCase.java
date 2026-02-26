@@ -1,0 +1,52 @@
+package com.cookingapp.application.usecase.shoppinglist;
+
+import java.math.BigDecimal;
+import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import com.cookingapp.domain.entity.ShoppingListItem;
+import com.cookingapp.domain.repository.ShoppingListRepository;
+
+import lombok.RequiredArgsConstructor;
+
+/**
+ * 買い物リストアイテム追加ユースケース
+ */
+@Service
+@RequiredArgsConstructor
+public class AddShoppingListItemUseCase {
+    private static final Logger log = LoggerFactory.getLogger(AddShoppingListItemUseCase.class);
+    private final ShoppingListRepository shoppingListRepository;
+
+    /**
+     * 買い物リストにアイテムを追加
+     * 同じ正規化キー（名前+単位）のアイテムが存在する場合は数量を合算
+     */
+    public ShoppingListItem execute(
+            String userId,
+            String name,
+            BigDecimal quantity,
+            String unit,
+            String sourceRecipeId) {
+        String normalizedKey = ShoppingListItem.generateNormalizedKey(name, unit);
+
+        // 既存のアイテムを検索
+        Optional<ShoppingListItem> existingItem = shoppingListRepository.findByNormalizedKey(userId, normalizedKey);
+
+        if (existingItem.isPresent()) {
+            // 既存アイテムがある場合は数量を合算
+            ShoppingListItem updatedItem = existingItem.get().updateQuantity(quantity);
+            log.info("Updating existing shopping list item: userId={}, itemId={}, newQuantity={}",
+                    userId, updatedItem.getItemId(), updatedItem.getQuantity());
+            return shoppingListRepository.save(updatedItem);
+        } else {
+            // 新規アイテムを作成
+            ShoppingListItem newItem = ShoppingListItem.create(userId, name, quantity, unit, sourceRecipeId);
+            log.info("Creating new shopping list item: userId={}, itemId={}", userId, newItem.getItemId());
+            return shoppingListRepository.save(newItem);
+        }
+    }
+}

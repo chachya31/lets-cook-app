@@ -1,0 +1,373 @@
+{
+  "app": {
+    "title": "自炊支援アプリ"
+  },
+  "common": {
+    "loading": "読み込み中...",
+    "comingSoon": "近日公開予定",
+    "back": "戻る",
+    "save": "保存",
+    "saving": "保存中...",
+    "cancel": "キャンセル",
+    "remove": "削除",
+    "delete": "削除",
+    "select": "選択",
+    "edit": "編集"
+  },
+  "auth": {
+    "login": "ログイン",
+    "register": "新規登録",
+    "logout": "ログアウト",
+    "email": "メールアドレス",
+    "password": "パスワード",
+    "confirmPassword": "パスワード（確認）",
+    "nickname": "ニックネーム",
+    "preferredLanguage": "優先言語",
+    "noAccount": "アカウントをお持ちでない方はこちら",
+    "hasAccount": "既にアカウントをお持ちの方はこちら",
+    "passwordReset": "パスワードリセット",
+    "passwordResetDescription": "パスワードをリセットします",
+    "backToLogin": "ログインに戻る",
+    "sessionExpired": "セッションの有効期限が切れました。再度ログインしてください。",
+    "confirmEmail": {
+      "title": "メール確認",
+      "description": "{{email}} に送信された確認コードを入力してください",
+      "codeLabel": "確認コード",
+      "codePlaceholder": "6桁の確認コードを入力",
+      "submit": "確認",
+      "resendCode": "確認コードを再送信",
+      "success": "メールアドレスが確認されました。ログインしてください",
+      "error": "確認コードが無効です",
+      "resendSuccess": "確認コードを再送信しました",
+      "resendError": "確認コードの再送信に失敗しました",
+      "remainingTime": "残り時間: {{time}}",
+      "codeExpired": "確認コードの有効期限が切れました",
+      "codeExpiredError": "確認コードの有効期限が切れました。再発行してください"
+    }
+  },
+  "language": {
+    "japanese": "日本語",
+    "korean": "한국어"
+  },
+  "validation": {
+    "emailRequired": "メールアドレスは必須です",
+    "emailInvalid": "有効なメールアドレスを入力してください",
+    "passwordRequired": "パスワードは必須です",
+    "passwordMinLength": "パスワードは8文字以上である必要があります",
+    "passwordComplexity": "パスワードは大文字、小文字、数字、特殊文字を含む必要があります",
+    "passwordMismatch": "パスワードが一致しません",
+    "nicknameRequired": "ニックネームは必須です",
+    "nicknameMaxLength": "ニックネームは50文字以内である必要があります",
+    "confirmationCodeRequired": "確認コードは必須です",
+    "confirmationCodeLength": "確認コードは6桁である必要があります"
+  },
+  "error": {
+    "title": "エラーが発生しました",
+    "dismiss": "閉じる",
+    "retry": "再試行",
+    "required": "{{field}}は必須です",
+    "invalid_email": "有効なメールアドレスを入力してください",
+    "invalid_password": "パスワードは8文字以上で、大文字、小文字、数字、特殊文字を含む必要があります",
+    "network": "ネットワークエラーが発生しました。インターネット接続を確認してください",
+    "server": "サーバーエラーが発生しました。しばらくしてから再試行してください",
+    "notFound": "リソースが見つかりませんでした",
+    "unauthorized": "認証が必要です。ログインしてください",
+    "forbidden": "このリソースへのアクセス権限がありません",
+    "unknown": "予期しないエラーが発生しました"
+  },
+  "imageUploader": {
+    "dragAndDrop": "画像をドラッグ&ドロップ、またはクリックして選択",
+    "formats": "対応形式: {{formats}}",
+    "maxSize": "最大サイズ: {{maxSize}}MB",
+    "removeImage": "画像を削除",
+    "changeImage": "画像を変更",
+    "compressing": "画像を圧縮中...",
+    "errors": {
+      "fileTooLarge": "ファイルサイズが大きすぎます。最大{{maxSize}}MBまでです",
+      "invalidFormat": "サポートされていないファイル形式です。JPEG、PNGのみ対応しています"
+    }
+  },
+  "recipe": {
+    "search": {
+      "title": "レシピ検索",
+      "placeholder": "レシピを検索...",
+      "button": "検索",
+      "noResults": "レシピが見つかりませんでした",
+      "tabKeyword": "レシピ名で検索",
+      "tabIngredients": "食材で検索"
+    },
+    "searchByIngredients": {
+      "title": "食材からレシピを探す",
+      "navTitle": "冷蔵庫パトロール",
+      "subtitle": "冷蔵庫にある食材を入力してください",
+      "inputPlaceholder": "食材名を入力...",
+      "addButton": "追加",
+      "searchButton": "レシピを探す",
+      "clearAll": "すべてクリア",
+      "noIngredients": "食材を1つ以上入力してください",
+      "duplicateIngredient": "「{{ingredient}}」は既に追加されています",
+      "noResults": "冷蔵庫にある食材で作れる料理が見つかりませんでした 😢",
+      "resultsTitle": "{{count}}件のレシピが見つかりました",
+      "searchedIngredients": "検索した食材"
+    },
+    "create": {
+      "title": "レシピ作成",
+      "button": "レシピを作成"
+    },
+    "edit": {
+      "title": "レシピ編集",
+      "button": "編集"
+    },
+    "delete": {
+      "button": "削除",
+      "confirm": "本当にこのレシピを削除しますか？"
+    },
+    "title": "タイトル",
+    "cookingTime": "調理時間",
+    "minutes": "分",
+    "ingredients": "食材",
+    "ingredientName": "食材名",
+    "quantity": "数量",
+    "quantityPlaceholder": "例: 100",
+    "unit": "単位",
+    "unitPlaceholder": "例: g、ml など",
+    "optional": "任意",
+    "addIngredient": "食材を追加",
+    "steps": "手順",
+    "step": "手順",
+    "addStep": "手順を追加",
+    "mainImage": "メイン画像",
+    "stepImage": "手順の画像（任意）",
+    "stepVideoUrl": "動画URL（任意）",
+    "video": "動画",
+    "basicInfo": "基本情報",
+    "notFound": "レシピが見つかりません",
+    "units": {
+      "tbsp": "大さじ",
+      "tsp": "小さじ",
+      "cup": "カップ",
+      "piece": "個",
+      "pack": "パック",
+      "can": "缶",
+      "bottle": "本",
+      "slice": "枚",
+      "clove": "片",
+      "pinch": "つまみ",
+      "to_taste": "適量",
+      "as_needed": "必要に応じて"
+    }
+  },
+  "review": {
+    "title": "レビュー",
+    "noReviews": "まだレビューがありません",
+    "rating": "評価",
+    "comment": "コメント",
+    "commentPlaceholder": "レビューを書く（任意）",
+    "submit": "投稿",
+    "update": "更新",
+    "edit": "編集",
+    "delete": "削除",
+    "report": "通報",
+    "deleteConfirm": "本当にこのレビューを削除しますか？",
+    "reportConfirm": "このレビューを通報しますか？",
+    "reportSuccess": "レビューを通報しました",
+    "validation": {
+      "ratingRange": "評価は1〜5の範囲で選択してください",
+      "commentMaxLength": "コメントは300文字以内で入力してください"
+    }
+  },
+  "schedule": {
+    "title": "スケジュール管理",
+    "startDate": "開始日",
+    "endDate": "終了日",
+    "search": "検索",
+    "createNew": "新規作成",
+    "cancel": "キャンセル",
+    "date": "日付",
+    "type": "種類",
+    "planned": "予定",
+    "cooked": "完了",
+    "recipe": "レシピ",
+    "selectRecipe": "レシピを選択",
+    "selectRecipePlaceholder": "レシピを選択してください",
+    "searchRecipePlaceholder": "レシピ名で検索...",
+    "noRecipesFound": "レシピが見つかりません",
+    "memo": "メモ",
+    "create": "作成",
+    "noSchedules": "スケジュールがありません",
+    "convertToCooked": "完了にする",
+    "markAsDone": "完了にする",
+    "confirmDelete": "本当にこのスケジュールを削除しますか？"
+  },
+  "alert": {
+    "title": "料理をしていませんか？",
+    "dismiss": "閉じる",
+    "quickRegister": "今すぐ料理を登録"
+  },
+  "shoppingList": {
+    "title": "買い物リスト",
+    "addItem": "アイテムを追加",
+    "itemName": "商品名",
+    "itemNamePlaceholder": "例: 玉ねぎ",
+    "quantity": "数量",
+    "unit": "単位",
+    "unitPlaceholder": "例: 個",
+    "addButton": "追加",
+    "toBuy": "購入予定",
+    "purchased": "購入済み",
+    "empty": "買い物リストは空です"
+  },
+  "inventory": {
+    "title": "食材在庫",
+    "description": "買い物リストでチェックした食材が自動的に追加されます。賞味期限を設定して管理しましょう。",
+    "empty": "在庫がありません。買い物リストで食材をチェックすると自動的に追加されます。",
+    "sortByExpiry": "賞味期限順",
+    "expiryDate": "賞味期限",
+    "notSet": "未設定",
+    "expired": "期限切れ",
+    "expiringSoon": "期限間近",
+    "confirmDelete": "この食材を削除しますか？",
+    "fetchError": "在庫の取得に失敗しました",
+    "deleteError": "削除に失敗しました",
+    "updateError": "更新に失敗しました"
+  },
+  "chat": {
+    "title": "AIチャット",
+    "newConversation": "新しい会話",
+    "noHistory": "会話履歴がありません",
+    "placeholder": "メッセージを入力してください",
+    "inputPlaceholder": "メッセージを入力...",
+    "thinking": "考え中...",
+    "error": "エラーが発生しました。もう一度お試しください。",
+    "confirmDelete": "この会話を削除しますか？",
+    "deleteError": "削除に失敗しました",
+    "selectTopic": "会話の主題を選択",
+    "currentInventory": "現在の在庫（クリックで追加）",
+    "noInventory": "在庫がありません",
+    "addAllToInput": "すべて追加",
+    "conversationHistory": "会話履歴",
+    "topics": {
+      "general": "一般チャット",
+      "generalDesc": "料理に関する質問や相談",
+      "recipeRecommendation": "レシピ推薦",
+      "recipeRecommendationDesc": "在庫食材からレシピを提案",
+      "expiryCheck": "賞味期限確認",
+      "expiryCheckDesc": "食材の賞味期限をチェック"
+    }
+  },
+  "profile": {
+    "title": "プロフィール",
+    "edit": {
+      "title": "プロフィール編集",
+      "success": "プロフィールを更新しました"
+    },
+    "profileImage": "プロフィール画像",
+    "basicInfo": "基本情報",
+    "email": "メールアドレス",
+    "emailNotEditable": "メールアドレスは変更できません",
+    "nickname": "ニックネーム",
+    "displayName": "表示名",
+    "language": "言語",
+    "selectLanguage": "言語を選択",
+    "changeLanguage": "言語を変更",
+    "languageChanged": "言語を変更しました",
+    "timezone": "タイムゾーン",
+    "timezoneNotEditable": "タイムゾーンは変更できません",
+    "marketingOptOut": "マーケティングメールを受け取らない",
+    "errors": {
+      "loadFailed": "プロフィールの読み込みに失敗しました",
+      "updateFailed": "プロフィールの更新に失敗しました",
+      "notLoggedIn": "ログインしてください"
+    }
+  },
+  "dashboard": {
+    "title": "ダッシュボード",
+    "recentRecipes": "最近のレシピ",
+    "upcomingSchedules": "今後の予定",
+    "shoppingList": "買い物リスト",
+    "viewAll": "すべて表示",
+    "noRecentRecipes": "最近のレシピはありません",
+    "noUpcomingSchedules": "今後の予定はありません",
+    "noShoppingItems": "買い物リストは空です",
+    "quickActions": "クイックアクション",
+    "createRecipe": "レシピを作成",
+    "addSchedule": "予定を追加",
+    "addShoppingItem": "買い物リストに追加",
+    "searchRecipes": "レシピを検索",
+    "manageSchedules": "スケジュールを管理",
+    "manageShoppingList": "買い物リストを管理",
+    "aiChat": "AIチャット",
+    "aiChatDescription": "AIに料理の相談をしたり、レシピを提案してもらえます",
+    "startChat": "チャットを開始",
+    "inventory": "食材在庫",
+    "inventoryDescription": "購入した食材の在庫と賞味期限を管理できます",
+    "manageInventory": "在庫を管理"
+  },
+  "admin": {
+    "dashboard": {
+      "title": "管理者ダッシュボード",
+      "totalUsers": "総ユーザー数",
+      "totalRecipes": "総レシピ数",
+      "userManagement": "ユーザー管理",
+      "userManagementDesc": "ユーザーアカウントの停止・削除を管理します",
+      "goToUserManagement": "ユーザー管理へ",
+      "recipeManagement": "レシピ管理",
+      "recipeManagementDesc": "レシピの審査・ステータス変更・削除を管理します",
+      "goToRecipeManagement": "レシピ管理へ"
+    },
+    "users": {
+      "title": "ユーザー管理",
+      "userList": "ユーザー一覧",
+      "noUsers": "ユーザーがいません",
+      "manageUser": "ユーザーを管理",
+      "userId": "ユーザーID",
+      "userIdPlaceholder": "ユーザーIDを入力",
+      "suspend": "停止",
+      "delete": "削除",
+      "table": {
+        "user": "ユーザー",
+        "nickname": "ニックネーム",
+        "email": "メールアドレス",
+        "role": "権限",
+        "createdAt": "登録日",
+        "actions": "操作"
+      },
+      "success": {
+        "suspended": "ユーザーを停止しました",
+        "deleted": "ユーザーを削除しました"
+      },
+      "error": {
+        "userIdRequired": "ユーザーIDを入力してください",
+        "suspendFailed": "ユーザーの停止に失敗しました",
+        "deleteFailed": "ユーザーの削除に失敗しました"
+      },
+      "confirm": {
+        "suspend": "本当にこのユーザーを停止しますか？",
+        "delete": "本当にこのユーザーを削除しますか？この操作は取り消せません。"
+      },
+      "warning": {
+        "title": "注意事項",
+        "suspend": "停止：ユーザーはログインできなくなりますが、データは保持されます",
+        "delete": "削除：ユーザーアカウントとすべてのデータが完全に削除されます"
+      }
+    },
+    "recipes": {
+      "title": "レシピ管理",
+      "noRecipes": "レシピがありません",
+      "recipeId": "レシピID",
+      "authorId": "作成者ID",
+      "cookingTime": "調理時間",
+      "status": "ステータス",
+      "public": "公開",
+      "private": "非公開",
+      "deleted": "削除済み",
+      "view": "表示",
+      "setPublic": "公開にする",
+      "setPrivate": "非公開にする",
+      "delete": "削除",
+      "confirm": {
+        "delete": "本当にこのレシピを削除しますか？この操作は取り消せません。"
+      }
+    }
+  }
+}

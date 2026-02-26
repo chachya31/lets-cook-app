@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: cooking-support-app
+  messages:
+    basename: messages/messages
+    encoding: UTF-8
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
+
+aws:
+  region: ap-northeast-1
+  dynamodb:
+    table:
+      users: ${AWS_DYNAMODB_TABLE_USERS:Users}
+      recipes: ${AWS_DYNAMODB_TABLE_RECIPES:Recipes}
+  s3:
+    bucket: ${AWS_S3_BUCKET:cooking-app-images}
+  cognito:
+    userPoolId: ${AWS_COGNITO_USER_POOL_ID:}
+    clientId: ${AWS_COGNITO_CLIENT_ID:}
+
+gemini:
+  apiKey: ${GEMINI_API_KEY:}
+  apiKeySecretArn: ${GEMINI_API_KEY_SECRET_ARN:}
+
+server:
+  port: 8080
