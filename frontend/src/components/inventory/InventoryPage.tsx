@@ -20,11 +20,14 @@ const InventoryPage: React.FC = () => {
   const [sortByExpiry, setSortByExpiry] = useState(true);
   const [editingItem, setEditingItem] = useState<string | null>(null);
   const [editExpiryDate, setEditExpiryDate] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const loadInventory = useCallback(async () => {
     try {
       setLoading(true);
+      console.log('在庫データを取得中...', { sortByExpiry });
       const data = await getInventory(sortByExpiry);
+      console.log('取得完了:', data);
       setItems(data);
       setError(null);
     } catch {
@@ -39,7 +42,7 @@ const InventoryPage: React.FC = () => {
   }, [loadInventory]);
 
   const handleDelete = async (itemId: string) => {
-    if (!confirm(t('inventory.confirmDelete'))) return;
+    if (!confirm('本当に削除しますか？')) return;
 
     try {
       await deleteInventoryItem(itemId);
@@ -108,6 +111,15 @@ const InventoryPage: React.FC = () => {
     return null;
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleSearchChange = (e: any) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const filteredItems = items.filter((item) =>
+    item.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="flex items-center justify-between mb-6">
@@ -129,6 +141,16 @@ const InventoryPage: React.FC = () => {
         </div>
       </div>
 
+      <div className="mb-4">
+        <Input
+          type="text"
+          placeholder="食材名で検索..."
+          value={searchQuery}
+          onChange={handleSearchChange}
+          style={{ border: '2px solid #3b82f6', borderRadius: '999px' }}
+        />
+      </div>
+
       {error && (
         <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
           {error}
@@ -139,11 +161,11 @@ const InventoryPage: React.FC = () => {
 
       {loading ? (
         <div className="text-center py-12 text-gray-500">{t('common.loading')}</div>
-      ) : items.length === 0 ? (
+      ) : filteredItems.length === 0 ? (
         <div className="text-center py-12 text-gray-500">{t('inventory.empty')}</div>
       ) : (
         <div className="space-y-3">
-          {items.map((item) => (
+          {filteredItems.map((item) => (
             <Card
               key={item.itemId}
               className={`p-4 flex items-center justify-between ${getExpiryStatusClass(item)}`}
