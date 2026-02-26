@@ -37,7 +37,7 @@ jobs:
         
     - name: Check for merge conflicts
       run: |
-        if grep -r "<<<<<<< HEAD" . --exclude-dir=node_modules --exclude-dir=.git; then
+        if grep -r "<<<<<<<" . --exclude-dir=node_modules --exclude-dir=.git --exclude=pr-check.yml; then
           echo "❌ Merge conflict markers found"
           exit 1
         fi
