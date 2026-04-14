@@ -29,6 +29,10 @@ infrastructure/cdk/.cdk.staging/
 .vscode/
 *.iml
 
+# AI tooling local config
+.agents/
+.claude/
+
 # OS
 .DS_Store
 Thumbs.db

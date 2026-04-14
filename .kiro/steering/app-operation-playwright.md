@@ -44,6 +44,7 @@ Playwright（Playwright MCP）でローカル Web アプリ（http://localhost:3
 **HTTP 200/3xx が返るなら起動済み**です。
 
 ```powershell
+# PowerShell
 try {
   $r = Invoke-WebRequest -UseBasicParsing http://localhost:3000/ -TimeoutSec 3
   $r.StatusCode
@@ -52,18 +53,35 @@ try {
 }
 ```
 
+```bash
+# bash
+curl -s -o /dev/null -w "%{http_code}" --connect-timeout 3 http://localhost:3000/ || echo "NOT_RUNNING"
+```
+
 * 結果が `NOT_RUNNING` の場合 → 「2. 起動手順」へ
 
 ### 1.2 3000 LISTEN 確認（補助）
 
 ```powershell
+# PowerShell
 netstat -ano | Select-String ":3000"
+```
+
+```bash
+# bash
+ss -tlnp | grep :3000 || netstat -tlnp 2>/dev/null | grep :3000
 ```
 
 ### 1.3 8080 LISTEN 確認（補助）
 
 ```powershell
+# PowerShell
 netstat -ano | Select-String ":8080"
+```
+
+```bash
+# bash
+ss -tlnp | grep :8080 || netstat -tlnp 2>/dev/null | grep :8080
 ```
 
 ---
@@ -73,13 +91,21 @@ netstat -ano | Select-String ":8080"
 ### 2.1 Backendアプリ（Spring Boot）を起動する（確定コマンド）
 
 ```powershell
+# PowerShell（Windows）
 # backend ディレクトリで実行
 ./gradlew.bat bootRun --args='--spring.profiles.active=local'
+```
+
+```bash
+# bash（macOS / Linux）
+# backend ディレクトリで実行
+./gradlew bootRun --args='--spring.profiles.active=local'
 ```
 
 ### 2.2 Frontendアプリ（Vite + React）を起動する（確定コマンド）
 
 ```powershell
+# PowerShell / bash 共通
 # frontend ディレクトリで実行
 npm run dev
 ```
@@ -89,6 +115,7 @@ npm run dev
 バックエンド・フロントエンドの両方が応答するまで待機します。
 
 ```powershell
+# PowerShell（Windows）
 # バックエンド確認
 for ($i=0; $i -lt 120; $i++) {
   try {
@@ -106,6 +133,23 @@ for ($i=0; $i -lt 60; $i++) {
   } catch {}
   Start-Sleep -Seconds 1
 }
+```
+
+```bash
+# bash（macOS / Linux）
+# バックエンド確認
+for i in $(seq 1 120); do
+  code=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 2 http://localhost:8080/ 2>/dev/null)
+  if [ "$code" -ge 200 ] && [ "$code" -lt 400 ]; then echo "OK: backend is up"; break; fi
+  sleep 1
+done
+
+# フロントエンド確認
+for i in $(seq 1 60); do
+  code=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 2 http://localhost:3000/ 2>/dev/null)
+  if [ "$code" -ge 200 ] && [ "$code" -lt 400 ]; then echo "OK: frontend is up"; break; fi
+  sleep 1
+done
 ```
 
 ---

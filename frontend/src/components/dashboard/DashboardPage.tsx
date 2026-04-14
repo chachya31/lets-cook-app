@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { searchRecipes } from '../../api/recipeApi';
 import { getSchedules } from '../../api/scheduleApi';
 import { getShoppingList } from '../../api/shoppingListApi';
+import { useAuthStore } from '../../store/authStore';
 import { Recipe } from '../../types/recipe';
 import { Schedule } from '../../types/schedule';
 import { ShoppingListItem } from '../../types/shoppingList';
@@ -18,6 +19,7 @@ import { Card } from '../ui/card';
 const DashboardPage: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const [recentRecipes, setRecentRecipes] = useState<Recipe[]>([]);
   const [upcomingSchedules, setUpcomingSchedules] = useState<Schedule[]>([]);
   const [shoppingItems, setShoppingItems] = useState<ShoppingListItem[]>([]);
@@ -28,25 +30,31 @@ const DashboardPage: React.FC = () => {
       try {
         setLoading(true);
 
-        // 最近のレシピを取得（最大3件）
+        // 最近のレシピを取得（最大3件）: 認証不要
         const recipes = await searchRecipes();
         setRecentRecipes(recipes.slice(0, 3));
 
-        // 今日から7日間のスケジュールを取得
-        const today = new Date();
-        const nextWeek = new Date();
-        nextWeek.setDate(today.getDate() + 7);
+        // スケジュール・買い物リストはログイン済みの場合のみ取得
+        if (isAuthenticated) {
+          // 今日から7日間のスケジュールを取得
+          const today = new Date();
+          const nextWeek = new Date();
+          nextWeek.setDate(today.getDate() + 7);
 
-        const schedules = await getSchedules({
-          startDate: today.toISOString().split('T')[0],
-          endDate: nextWeek.toISOString().split('T')[0],
-        });
-        setUpcomingSchedules(schedules.slice(0, 5));
+          const schedules = await getSchedules({
+            startDate: today.toISOString().split('T')[0],
+            endDate: nextWeek.toISOString().split('T')[0],
+          });
+          setUpcomingSchedules(schedules.slice(0, 5));
 
-        // 買い物リストを取得（未チェックのみ、最大5件）
-        const items = await getShoppingList();
-        const uncheckedItems = items.filter((item) => !item.isChecked);
-        setShoppingItems(uncheckedItems.slice(0, 5));
+          // 買い物リストを取得（未チェックのみ、最大5件）
+          const items = await getShoppingList();
+          const uncheckedItems = items.filter((item) => !item.isChecked);
+          setShoppingItems(uncheckedItems.slice(0, 5));
+        } else {
+          setUpcomingSchedules([]);
+          setShoppingItems([]);
+        }
       } catch (error) {
         // Dashboard data fetch failed silently
       } finally {
@@ -55,7 +63,7 @@ const DashboardPage: React.FC = () => {
     };
 
     fetchDashboardData();
-  }, []);
+  }, [isAuthenticated]);
 
   if (loading) {
     return (
@@ -116,54 +124,80 @@ const DashboardPage: React.FC = () => {
         <Card className="p-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">{t('dashboard.upcomingSchedules')}</h2>
-            <Button variant="ghost" size="sm" onClick={() => navigate('/schedules')}>
-              {t('dashboard.viewAll')}
-            </Button>
+            {isAuthenticated && (
+              <Button variant="ghost" size="sm" onClick={() => navigate('/schedules')}>
+                {t('dashboard.viewAll')}
+              </Button>
+            )}
           </div>
-          {upcomingSchedules.length === 0 ? (
-            <p className="text-gray-500">{t('dashboard.noUpcomingSchedules')}</p>
+          {!isAuthenticated ? (
+            <div className="text-center py-4">
+              <p className="text-gray-500 mb-4">{t('dashboard.loginRequired')}</p>
+              <Button className="w-full" onClick={() => navigate('/login')}>
+                {t('dashboard.goToLogin')}
+              </Button>
+            </div>
           ) : (
-            <ul className="space-y-3">
-              {upcomingSchedules.map((schedule) => (
-                <li key={schedule.scheduleId} className="p-2 border-l-4 border-green-500">
-                  <div className="font-medium">{schedule.recipeTitle}</div>
-                  <div className="text-sm text-gray-500">
-                    {schedule.date} - {t(schedule.isDone ? 'schedule.cooked' : 'schedule.planned')}
-                  </div>
-                </li>
-              ))}
-            </ul>
+            <>
+              {upcomingSchedules.length === 0 ? (
+                <p className="text-gray-500">{t('dashboard.noUpcomingSchedules')}</p>
+              ) : (
+                <ul className="space-y-3">
+                  {upcomingSchedules.map((schedule) => (
+                    <li key={schedule.scheduleId} className="p-2 border-l-4 border-green-500">
+                      <div className="font-medium">{schedule.recipeTitle}</div>
+                      <div className="text-sm text-gray-500">
+                        {schedule.date} - {t(schedule.isDone ? 'schedule.cooked' : 'schedule.planned')}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <Button className="w-full mt-4" onClick={() => navigate('/schedules')}>
+                {t('dashboard.manageSchedules')}
+              </Button>
+            </>
           )}
-          <Button className="w-full mt-4" onClick={() => navigate('/schedules')}>
-            {t('dashboard.manageSchedules')}
-          </Button>
         </Card>
 
         {/* 買い物リスト概要セクション */}
         <Card className="p-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">{t('dashboard.shoppingList')}</h2>
-            <Button variant="ghost" size="sm" onClick={() => navigate('/shopping-list')}>
-              {t('dashboard.viewAll')}
-            </Button>
+            {isAuthenticated && (
+              <Button variant="ghost" size="sm" onClick={() => navigate('/shopping-list')}>
+                {t('dashboard.viewAll')}
+              </Button>
+            )}
           </div>
-          {shoppingItems.length === 0 ? (
-            <p className="text-gray-500">{t('dashboard.noShoppingItems')}</p>
+          {!isAuthenticated ? (
+            <div className="text-center py-4">
+              <p className="text-gray-500 mb-4">{t('dashboard.loginRequired')}</p>
+              <Button className="w-full" onClick={() => navigate('/login')}>
+                {t('dashboard.goToLogin')}
+              </Button>
+            </div>
           ) : (
-            <ul className="space-y-2">
-              {shoppingItems.map((item) => (
-                <li key={item.itemId} className="flex items-center">
-                  <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                  <span>
-                    {item.name} - {item.quantity} {item.unit}
-                  </span>
-                </li>
-              ))}
-            </ul>
+            <>
+              {shoppingItems.length === 0 ? (
+                <p className="text-gray-500">{t('dashboard.noShoppingItems')}</p>
+              ) : (
+                <ul className="space-y-2">
+                  {shoppingItems.map((item) => (
+                    <li key={item.itemId} className="flex items-center">
+                      <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                      <span>
+                        {item.name} - {item.quantity} {item.unit}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <Button className="w-full mt-4" onClick={() => navigate('/shopping-list')}>
+                {t('dashboard.manageShoppingList')}
+              </Button>
+            </>
           )}
-          <Button className="w-full mt-4" onClick={() => navigate('/shopping-list')}>
-            {t('dashboard.manageShoppingList')}
-          </Button>
         </Card>
       </div>
 
@@ -174,10 +208,21 @@ const DashboardPage: React.FC = () => {
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">{t('dashboard.aiChat')}</h2>
           </div>
-          <p className="text-gray-500 mb-4">{t('dashboard.aiChatDescription')}</p>
-          <Button className="w-full" onClick={() => navigate('/chat')}>
-            {t('dashboard.startChat')}
-          </Button>
+          {!isAuthenticated ? (
+            <>
+              <p className="text-gray-500 mb-4">{t('dashboard.loginRequired')}</p>
+              <Button className="w-full" onClick={() => navigate('/login')}>
+                {t('dashboard.goToLogin')}
+              </Button>
+            </>
+          ) : (
+            <>
+              <p className="text-gray-500 mb-4">{t('dashboard.aiChatDescription')}</p>
+              <Button className="w-full" onClick={() => navigate('/chat')}>
+                {t('dashboard.startChat')}
+              </Button>
+            </>
+          )}
         </Card>
 
         {/* 食材在庫セクション */}
@@ -185,10 +230,21 @@ const DashboardPage: React.FC = () => {
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">{t('dashboard.inventory')}</h2>
           </div>
-          <p className="text-gray-500 mb-4">{t('dashboard.inventoryDescription')}</p>
-          <Button className="w-full" onClick={() => navigate('/inventory')}>
-            {t('dashboard.manageInventory')}
-          </Button>
+          {!isAuthenticated ? (
+            <>
+              <p className="text-gray-500 mb-4">{t('dashboard.loginRequired')}</p>
+              <Button className="w-full" onClick={() => navigate('/login')}>
+                {t('dashboard.goToLogin')}
+              </Button>
+            </>
+          ) : (
+            <>
+              <p className="text-gray-500 mb-4">{t('dashboard.inventoryDescription')}</p>
+              <Button className="w-full" onClick={() => navigate('/inventory')}>
+                {t('dashboard.manageInventory')}
+              </Button>
+            </>
+          )}
         </Card>
       </div>
     </div>

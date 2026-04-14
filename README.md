@@ -43,16 +43,30 @@
 
 ```
 .
-├── backend/                # バックエンド（Spring Boot）
-├── frontend/               # フロントエンド（React + TypeScript）
-├── infrastructure/         # インフラストラクチャ（AWS CDK + LocalStack）
-├── docs/                   # ドキュメント
+├── backend/                          # バックエンド（Spring Boot / Clean Architecture）
+│   └── src/main/java/com/cookingapp/
+│       ├── application/              # ユースケース層
+│       ├── domain/                   # ドメインモデル・リポジトリIF
+│       ├── infrastructure/           # DynamoDB/S3/Cognito アダプタ
+│       └── presentation/             # REST コントローラ
+├── frontend/                         # フロントエンド（React + TypeScript + Vite）
+│   └── src/
+│       ├── components/               # 画面別コンポーネント（auth, dashboard, recipe, schedule, chat ほか）
+│       ├── store/                    # Redux Toolkit ストア
+│       ├── api/                      # API クライアント
+│       ├── hooks/                    # カスタムフック
+│       ├── i18n/locales/             # 多言語リソース（ja, ko）
+│       └── types/                    # 型定義
+├── infrastructure/                   # インフラ（AWS CDK + LocalStack）
+│   ├── cdk/                          # 本番AWS環境用 CDK スタック
+│   └── localstack/                   # LocalStack 初期化スクリプト
+├── docs/                             # ドキュメント（ポートフォリオ・再構築ガイド等）
 ├── .kiro/
-│   ├── specs/             # 仕様書
-│   ├── hooks/             # Kiro Agent Hooks設定
-│   └── steering/          # Kiroステアリングルール
-├── CODING_STANDARDS.md    # コーディング規約
-└── README.md              # このファイル
+│   ├── specs/                        # 仕様書
+│   ├── hooks/                        # Kiro Agent Hooks設定
+│   └── steering/                     # Kiroステアリングルール
+├── CODING_STANDARDS.md               # コーディング規約
+└── README.md                         # このファイル
 ```
 
 ## ドキュメント

@@ -5,13 +5,15 @@ import {
   Menu,
   MessageCircle,
   MessageSquarePlus,
+  Mic,
+  MicOff,
   Package,
   Send,
   Trash2,
   User,
   X,
 } from 'lucide-react';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ConversationResponse,
@@ -33,8 +35,76 @@ interface Message {
 }
 
 const GeminiChatPage: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [conversations, setConversations] = useState<ConversationResponse[]>([]);
+  
+  // 音声入力用ステート
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef<any>(null);
+
+  useEffect(() => {
+    const SpeechRecognition =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+
+    if (SpeechRecognition) {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = false;
+
+      recognition.onstart = () => setIsListening(true);
+      recognition.onend = () => setIsListening(false);
+      recognition.onerror = (event: any) => {
+        console.error('Speech recognition error:', event.error);
+        setIsListening(false);
+      };
+      
+      recognition.onresult = (event: any) => {
+        const transcript = event.results[event.results.length - 1][0].transcript;
+        setInput((prev) => (prev ? `${prev} ${transcript}` : transcript));
+      };
+
+      recognitionRef.current = recognition;
+    }
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (recognitionRef.current) {
+      const langMap: Record<string, string> = {
+        ja: 'ja-JP',
+        ko: 'ko-KR',
+      };
+      recognitionRef.current.lang = langMap[i18n.language] || i18n.language || 'ja-JP';
+    }
+  }, [i18n.language]);
+
+  const toggleListening = () => {
+    if (!recognitionRef.current) {
+      alert(t('chat.speechNotSupported', { defaultValue: 'お使いのブラウザは音声入力に対応していません。' }));
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current.stop();
+    } else {
+      const langMap: Record<string, string> = {
+        ja: 'ja-JP',
+        ko: 'ko-KR',
+      };
+      recognitionRef.current.lang = langMap[i18n.language] || i18n.language || 'ja-JP';
+      
+      try {
+        recognitionRef.current.start();
+      } catch (error) {
+        console.error('Speech recognition start error:', error);
+      }
+    }
+  };
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
   const [currentConversationType, setCurrentConversationType] =
     useState<ConversationType>('general');
@@ -443,9 +513,21 @@ const GeminiChatPage: React.FC = () => {
                 rows={2}
                 disabled={loading}
               />
-              <Button onClick={handleSend} disabled={loading || !input.trim()} className="self-end">
-                <Send size={20} />
-              </Button>
+              <div className="flex gap-2 self-end">
+                <Button
+                  onClick={toggleListening}
+                  variant={isListening ? 'destructive' : 'outline'}
+                  size="icon"
+                  className={isListening ? 'animate-pulse' : ''}
+                  type="button"
+                  title={isListening ? t('chat.stopListening', { defaultValue: '音声入力を停止' }) : t('chat.startListening', { defaultValue: '音声入力を開始' })}
+                >
+                  {isListening ? <MicOff size={20} /> : <Mic size={20} />}
+                </Button>
+                <Button onClick={handleSend} disabled={loading || !input.trim()} size="icon">
+                  <Send size={20} />
+                </Button>
+              </div>
             </div>
           </div>
         </Card>

@@ -301,7 +301,9 @@
     "startChat": "채팅 시작",
     "inventory": "식재료 재고",
     "inventoryDescription": "구매한 식재료의 재고와 유통기한을 관리할 수 있어요",
-    "manageInventory": "재고 관리"
+    "manageInventory": "재고 관리",
+    "loginRequired": "로그인하시면 이용하실 수 있습니다",
+    "goToLogin": "로그인 화면으로"
   },
   "admin": {
     "dashboard": {
