@@ -121,10 +121,64 @@ inclusion: manual
 - エクスポートする PNG は **「フルスクショ + 正方形項番」が合成された一枚絵**であること
 - エクスポート時は「ページ全体（Page）」を対象に出力する（画像だけ/選択範囲だけの出力は禁止）
 
+### 3.7.1 代替手段：AIが自動実行する場合（drawioエディタ操作が困難な場合）
+
+drawioエディタでの対話的操作（画像埋め込み・レイヤー操作・PNGエクスポート）が確実に実行できない場合、以下の代替手段を使用してください。
+
+#### 方式A：drawio XML直接生成（推奨）
+1. フルスクショをBase64エンコードし、drawio XMLの `<mxCell>` に `style="shape=image;image=data:image/png;base64,..."` として直接埋め込む
+2. 項番の正方形も `<mxCell>` として座標・サイズ・スタイルをXMLで定義する
+3. 生成したXMLを `.drawio` ファイルとして保存する
+4. `mcp_drawio_open_drawio_xml` でXMLを開き、PNGエクスポートを試みる
+
+#### 方式B：HTMLオーバーレイ方式（方式Aが失敗した場合のフォールバック）
+1. フルスクショを `<img>` タグで配置し、項番を `position: absolute` の `<div>` で重ねたHTMLファイルを生成する
+2. Playwright MCP でそのHTMLを開き、`browser_take_screenshot` でPNGを取得する
+3. 取得したPNGを `docs/ui-design/assets/layouts/<screen-name>.png` に保存する
+4. `.drawio` ファイルは方式Aの手順で別途生成する（PNGエクスポートは不要、編集用ソースとして保存）
+
+HTMLテンプレート例：
+```html
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body { margin: 0; padding: 0; }
+  .container { position: relative; display: inline-block; }
+  .container img { display: block; }
+  .marker {
+    position: absolute;
+    width: 28px; height: 28px;
+    background: rgba(255, 80, 80, 0.55);
+    color: #fff; font-weight: bold; font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid rgba(200, 0, 0, 0.7);
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <img src="<screen-name>_full.png">
+  <!-- 項番：top/left を各要素の位置に合わせる -->
+  <div class="marker" style="top:10px; left:10px;">1</div>
+  <div class="marker" style="top:60px; left:10px;">2</div>
+</div>
+</body>
+</html>
+```
+
+#### 方式の選択基準
+| 条件                           | 使用する方式              |
+| ------------------------------ | ------------------------- |
+| drawioエディタで対話操作が可能 | 3.3〜3.7の標準手順        |
+| drawio XMLを直接生成できる     | 方式A                     |
+| 上記いずれも失敗した場合       | 方式B（HTMLオーバーレイ） |
+
 ### 3.8 エクスポート／埋め込みの検証（必須：失敗ならやり直し）
-以下の PowerShell コマンドで成果物を検証し、満たさない場合は 3.6〜3.7 をやり直す。
+以下のコマンドで成果物を検証し、満たさない場合は 3.6〜3.7（または 3.7.1 の代替手段）をやり直す。
 
 ```powershell
+# PowerShell（Windows）
 # 1) PNG が存在し、0バイトではないこと
 $png = "docs/ui-design/assets/layouts/<screen-name>.png"
 if (!(Test-Path $png)) { throw "PNG not exported: $png" }
@@ -140,6 +194,23 @@ if (!(Select-String -Path $drawio -Pattern "data:image" -Quiet)) {
   throw "Screenshot is likely NOT embedded in drawio: $drawio"
 }
 "OK: layout png exported and screenshot embedded"
+```
+
+```bash
+# bash（macOS / Linux）
+PNG="docs/ui-design/assets/layouts/<screen-name>.png"
+DRAWIO="docs/ui-design/assets/layouts/<screen-name>.drawio"
+
+# 1) PNG が存在し、0バイトではないこと
+[ ! -f "$PNG" ] && echo "PNG not exported: $PNG" && exit 1
+[ ! -s "$PNG" ] && echo "PNG is empty: $PNG" && exit 1
+
+# 2) drawio が存在すること
+[ ! -f "$DRAWIO" ] && echo "DRAWIO not saved: $DRAWIO" && exit 1
+
+# 3) drawio に画像が埋め込まれている可能性を確認
+grep -q "data:image" "$DRAWIO" || { echo "Screenshot is likely NOT embedded in drawio: $DRAWIO"; exit 1; }
+echo "OK: layout png exported and screenshot embedded"
 ```
 * 上記が通らない場合：
   * `.drawio` を「埋め込み」で作り直し → 保存 → PNGエクスポート → 再検証

@@ -301,7 +301,9 @@
     "startChat": "チャットを開始",
     "inventory": "食材在庫",
     "inventoryDescription": "購入した食材の在庫と賞味期限を管理できます",
-    "manageInventory": "在庫を管理"
+    "manageInventory": "在庫を管理",
+    "loginRequired": "ログインするとご利用いただけます",
+    "goToLogin": "ログイン画面へ"
   },
   "admin": {
     "dashboard": {
